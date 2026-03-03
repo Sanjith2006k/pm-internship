@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% block content %}
+<h2>Student Dashboard</h2>
+
+<form method="POST">
+  Skills (comma separated):<br />
+  <textarea name="skills">{{ profile.skills }}</textarea><br />
+  <button type="submit">Update Skills</button>
+</form>
+
+<h3>Allocation Result:</h3>
+<p>Internship: {{ profile.allocated_internship }}</p>
+<p>Match Score: {{ profile.match_score }}</p>
+
+<a href="/logout">Logout</a>
+{% endblock %}

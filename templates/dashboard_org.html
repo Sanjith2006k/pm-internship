@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %}
+<h2>Organization Dashboard</h2>
+
+<form method="POST">
+  Title: <input type="text" name="title" /><br />
+  Skills Required:<br />
+  <textarea name="skills_required"></textarea><br />
+  Capacity: <input type="number" name="capacity" /><br />
+  <button type="submit">Add Internship</button>
+</form>
+
+<h3>Internships:</h3>
+<ul>
+  {% for internship in internships %}
+  <li>{{ internship.title }} ({{ internship.skills_required }})</li>
+  {% endfor %}
+</ul>
+
+<a href="/logout">Logout</a>
+{% endblock %}

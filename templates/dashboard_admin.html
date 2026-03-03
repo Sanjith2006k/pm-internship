@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block content %}
+<h2>Admin Dashboard</h2>
+
+<a href="/run_allocation">Run Smart Allocation</a>
+
+<h3>Students:</h3>
+<ul>
+  {% for student in students %}
+  <li>
+    {{ student.skills }} → {{ student.allocated_internship }} (Score: {{
+    student.match_score }})
+  </li>
+  {% endfor %}
+</ul>
+
+<a href="/logout">Logout</a>
+{% endblock %}
