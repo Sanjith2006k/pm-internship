@@ -1,11 +1,128 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Smart Allocation Engine</title>
-  </head>
-  <body>
-    <h1>PM Internship scheme</h1>
-    <hr />
-    {% block content %}{% endblock %}
-  </body>
+<head>
+    <title>InternAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="logo">InternAI</div>
+    <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Features</a></li>
+        <li><a href="login.html" class="register-btn">Register</a></li>
+    </ul>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-left">
+        <h1>AI Smart Internship Allocation System</h1>
+        <p>A data-driven platform that connects students and companies through intelligent skill-based internship matching.</p>
+        <h2>
+  Unlock Your <span class="changing-text"></span>
+</h2>
+<button class="explore-btn">Explore Features</button>
+    </div>
+    
+    <div class="hero-right">
+        <!-- Optional image or illustration -->
+        <img src="internship_hero.png" alt="AI Internship Illustration" class="hero-img">
+    </div>
+</section>
+
+<!-- Feature Boxes -->
+<section class="features">
+    <h2>Our Core Features</h2>
+
+    <div class="feature-box-container">
+
+        <div class="feature-box">
+            <h3>Skill Based Matching</h3>
+            <p>AI analyzes student skills and matches them with suitable internships.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>Role Based Dashboards</h3>
+            <p>Separate dashboards for Students, Companies, and Admin.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>Automated Allocation</h3>
+            <p>System automatically allocates internships based on eligibility scores.</p>
+        </div>
+
+        <div class="feature-box">
+            <h3>Transparent Process</h3>
+            <p>Clear and fair internship assignment mechanism with analytics.</p>
+        </div>
+
+    </div>
+</section>
+<!-- Stats Section -->
+<section class="stats">
+    <div class="stat-box">
+        <h2>500+</h2>
+        <p>Students Registered</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>120+</h2>
+        <p>Companies Partnered</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>95%</h2>
+        <p>Successful Allocations</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>AI Powered</h2>
+        <p>Smart Matching Engine</p>
+    </div>
+</section>
+<!-- How It Works -->
+<section class="how-it-works">
+    <h2>How It Works</h2>
+
+    <div class="steps">
+
+        <div class="step">
+            <h3>1. Student Registration</h3>
+            <p>Students upload skills, interests and academic details.</p>
+        </div>
+
+        <div class="step">
+            <h3>2. Company Requirements</h3>
+            <p>Companies post internship roles and required skills.</p>
+        </div>
+
+        <div class="step">
+            <h3>3. AI Matching</h3>
+            <p>Our algorithm analyzes data and generates best-fit matches.</p>
+        </div>
+
+        <div class="step">
+            <h3>4. Smart Allocation</h3>
+            <p>System assigns internships automatically and transparently.</p>
+        </div>
+
+    </div>
+</section>
+<!-- CTA Section -->
+<section class="cta">
+    <h2>Ready to Experience AI-Powered Internship Matching?</h2>
+    <p>Join our platform and revolutionize internship allocation today.</p>
+    <button class="explore-btn">Get Started</button>
+</section>
+
+<footer class="footer">
+    <p>© 2026 InternAI — Built for smarter internship matching.</p>
+</footer>
+{% block content %}{% endblock %}
+</body>
 </html>
