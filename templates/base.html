@@ -1,4 +1,6 @@
-<!doctype html>
+
+
+ <!doctype html>
 <html>
   <head>
     <title>InternAI</title>
@@ -12,7 +14,7 @@
     <nav class="navbar">
       <div class="logo">InternAI</div>
       <ul class="nav-links">
-        <li><a href="#">Home</a></li>
+        <li><a href="{{ url_for('home') }}">Home</a></li>
         <li><a href="#">About</a></li>
         <li><a href="#">Features</a></li>
         <li>
@@ -26,6 +28,7 @@
     <section class="hero">
       <div class="hero-left">
         <h1>AI Smart Internship Allocation System</h1>
+        <h2>Powered by AI-based skill matching and intelligent internship allocation.</h2>
         <p>
           A data-driven platform that connects students and companies through
           intelligent skill-based internship matching.
@@ -131,11 +134,10 @@
       <button class="explore-btn">Get Started</button>
     </section>
 
-    {% endblock %}
-
     <footer class="footer">
       <p>© 2026 InternAI — Built for smarter internship matching.</p>
     </footer>
     <body></body>
   </body>
 </html>
+{% endblock %}

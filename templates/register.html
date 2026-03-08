@@ -1,14 +1,100 @@
-{% extends "base.html" %} {% block content %}
-<form method="POST">
-  Name: <input type="text" name="name" /><br />
-  Email: <input type="email" name="email" /><br />
-  Password: <input type="password" name="password" /><br />
-  Role:
-  <select name="role">
-    <option value="student">Student</option>
-    <option value="organization">Organization</option>
-    <option value="admin">Admin</option></select
-  ><br />
-  <button type="submit">Register</button>
+{% extends "base.html" %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register - Internship Portal</title>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='register.css') }}">
+
+</head>
+
+<body>
+
+<div class="register-container">
+
+<!-- LEFT INFO SECTION -->
+
+<div class="register-left">
+
+<h1>Create Your Account</h1>
+
+<p>
+Join our AI-powered internship platform that connects talented students
+with innovative organizations. Build real-world experience, collaborate
+on projects, and unlock new career opportunities.
+</p>
+
+<div class="features-box">
+
+<div class="student-section">
+<h3>🎓 For Students</h3>
+<ul>
+<li>Find internships based on your skills</li>
+<li>Work on real industry projects</li>
+<li>Track learning and build your portfolio</li>
+<li>Connect with verified companies</li>
+</ul>
+</div>
+
+<div class="org-section">
+<h3>🏢 For Organizations</h3>
+<ul>
+<li>Discover talented students</li>
+<li>Post internship opportunities</li>
+<li>Review skill assessments</li>
+<li>Build future-ready teams</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+
+<!-- RIGHT REGISTER FORM -->
+
+<div class="register-right">
+
+<div class="register-card">
+
+<h2>Register</h2>
+
+<form>
+
+<input type="text" placeholder="Full Name" required>
+
+<input type="email" placeholder="Email Address" required>
+
+<input type="password" placeholder="Create Password" required>
+
+<select>
+<option>Select Role</option>
+<option>Student</option>
+<option>Organization</option>
+</select>
+
+<button type="submit" class="register-btn">
+Create Account
+</button>
+
 </form>
+
+<p class="login-link">
+Already have an account?
+<a href="{{ url_for('login') }}">Login</a>
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
 {% endblock %}

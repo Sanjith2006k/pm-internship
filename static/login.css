@@ -1,0 +1,170 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0f172a;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* LEFT PANEL */
+.left-panel {
+    width: 60%;
+    padding: 60px;
+    color: white;
+    background-color: #0f172a;
+    position: relative;
+    overflow: hidden;
+}
+
+/* GRID BACKGROUND LINES */
+.left-panel {
+    width: 60%;
+    padding: 60px;
+    color: white;
+    background-color: #0f172a;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ZEN GRID BACKGROUND */
+.left-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px);
+    background-size: 100px 100px; /* Larger spacing = calmer look */
+    z-index: 0;
+}
+
+/* Very subtle rotating outline */
+.left-panel::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border: 1px solid rgba(59,130,246,0.08);
+    top: 25%;
+    left: 15%;
+    animation: rotateBox 40s linear infinite;
+    z-index: 0;
+}
+
+@keyframes rotateBox {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Keep content above background */
+.left-panel * {
+    position: relative;
+    z-index: 1;
+}
+.main-title {
+    font-size: 42px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.sub-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.description {
+    text-align: center;
+    max-width: 600px;
+    margin: auto;
+    line-height: 1.6;
+}
+
+.journey {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+/* Moving Companies */
+.company-wrapper {
+    overflow: hidden;
+}
+
+.company-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 25s linear infinite;
+}
+
+@keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+.company-box {
+    min-width: 320px;
+    margin: 0 20px;
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(15px);
+    background: rgba(59,130,246,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+}
+
+.company-box h4 {
+    margin-bottom: 10px;
+}
+
+.company-box p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+    width: 40%;
+    background-color: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 350px;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.register-text {
+    margin-top: 15px;
+}

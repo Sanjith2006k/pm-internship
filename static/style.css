@@ -8,13 +8,13 @@
 
 /* BODY */
 body {
-    background: #f4f6fb;
-    color: hsl(190, 75%, 28%);   /* Changed text color to teal */
+    background: #f8fafc;
+    color: #0b1f3a;
 }
 
 /* NAVBAR */
 .navbar {
-    background: hsl(190, 75%, 32%);
+    background: #0b1f3a;
     padding: 18px 60px;
     display: flex;
     justify-content: space-between;
@@ -24,7 +24,7 @@ body {
 .logo {
     font-size: 24px;
     font-weight: bold;
-    color: white;
+    color: #3b82f6;
 }
 
 .nav-links {
@@ -41,12 +41,12 @@ body {
 }
 
 .nav-links a:hover {
-    opacity: 0.8;
+    color: #3b82f6;
 }
 
 .register-btn {
-    background: white;
-    color: hsl(190, 75%, 28%) !important;  /* Changed to teal */
+    background: #3b82f6;
+    color: white !important;
     padding: 8px 18px;
     border-radius: 6px;
 }
@@ -57,8 +57,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 90px 100px;
-    background: #c7e9f2;
-    color: black;
+    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
+    color: white;
 }
 
 .hero-left {
@@ -68,12 +68,11 @@ body {
 .hero-left h1 {
     font-size: 42px;
     margin-bottom: 20px;
-    color: black;
 }
 
 /* Animated Text */
 .changing-text {
-    color: hsl(190, 75%, 28%);
+    color: #06b6d4;
     font-weight: bold;
     position: relative;
 }
@@ -90,7 +89,6 @@ body {
     60% { content: "Career"; }
     80% { content: "Growth"; }
     100% { content: "Internships"; }
-
 }
 
 .hero-left p {
@@ -99,9 +97,10 @@ body {
     line-height: 1.6;
 }
 
+/* BUTTON */
 .explore-btn {
-    background: white;
-    color: hsl(190, 75%, 28%);
+    background: #3b82f6;
+    color: white;
     padding: 14px 30px;
     border: none;
     border-radius: 6px;
@@ -111,7 +110,7 @@ body {
 }
 
 .explore-btn:hover {
-    opacity: 0.9;
+    background: #2563eb;
 }
 
 /* FEATURES SECTION */
@@ -124,7 +123,7 @@ body {
     text-align: center;
     font-size: 32px;
     margin-bottom: 50px;
-    color: hsl(190, 75%, 28%);  /* Changed */
+    color: #1e3a8a;
 }
 
 .feature-box-container {
@@ -134,10 +133,10 @@ body {
 }
 
 .feature-box {
-    background: #f2fafc;
+    background: #f8fafc;
     padding: 30px;
     border-radius: 10px;
-    border-left: 5px solid hsl(190, 75%, 28%);
+    border-left: 5px solid #3b82f6;
     transition: 0.3s;
 }
 
@@ -148,17 +147,17 @@ body {
 
 .feature-box h3 {
     margin-bottom: 12px;
-    color: hsl(190, 75%, 28%);  /* Changed */
+    color: #1e3a8a;
 }
 
 .feature-box p {
     font-size: 15px;
-    color: hsl(190, 40%, 35%);
+    color: #475569;
 }
 
 /* STATS SECTION */
 .stats {
-    background: #c7e9f2;
+    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
     padding: 60px 80px;
     display: flex;
     justify-content: space-around;
@@ -166,12 +165,13 @@ body {
 }
 
 .stat-box h2 {
-    color: hsl(190, 75%, 28%);  /* Changed */
+    color: #3b82f6;
     font-size: 32px;
 }
 
 .stat-box p {
     margin-top: 8px;
+    color:#ffffff;
 }
 
 /* HOW IT WORKS */
@@ -184,7 +184,7 @@ body {
     text-align: center;
     margin-bottom: 50px;
     font-size: 30px;
-    color: hsl(190, 75%, 32%);  /* Changed */
+    color: #1e3a8a;
 }
 
 .steps {
@@ -194,23 +194,22 @@ body {
 }
 
 .step {
-    background: #f2fafc;
+    background: #f8fafc;
     padding: 25px;
     border-radius: 8px;
-    border-left: 5px solid hsl(190, 75%, 28%);
+    border-left: 5px solid #3b82f6;
 }
 
 /* CTA SECTION */
 .cta {
-    background: #c7e9f2;
-    color: black;
+    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
+    color: white;
     text-align: center;
     padding: 70px 20px;
 }
 
 .cta h2 {
     margin-bottom: 20px;
-    color: hsl(190, 75%, 32%);
 }
 
 .cta p {
@@ -219,7 +218,7 @@ body {
 
 /* FOOTER */
 .footer {
-    background: hsl(190, 75%, 32%);
+    background: #0b1f3a;
     color: white;
     text-align: center;
     padding: 20px;
