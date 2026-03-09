@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from ai.matcher import match_student
+from functools import wraps
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
@@ -11,6 +12,19 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Role-based access control decorator
+def role_required(role):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+            if current_user.role != role:
+                return redirect(url_for('home'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 # ---------------- DATABASE MODELS ---------------- #
 
@@ -64,7 +78,8 @@ def register():
             db.session.add(profile)
             db.session.commit()
 
-        return redirect(url_for('login'))
+        # Redirect to login with success message
+        return redirect(url_for('login', registered='success'))
 
     return render_template('register.html')
 
@@ -92,6 +107,7 @@ def logout():
 
 @app.route('/student', methods=['GET','POST'])
 @login_required
+@role_required('student')
 def student_dashboard():
     profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
 
@@ -105,6 +121,7 @@ def student_dashboard():
 
 @app.route('/organization', methods=['GET','POST'])
 @login_required
+@role_required('organization')
 def org_dashboard():
     if request.method == 'POST':
         internship = Internship(
@@ -122,6 +139,7 @@ def org_dashboard():
 
 @app.route('/admin')
 @login_required
+@role_required('admin')
 def admin_dashboard():
     students = StudentProfile.query.all()
     internships = Internship.query.all()
@@ -129,6 +147,7 @@ def admin_dashboard():
 
 @app.route('/run_allocation')
 @login_required
+@role_required('admin')
 def run_allocation():
     students = StudentProfile.query.all()
     internships = Internship.query.all()

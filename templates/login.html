@@ -126,16 +126,29 @@
     <!-- RIGHT SIDE LOGIN -->
     <div class="right-panel">
 
+        {% if request.args.get('registered') == 'success' %}
+        <div class="success-popup" id="successPopup">
+            <div class="success-content">
+                <div class="success-icon">✓</div>
+                <h3>Account Registered!</h3>
+                <p>Your account has been successfully created.</p>
+                <p>Please log in with your credentials to continue.</p>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="login-card">
             <h2>Login</h2>
 
-            <input type="email" placeholder="Enter Email">
-            <input type="password" placeholder="Enter Password">
+            <form method="POST" action="{{ url_for('login') }}">
+                <input type="email" name="email" placeholder="Enter Email" required>
+                <input type="password" name="password" placeholder="Enter Password" required>
 
-            <button class="login-btn">Sign In</button>
+                <button type="submit" class="login-btn">Sign In</button>
 
-            <p class="register-text">
-                Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+                <p class="register-text">
+                    Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+            </form>
         </div>
 
     </div>
