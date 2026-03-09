@@ -1,17 +1,186 @@
 {% extends "base.html" %} {% block content %}
-<h2>Admin Dashboard</h2>
 
-<a href="/run_allocation">Run Smart Allocation</a>
+<!-- Page Title -->
+<div class="container">
+  <h1 class="page-title">Admin Dashboard</h1>
+  <p class="page-subtitle">Review and approve internship postings</p>
 
-<h3>Students:</h3>
-<ul>
-  {% for student in students %}
-  <li>
-    {{ student.skills }} → {{ student.allocated_internship }} (Score: {{
-    student.match_score }})
-  </li>
-  {% endfor %}
-</ul>
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Pending Review</div>
+      <div class="stat-value">{{ stats.total_pending }}</div>
+      <div class="stat-change">Awaiting approval</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Approved</div>
+      <div class="stat-value">{{ stats.total_approved }}</div>
+      <div class="stat-change">Published to students</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Rejected</div>
+      <div class="stat-value">{{ stats.total_rejected }}</div>
+    </div>
+  </div>
 
-<a href="/logout">Logout</a>
+  <!-- Pending Internships Section -->
+  <div style="margin-top: 40px">
+    <div class="section-header">
+      <h2>📋 Pending Internship Approvals</h2>
+    </div>
+
+    {% if pending_internships %}
+    <div>
+      {% for item in pending_internships %}
+      <div class="internship-item">
+        <!-- Header -->
+        <div class="internship-item-header">
+          <div>
+            <h3 class="internship-item-title">{{ item.internship.title }}</h3>
+            <p class="internship-item-meta">
+              <strong>Company:</strong> {{ item.org.company_name if item.org
+              else 'Unknown' }}
+            </p>
+            <p class="internship-item-meta">
+              <strong>Status:</strong>
+              <span class="badge badge-pending"
+                >{{ item.internship.status }}</span
+              >
+            </p>
+          </div>
+          <div>
+            <p style="color: #999; font-size: 12px; margin: 0">Posted on</p>
+            <p style="color: #001a40; font-weight: 600; margin: 5px 0 0 0">
+              {{ item.internship.created_at.strftime('%d %b %Y') if
+              item.internship.created_at else 'N/A' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="internship-item-details">
+          {% if item.internship.location %}
+          <div class="internship-item-detail">
+            <strong>Location</strong>
+            <p>{{ item.internship.location }}</p>
+          </div>
+          {% endif %} {% if item.internship.duration %}
+          <div class="internship-item-detail">
+            <strong>Duration</strong>
+            <p>{{ item.internship.duration }}</p>
+          </div>
+          {% endif %}
+          <div class="internship-item-detail">
+            <strong>Positions</strong>
+            <p>{{ item.internship.capacity }}</p>
+          </div>
+          {% if item.internship.stipend %}
+          <div class="internship-item-detail">
+            <strong>Stipend</strong>
+            <p>₹{{ item.internship.stipend }}/month</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Required Skills -->
+        <div style="margin-bottom: 20px">
+          <strong style="color: #666; font-size: 12px">Required Skills:</strong>
+          <div class="skills-container">
+            {% for skill in item.internship.skills_required.split(',') %}
+            <span class="skill">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Approval Form -->
+        <div class="approval-form">
+          <div class="form-group">
+            <label for="notes_{{ item.internship.id }}"
+              >Admin Notes (Optional)</label
+            >
+            <textarea
+              id="notes_{{ item.internship.id }}"
+              placeholder="Add approval or rejection notes..."
+            ></textarea>
+          </div>
+          <div class="approval-buttons">
+            <div></div>
+            <div style="display: flex; gap: 10px; flex-direction: column">
+              <button
+                class="btn btn-success"
+                onclick="approveInternship({{ item.internship.id }})"
+              >
+                ✓ Approve
+              </button>
+              <button
+                class="btn btn-danger"
+                onclick="rejectInternship({{ item.internship.id }})"
+              >
+                ✗ Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>✓ No pending internships</p>
+      <p class="empty-state-note">All internship postings have been reviewed</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function approveInternship(internshipId) {
+    const notes = document.getElementById("notes_" + internshipId).value;
+
+    fetch("/admin/internship/" + internshipId + "/approve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "notes=" + encodeURIComponent(notes),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          alert("Internship approved! Students can now see this posting.");
+          location.reload();
+        }
+      })
+      .catch((error) => {
+        alert("Error approving internship: " + error);
+      });
+  }
+
+  function rejectInternship(internshipId) {
+    const notes = document.getElementById("notes_" + internshipId).value;
+
+    if (!notes.trim()) {
+      alert("Please provide rejection reason in notes");
+      return;
+    }
+
+    fetch("/admin/internship/" + internshipId + "/reject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "notes=" + encodeURIComponent(notes),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          alert("Internship rejected. Organization notified.");
+          location.reload();
+        }
+      })
+      .catch((error) => {
+        alert("Error rejecting internship: " + error);
+      });
+  }
+</script>
 {% endblock %}

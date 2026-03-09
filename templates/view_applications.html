@@ -1,0 +1,128 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Page Title & Back Button -->
+<div style="margin-bottom: 30px">
+        <a
+          href="/organization"
+          style="color: #1e7ce8; text-decoration: none; font-weight: 600"
+          >← Back to Dashboard</a
+        >
+        <h1 class="page-title">Applications for {{ internship.title }}</h1>
+        <p class="page-subtitle">
+          {{ internship.location }} • {{ internship.duration }} • {{
+          internship.capacity }} positions
+        </p>
+      </div>
+
+      <!-- Applications Table -->
+      {% if app_data %}
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Skills</th>
+              <th>Match Score</th>
+              <th>Status</th>
+              <th>Applied Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for data in app_data %}
+            <tr>
+              <td>
+                <strong>{{ data.student.name }}</strong><br />
+                <span style="font-size: 12px; color: #666"
+                  >{{ data.student.email }}</span
+                >
+              </td>
+              <td>
+                <div class="skills-container">
+                  {% if data.profile and data.profile.skills %} {% for skill in
+                  data.profile.skills.split(',')[:3] %}
+                  <span class="skill">{{ skill.strip() }}</span>
+                  {% endfor %} {% endif %}
+                </div>
+              </td>
+              <td>
+                <strong style="color: #1e7ce8; font-size: 16px"
+                  >{{ data.application.match_score }}%</strong
+                >
+              </td>
+              <td>
+                <span class="badge badge-{{ data.application.status }}"
+                  >{{ data.application.status }}</span
+                >
+              </td>
+              <td>
+                {{ data.application.applied_at.strftime('%d %b %Y') if
+                data.application.applied_at else 'N/A' }}
+              </td>
+              <td>
+                <div style="display: flex; gap: 8px; flex-direction: column">
+                  <a
+                    href="/org/candidate/{{ data.student.id }}"
+                    class="btn btn-secondary"
+                    style="
+                      padding: 6px 12px;
+                      font-size: 12px;
+                      text-align: center;
+                    "
+                    >View Profile</a
+                  >
+                  <div style="display: flex; gap: 5px">
+                    <button
+                      class="btn btn-success"
+                      style="padding: 6px 10px; font-size: 11px; flex: 1"
+                      onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, 'shortlisted')"
+                    >
+                      ✓ Shortlist
+                    </button>
+                    <button
+                      class="btn btn-danger"
+                      style="padding: 6px 10px; font-size: 11px; flex: 1"
+                      onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, 'rejected')"
+                    >
+                      ✗ Reject
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div
+        style="
+          text-align: center;
+          padding: 60px;
+          background: #f9fafb;
+          border-radius: 8px;
+        "
+      >
+        <p style="color: #666; font-size: 16px">No applications received yet</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      function updateStatus(internshipId, studentId, status) {
+        fetch(`/org/shortlist/${internshipId}/${studentId}/${status}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              alert(`Candidate ${status}!`);
+              location.reload();
+            }
+          });
+      }
+    </script>
+{% endblock %}

@@ -1,6 +1,4 @@
-
-
- <!doctype html>
+<!doctype html>
 <html>
   <head>
     <title>InternAI</title>
@@ -8,9 +6,19 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin.css') }}"
+    />
+    {% elif current_user.is_authenticated and current_user.role ==
+    'organization' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='org.css') }}" />
+    {% endif %}
   </head>
   <body>
-    <!-- Navbar -->
+    <!-- Navbar - Show for unauthenticated users -->
+    {% if not current_user.is_authenticated %}
     <nav class="navbar">
       <div class="logo">InternAI</div>
       <ul class="nav-links">
@@ -22,13 +30,100 @@
         </li>
       </ul>
     </nav>
-
-    {% block content %}
+    {% elif current_user.is_authenticated %}
+    <!-- Navbar - Show for authenticated users based on role -->
+    <nav
+      class="navbar"
+      style="
+        background-color: #001a40;
+        padding: 0 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      "
+    >
+      <div style="font-size: 28px; font-weight: bold; color: #1e7ce8">
+        📋 InternAI
+      </div>
+      <div style="display: flex; gap: 30px; align-items: center">
+        {% if current_user.role == 'organization' %}
+        <a
+          href="/organization"
+          style="
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          "
+          >Dashboard</a
+        >
+        {% elif current_user.role == 'admin' %}
+        <a
+          href="/admin"
+          style="
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          "
+          >Internship Approvals</a
+        >
+        <a
+          href="/admin/organizations"
+          style="
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          "
+          >Verify Organizations</a
+        >
+        {% elif current_user.role == 'student' %}
+        <a
+          href="/student"
+          style="
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          "
+          >Dashboard</a
+        >
+        {% endif %}
+        <a
+          href="/logout"
+          style="
+            background-color: #ef4444;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+          "
+          >Logout</a
+        >
+      </div>
+    </nav>
+    {% endif %} {% block content %}
     <!-- Hero Section -->
     <section class="hero">
       <div class="hero-left">
         <h1>AI Smart Internship Allocation System</h1>
-        <h2>Powered by AI-based skill matching and intelligent internship allocation.</h2>
+        <h2>
+          Powered by AI-based skill matching and intelligent internship
+          allocation.
+        </h2>
         <p>
           A data-driven platform that connects students and companies through
           intelligent skill-based internship matching.

@@ -1,0 +1,141 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Page Title & Back Button -->
+<div style="margin-bottom: 30px">
+  <a
+    href="/organization"
+    style="color: #1e7ce8; text-decoration: none; font-weight: 600"
+    >← Back to Dashboard</a
+  >
+  <h1 class="page-title">🤖 AI Matched Candidates</h1>
+  <p class="page-subtitle">
+    {{ internship.title }} • {{ internship.location }}
+  </p>
+</div>
+
+      <!-- Matched Candidates List -->
+      {% if candidates %}
+      <div>
+        {% for candidate in candidates %}
+        <div class="candidate-card">
+          <div class="candidate-info" style="flex: 1">
+            <h3>{{ candidate.student.name }}</h3>
+            <p style="color: #666; font-size: 13px; margin-bottom: 10px">
+              {{ candidate.student.email }}
+            </p>
+
+            <div style="margin: 15px 0">
+              <strong style="color: #666; font-size: 12px"
+                >Matched Skills:</strong
+              >
+              <div class="skills-container">
+                {% for skill in candidate.matched_skills.matched %}
+                <span class="skill matched">✓ {{ skill }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            {% if candidate.matched_skills.missing %}
+            <div style="margin: 15px 0">
+              <strong style="color: #666; font-size: 12px"
+                >Missing Skills:</strong
+              >
+              <div class="skills-container">
+                {% for skill in candidate.matched_skills.missing %}
+                <span class="skill missing">✗ {{ skill }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %} {% if candidate.profile and
+            candidate.profile.is_verified %}
+            <div
+              style="
+                margin-top: 15px;
+                padding: 10px;
+                background: #dcfce7;
+                border-radius: 6px;
+                color: #166534;
+                font-size: 13px;
+              "
+            >
+              ✔ DigiLocker Verified Profile
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="candidate-match">
+            <div class="match-score">{{ candidate.match_score }}%</div>
+            <div class="match-label">Match Score</div>
+            <div
+              style="
+                margin-top: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+              "
+            >
+              <a
+                href="/org/candidate/{{ candidate.student.id }}"
+                class="btn btn-secondary"
+                style="text-align: center; width: 100%"
+                >View Profile</a
+              >
+              <button
+                class="btn btn-primary"
+                onclick="updateStatus({{ internship.id }}, {{ candidate.student.id }}, 'shortlisted')"
+                style="width: 100%; margin: 0"
+              >
+                Shortlist
+              </button>
+              <button
+                class="btn btn-danger"
+                onclick="updateStatus({{ internship.id }}, {{ candidate.student.id }}, 'rejected')"
+                style="width: 100%; margin: 0"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div
+        style="
+          text-align: center;
+          padding: 60px;
+          background: #f9fafb;
+          border-radius: 8px;
+        "
+      >
+        <p style="color: #666; font-size: 16px">
+          No matching candidates found at this time
+        </p>
+        <p style="color: #999; font-size: 14px; margin-top: 10px">
+          Candidates will appear here as student profiles become available
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    <script>
+      function updateStatus(internshipId, studentId, status) {
+        fetch(`/org/shortlist/${internshipId}/${studentId}/${status}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              alert(
+                `Candidate ${status === "shortlisted" ? "shortlisted" : "rejected"}!`,
+              );
+              location.reload();
+            }
+          });
+      }
+    </script>
+{% endblock %}

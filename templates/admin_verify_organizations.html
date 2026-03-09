@@ -1,0 +1,590 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Page Title -->
+<div class="container">
+  <h1 class="page-title">Organization Verification</h1>
+  <p class="page-subtitle">Review and verify organization registrations</p>
+
+  <!-- Verification Guidelines -->
+  <div
+    style="
+      background: #ecfdf5;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    "
+  >
+    <h2 style="color: #001a40; margin: 0 0 15px 0; font-size: 18px">
+      ✅ Verification Checklist
+    </h2>
+    <p style="color: #666; font-size: 13px; margin: 0 0 15px 0">
+      Before approving an organization, verify all three requirements below:
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px">
+      <div
+        style="
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 4px solid #10b981;
+        "
+      >
+        <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+          🔢 GST Verification
+        </h3>
+        <ul
+          style="
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.6;
+          "
+        >
+          <li>Check GST number format (valid format)</li>
+          <li>
+            Visit
+            <a
+              href="https://www.gstn.gst.gov.in/"
+              target="_blank"
+              style="color: #0891b2"
+              >GSTN.gov.in</a
+            >
+          </li>
+          <li>Search GST number in database</li>
+          <li>Verify company name matches</li>
+        </ul>
+      </div>
+
+      <div
+        style="
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 4px solid #10b981;
+        "
+      >
+        <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+          🔗 LinkedIn Check
+        </h3>
+        <ul
+          style="
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.6;
+          "
+        >
+          <li>Visit company LinkedIn profile</li>
+          <li>Verify company exists & active</li>
+          <li>Check employee count (legitimate)</li>
+          <li>Confirm company website link</li>
+        </ul>
+      </div>
+
+      <div
+        style="
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 4px solid #10b981;
+        "
+      >
+        <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+          📧 Domain Email
+        </h3>
+        <ul
+          style="
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.6;
+          "
+        >
+          <li>✓ Must be company domain (e.g., @company.com)</li>
+          <li>✗ Reject if Gmail/Yahoo</li>
+          <li>✓ Matches company domain</li>
+          <li>Email format is valid</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verification List -->
+  <div style="margin-top: 40px">
+    <div class="section-header">
+      <h2>📋 Pending Organization Verifications</h2>
+      <span
+        style="
+          background: #fbbf24;
+          color: #92400e;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 12px;
+        "
+      >
+        {{ organizations|length }} Pending
+      </span>
+    </div>
+
+    {% if organizations %}
+    <div>
+      {% for org in organizations %}
+      <div class="internship-item">
+        <!-- Header - Enhanced -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+          "
+        >
+          <div>
+            <h3
+              style="
+                color: #001a40;
+                margin: 0 0 10px 0;
+                font-size: 22px;
+                font-weight: 700;
+              "
+            >
+              {{ org.company_name }}
+            </h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap">
+              <div>
+                <p style="color: #666; font-size: 12px; margin: 0 0 5px 0">
+                  <strong>Industry:</strong>
+                </p>
+                <p style="color: #001a40; font-weight: 600; margin: 0">
+                  {{ org.industry if org.industry else 'Not specified' }}
+                </p>
+              </div>
+              <div>
+                <p style="color: #666; font-size: 12px; margin: 0 0 5px 0">
+                  <strong>Location:</strong>
+                </p>
+                <p style="color: #001a40; font-weight: 600; margin: 0">
+                  {{ org.location if org.location else 'Not specified' }}
+                </p>
+              </div>
+              <div>
+                <p style="color: #666; font-size: 12px; margin: 0 0 5px 0">
+                  <strong>Org ID:</strong>
+                </p>
+                <p style="color: #001a40; font-weight: 600; margin: 0">
+                  #{{ org.id }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div style="text-align: right">
+            <span
+              style="
+                background: #fbbf24;
+                color: #92400e;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 12px;
+                display: inline-block;
+              "
+            >
+              ⏳ PENDING
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick Verification Checklist -->
+        <div
+          style="
+            background: #f0fdf4;
+            border: 2px dashed #22c55e;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+          "
+        >
+          <h4 style="color: #001a40; margin: 0 0 12px 0; font-size: 14px">
+            ✓ Before Approving - Verify:
+          </h4>
+          <div
+            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px"
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" style="cursor: pointer" />
+              <span style="color: #666; font-size: 13px"
+                >GST valid on GSTN.gov.in</span
+              >
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" style="cursor: pointer" />
+              <span style="color: #666; font-size: 13px"
+                >LinkedIn company exists</span
+              >
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" style="cursor: pointer" />
+              <span style="color: #666; font-size: 13px"
+                >Domain email (not Gmail)</span
+              >
+            </label>
+          </div>
+        </div>
+
+        <!-- Verification Details Section -->
+        <div
+          style="
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+          "
+        >
+          <h3 style="color: #001a40; margin: 0 0 15px 0; font-size: 18px">
+            🔍 Verification Details
+          </h3>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+            <!-- GST Number -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                >🔢 GST Number</strong
+              >
+              <p
+                style="
+                  color: #001a40;
+                  margin: 0;
+                  font-family: monospace;
+                  font-weight: 600;
+                "
+              >
+                {% if org.gst_number %} {{ org.gst_number }}
+                <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
+                  >✓ Provided</span
+                >
+                {% else %}
+                <span style="color: #ef4444">✗ Not provided</span>
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- Domain Email -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                >📧 Domain Email</strong
+              >
+              <p style="color: #001a40; margin: 0; font-family: monospace">
+                {% if org.domain_email %} {{ org.domain_email }} {% if '@gmail'
+                in org.domain_email or '@yahoo' in org.domain_email %}
+                <span style="color: #ef4444; font-size: 12px; margin-left: 5px"
+                  >⚠️ Personal email (not domain)</span
+                >
+                {% else %}
+                <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
+                  >✓ Domain email</span
+                >
+                {% endif %} {% else %}
+                <span style="color: #ef4444">✗ Not provided</span>
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- LinkedIn Profile -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                >🔗 LinkedIn Profile</strong
+              >
+              <p style="color: #001a40; margin: 0">
+                {% if org.linkedin_profile %}
+                <a
+                  href="{{ org.linkedin_profile }}"
+                  target="_blank"
+                  style="color: #1e7ce8; text-decoration: none"
+                >
+                  View Profile →
+                </a>
+                <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
+                  >✓ Provided</span
+                >
+                {% else %}
+                <span style="color: #ef4444">✗ Not provided</span>
+                {% endif %}
+              </p>
+            </div>
+
+            <!-- Verification Status -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                >📋 Status</strong
+              >
+              <p style="color: #001a40; margin: 0; font-weight: 600">
+                {% if org.verification_status == 'pending' %}
+                <span
+                  style="
+                    background: #fbbf24;
+                    color: #92400e;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                  "
+                  >PENDING REVIEW</span
+                >
+                {% elif org.verification_status == 'approved' %}
+                <span
+                  style="
+                    background: #22c55e;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                  "
+                  >✓ APPROVED</span
+                >
+                {% else %}
+                <span
+                  style="
+                    background: #ef4444;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                  "
+                  >✗ REJECTED</span
+                >
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Company Description -->
+        {% if org.description %}
+        <div
+          style="
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+          "
+        >
+          <strong
+            style="
+              color: #666;
+              font-size: 12px;
+              display: block;
+              margin-bottom: 8px;
+            "
+            >📝 Company Description</strong
+          >
+          <p style="color: #001a40; margin: 0; line-height: 1.6">
+            {{ org.description }}
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- Previous Verification Notes -->
+        {% if org.verification_notes %}
+        <div
+          style="
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #fbbf24;
+          "
+        >
+          <strong style="color: #666; font-size: 12px"
+            >📌 Previous Admin Notes:</strong
+          >
+          <p style="color: #001a40; margin: 5px 0 0 0">
+            {{ org.verification_notes }}
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- Verification Form -->
+        <div
+          class="approval-form"
+          style="
+            border-top: 2px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 20px;
+          "
+        >
+          <div class="form-group">
+            <label
+              for="notes_{{ org.id }}"
+              style="font-weight: 600; color: #001a40"
+              >Verification Decision & Notes</label
+            >
+            <p style="color: #666; font-size: 13px; margin: 5px 0 15px 0">
+              ℹ️ Check the organization details above (GST, Domain Email,
+              LinkedIn) before approving.
+            </p>
+            <textarea
+              id="notes_{{ org.id }}"
+              placeholder="e.g., 'GST verified in GSTN.gov.in', 'LinkedIn company profile confirmed', 'Domain email verified' OR rejection reason..."
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-family: inherit;
+                min-height: 100px;
+                font-size: 14px;
+              "
+              required
+            ></textarea>
+          </div>
+          <div
+            class="approval-buttons"
+            style="
+              display: grid;
+              grid-template-columns: 1fr auto;
+              gap: 15px;
+              align-items: start;
+              margin-top: 20px;
+            "
+          >
+            <div></div>
+            <div style="display: flex; gap: 10px; flex-direction: column">
+              <button
+                class="btn btn-success"
+                onclick="verifyOrganization({{ org.id }}, 'approve')"
+                type="button"
+                style="padding: 12px 24px; font-weight: 600"
+              >
+                ✓ Approve Organization
+              </button>
+              <button
+                class="btn btn-danger"
+                onclick="verifyOrganization({{ org.id }}, 'reject')"
+                type="button"
+                style="padding: 12px 24px; font-weight: 600"
+              >
+                ✗ Reject Organization
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>✓ No pending verifications</p>
+      <p class="empty-state-note">All organizations have been verified</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function verifyOrganization(orgId, action) {
+    const notes = document.getElementById("notes_" + orgId).value;
+
+    if (!notes.trim()) {
+      alert("Please provide notes for this decision");
+      return;
+    }
+
+    fetch("/admin/organization/" + orgId + "/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "action=" + action + "&notes=" + encodeURIComponent(notes),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          alert("Organization " + action + "ed successfully!");
+          location.reload();
+        }
+      })
+      .catch((error) => {
+        alert("Error verifying organization: " + error);
+      });
+  }
+</script>
+{% endblock %}

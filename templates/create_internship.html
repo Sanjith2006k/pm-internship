@@ -1,0 +1,217 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Page Title -->
+<div style="margin-bottom: 30px">
+  <a
+    href="/organization"
+    style="color: #1e7ce8; text-decoration: none; font-weight: 600"
+    >← Back to Dashboard</a
+  >
+  <h1 class="page-title">Post New Internship</h1>
+  <p class="page-subtitle">
+    Fill in the details below to post an internship opportunity and attract top
+    talent
+  </p>
+</div>
+
+<!-- Form -->
+<div
+  style="
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 40px;
+    max-width: 700px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  "
+>
+  {% if error %}
+  <div
+    style="
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 20px;
+    "
+  >
+    <p style="color: #991b1b; margin: 0; font-weight: 600; font-size: 14px">
+      ⏳ Organization Not Verified
+    </p>
+    <p style="color: #991b1b; margin: 8px 0 0 0; font-size: 13px">
+      {{ error }}
+    </p>
+    <p style="color: #991b1b; margin: 8px 0 0 0; font-size: 13px">
+      Our admin team is reviewing your verification details (GST, Domain Email,
+      LinkedIn). This typically takes 24-48 hours.
+    </p>
+  </div>
+  {% endif %}
+
+  <form
+    action="/org/create-internship"
+    method="POST"
+    {%
+    if
+    error
+    %}style="opacity: 0.5; pointer-events: none;"
+    {%
+    endif
+    %}
+  >
+    <!-- Internship Title -->
+    <div class="form-group">
+      <label for="title">Internship Title *</label>
+      <input
+        type="text"
+        id="title"
+        name="title"
+        placeholder="e.g., Data Science Intern, Web Developer, etc."
+        required
+        {%
+        if
+        error
+        %}disabled{%
+        endif
+        %}
+      />
+      <small
+        style="color: #999; font-size: 12px; margin-top: 5px; display: block"
+        >Choose a clear and descriptive title</small
+      >
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <label for="location">Location *</label>
+      <input
+        type="text"
+        id="location"
+        name="location"
+        placeholder="e.g., Bangalore, Remote, Mumbai, etc."
+        required
+      />
+      <small
+        style="color: #999; font-size: 12px; margin-top: 5px; display: block"
+        >Office location or mention if remote</small
+      >
+    </div>
+
+    <!-- Duration -->
+    <div class="form-group">
+      <label for="duration">Duration *</label>
+      <select id="duration" name="duration" required>
+        <option value="">-- Select Duration --</option>
+        <option value="1 month">1 Month</option>
+        <option value="2 months">2 Months</option>
+        <option value="3 months">3 Months</option>
+        <option value="4 months">4 Months</option>
+        <option value="5 months">5 Months</option>
+        <option value="6 months">6 Months</option>
+        <option value="7 months">7 Months</option>
+        <option value="8 months">8 Months</option>
+      </select>
+    </div>
+
+    <!-- Number of Positions -->
+    <div class="form-group">
+      <label for="capacity">Number of Positions *</label>
+      <input
+        type="number"
+        id="capacity"
+        name="capacity"
+        min="1"
+        max="100"
+        placeholder="e.g., 5"
+        required
+      />
+      <small
+        style="color: #999; font-size: 12px; margin-top: 5px; display: block"
+        >How many interns do you want to hire?</small
+      >
+    </div>
+
+    <!-- Required Skills -->
+    <div class="form-group">
+      <label for="skills_required">Required Skills (comma-separated) *</label>
+      <textarea
+        id="skills_required"
+        name="skills_required"
+        placeholder="e.g., Python, SQL, Machine Learning, Data Analysis"
+        required
+      ></textarea>
+      <small
+        style="color: #999; font-size: 12px; margin-top: 5px; display: block"
+        >List skills separated by commas. Our AI will match candidates with
+        these skills</small
+      >
+    </div>
+
+    <!-- Stipend (Optional) -->
+    <div class="form-group">
+      <label for="stipend">Monthly Stipend (Optional)</label>
+      <input
+        type="number"
+        id="stipend"
+        name="stipend"
+        placeholder="e.g., 5000 (in ₹)"
+        step="500"
+      />
+      <small
+        style="color: #999; font-size: 12px; margin-top: 5px; display: block"
+        >Monthly stipend amount in rupees. Leave blank if unpaid</small
+      >
+    </div>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      class="btn btn-primary"
+      style="width: 100%; padding: 15px; font-size: 16px; font-weight: 600"
+    >
+      Post Internship
+    </button>
+
+    <!-- Cancel Button -->
+    <a
+      href="/organization"
+      class="btn btn-secondary"
+      style="
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 10px;
+        display: block;
+      "
+      >Cancel</a
+    >
+  </form>
+</div>
+
+<!-- Tips Section -->
+<div
+  style="
+    margin-top: 40px;
+    padding: 20px;
+    background: #e7f5ff;
+    border-left: 4px solid #1e7ce8;
+    border-radius: 6px;
+  "
+>
+  <h3 style="color: #0369a1; margin-top: 0">💡 Tips for Posting Internships</h3>
+  <ul style="color: #0369a1; margin-bottom: 0; padding-left: 20px">
+    <li>
+      Be specific about the skills you need - it helps our AI match the right
+      candidates
+    </li>
+    <li>
+      Use industry-standard skill names (e.g., "Python" not "Python
+      programming")
+    </li>
+    <li>Competitive stipends attract more talented candidates</li>
+    <li>You can edit or delete internship postings from your dashboard</li>
+  </ul>
+</div>
+{% endblock %}

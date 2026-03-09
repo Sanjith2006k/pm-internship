@@ -1,0 +1,412 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="container">
+  <!-- Header Section -->
+  <div style="margin-bottom: 40px">
+    <h1 class="page-title">Organization Verification</h1>
+    <p class="page-subtitle">
+      Submit your company details for verification before posting internships
+    </p>
+  </div>
+
+  <!-- Main Content -->
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      max-width: 1200px;
+    "
+  >
+    <!-- Left: Instructions -->
+    <div>
+      <div
+        style="
+          background: #f0f9ff;
+          border: 2px solid #3b82f6;
+          border-radius: 8px;
+          padding: 25px;
+        "
+      >
+        <h2 style="color: #001a40; margin: 0 0 20px 0; font-size: 20px">
+          ✓ Why We Verify
+        </h2>
+        <p style="color: #666; margin: 0 0 20px 0; line-height: 1.6">
+          We verify organizations to ensure our students connect with legitimate
+          companies. This protects everyone on our platform.
+        </p>
+
+        <div
+          style="
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+            🔢 GST Number
+          </h3>
+          <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
+            Government identifier for your business. We'll verify it on the
+            official GSTN portal.
+          </p>
+          <p style="color: #999; font-size: 12px; margin: 8px 0 0 0">
+            Format: 2 digits state + 10 digits identifier
+          </p>
+        </div>
+
+        <div
+          style="
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+            📧 Domain Email
+          </h3>
+          <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
+            Use your company domain email, not Gmail or Yahoo. This proves you
+            represent the company.
+          </p>
+          <p style="color: #22c55e; font-size: 12px; margin: 8px 0 0 0">
+            ✓ Good: hr@company.com, recruitment@company.io
+          </p>
+          <p style="color: #ef4444; font-size: 12px; margin: 5px 0 0 0">
+            ✗ Bad: company@gmail.com, company@yahoo.com
+          </p>
+        </div>
+
+        <div style="background: white; border-radius: 6px; padding: 15px">
+          <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+            🔗 LinkedIn Profile
+          </h3>
+          <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
+            Link to your company's LinkedIn page. Shows our team your company's
+            legitimacy and presence.
+          </p>
+          <p style="color: #999; font-size: 12px; margin: 8px 0 0 0">
+            Should start with linkedin.com/company/
+          </p>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div
+        style="
+          background: #fef3c7;
+          border-left: 4px solid #f59e0b;
+          border-radius: 6px;
+          padding: 15px;
+          margin-top: 20px;
+        "
+      >
+        <p style="color: #92400e; margin: 0; font-weight: 600">
+          ⏱️ Verification Timeline
+        </p>
+        <p style="color: #92400e; font-size: 13px; margin: 8px 0 0 0">
+          Our admin team will review your details within 24-48 hours. You'll
+          receive an email once verified!
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: Submission Form -->
+    <div>
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 30px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <h2 style="color: #001a40; margin: 0 0 25px 0; font-size: 18px">
+          Submit Your Details
+        </h2>
+
+        <form method="POST" action="{{ url_for('submit_verification') }}">
+          <!-- Company Name (Display Only) -->
+          <div style="margin-bottom: 20px">
+            <label
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Company Name
+            </label>
+            <input
+              type="text"
+              value="{{ org.company_name if org else '' }}"
+              disabled
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                background: #f9fafb;
+                color: #666;
+                font-size: 14px;
+                cursor: not-allowed;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              From your registration
+            </p>
+          </div>
+
+          <!-- GST Number -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="gst_number"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              GST Number *
+            </label>
+            <input
+              type="text"
+              id="gst_number"
+              name="gst_number"
+              placeholder="e.g., 27AABCT1234D1Z0"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: monospace;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              From your GST registration certificate
+            </p>
+          </div>
+
+          <!-- Domain Email -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="domain_email"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Company Domain Email *
+            </label>
+            <input
+              type="email"
+              id="domain_email"
+              name="domain_email"
+              placeholder="e.g., hr@company.com"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              Use your company domain, not Gmail or Yahoo
+            </p>
+          </div>
+
+          <!-- LinkedIn Profile -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="linkedin_profile"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              LinkedIn Company Profile URL *
+            </label>
+            <input
+              type="url"
+              id="linkedin_profile"
+              name="linkedin_profile"
+              placeholder="https://www.linkedin.com/company/your-company"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              Full URL to your LinkedIn company page
+            </p>
+          </div>
+
+          <!-- Industry -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="industry"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Industry *
+            </label>
+            <select
+              id="industry"
+              name="industry"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+                background: white;
+              "
+            >
+              <option value="">Select Industry</option>
+              <option value="IT">Information Technology</option>
+              <option value="Finance">Finance</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Retail">Retail</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Consulting">Consulting</option>
+              <option value="EdTech">EdTech</option>
+              <option value="Logistics">Logistics</option>
+              <option value="E-Commerce">E-Commerce</option>
+              <option value="Telecommunications">Telecommunications</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Location -->
+          <div style="margin-bottom: 20px">
+            <label
+              for="location"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Headquarters Location *
+            </label>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              placeholder="e.g., Bangalore, India"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              City and country where your company is headquartered
+            </p>
+          </div>
+
+          <!-- Company Description -->
+          <div style="margin-bottom: 25px">
+            <label
+              for="description"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Company Description & Mission *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Tell us about your company, what you do, and why you're hiring interns..."
+              rows="5"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: inherit;
+                resize: vertical;
+              "
+            ></textarea>
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              100-500 characters describing your company
+            </p>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            style="
+              width: 100%;
+              padding: 14px;
+              background: #1e7ce8;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: background 0.3s;
+            "
+            onmouseover="this.style.background = '#1565c0'"
+            onmouseout="this.style.background = '#1e7ce8'"
+          >
+            Submit for Verification
+          </button>
+
+          <p
+            style="
+              color: #999;
+              font-size: 12px;
+              margin-top: 15px;
+              text-align: center;
+            "
+          >
+            All fields are required. You'll be notified via email once verified.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

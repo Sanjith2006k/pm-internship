@@ -1,101 +1,136 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Register - Internship Portal</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register - Internship Portal</title>
 
-<link rel="stylesheet"
-href="{{ url_for('static', filename='register.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='register.css') }}"
+    />
+  </head>
 
-</head>
+  <body>
+    <div class="register-container">
+      <!-- LEFT INFO SECTION -->
 
-<body>
+      <div class="register-left">
+        <h1>Create Your Account</h1>
 
-<div class="register-container">
+        <p>
+          Join our AI-powered internship platform that connects talented
+          students with innovative organizations. Build real-world experience,
+          collaborate on projects, and unlock new career opportunities.
+        </p>
 
-<!-- LEFT INFO SECTION -->
+        <div class="features-box">
+          <div class="student-section">
+            <h3>🎓 For Students</h3>
+            <ul>
+              <li>Find internships based on your skills</li>
+              <li>Work on real industry projects</li>
+              <li>Track learning and build your portfolio</li>
+              <li>Connect with verified companies</li>
+            </ul>
+          </div>
 
-<div class="register-left">
+          <div class="org-section">
+            <h3>🏢 For Organizations</h3>
+            <ul>
+              <li>Discover talented students</li>
+              <li>Post internship opportunities</li>
+              <li>Review skill assessments</li>
+              <li>Build future-ready teams</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-<h1>Create Your Account</h1>
+      <!-- RIGHT REGISTER FORM -->
 
-<p>
-Join our AI-powered internship platform that connects talented students
-with innovative organizations. Build real-world experience, collaborate
-on projects, and unlock new career opportunities.
-</p>
+      <div class="register-right">
+        <div class="register-card">
+          <h2>Register</h2>
 
-<div class="features-box">
+          <form method="POST" action="{{ url_for('register') }}">
+            <input type="text" name="name" placeholder="Full Name" required />
 
-<div class="student-section">
-<h3>🎓 For Students</h3>
-<ul>
-<li>Find internships based on your skills</li>
-<li>Work on real industry projects</li>
-<li>Track learning and build your portfolio</li>
-<li>Connect with verified companies</li>
-</ul>
-</div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              required
+            />
 
-<div class="org-section">
-<h3>🏢 For Organizations</h3>
-<ul>
-<li>Discover talented students</li>
-<li>Post internship opportunities</li>
-<li>Review skill assessments</li>
-<li>Build future-ready teams</li>
-</ul>
-</div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Create Password"
+              required
+            />
 
-</div>
-</div>
+            <select name="role" id="roleSelect" required>
+              <option value="">Select Role</option>
+              <option value="student">Student</option>
+              <option value="organization">Organization</option>
+            </select>
 
+            <!-- Organization Only: Company Name -->
+            <div
+              id="orgBasicFields"
+              style="
+                display: none;
+                border-top: 2px solid #1e7ce8;
+                padding-top: 15px;
+                margin-top: 15px;
+              "
+            >
+              <input
+                type="text"
+                name="company_name"
+                placeholder="Company Name (Legal Name)"
+              />
+              <p style="color: #666; font-size: 12px; margin-top: 10px">
+                ℹ️ You'll submit detailed verification information after login
+              </p>
+            </div>
 
-<!-- RIGHT REGISTER FORM -->
+            <button type="submit" class="register-btn">Create Account</button>
+          </form>
 
-<div class="register-right">
+          <p class="login-link">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login</a>
+          </p>
+        </div>
+      </div>
 
-<div class="register-card">
+      <script>
+        function toggleOrgFields() {
+          const role = document.getElementById("roleSelect").value;
+          const orgBasicFields = document.getElementById("orgBasicFields");
+          const companyNameInput = orgBasicFields.querySelector(
+            "input[name='company_name']",
+          );
 
-<h2>Register</h2>
+          if (role === "organization") {
+            orgBasicFields.style.display = "block";
+            companyNameInput.required = true;
+          } else {
+            orgBasicFields.style.display = "none";
+            companyNameInput.required = false;
+          }
+        }
 
-<form method="POST" action="{{ url_for('register') }}">
-
-<input type="text" name="name" placeholder="Full Name" required>
-
-<input type="email" name="email" placeholder="Email Address" required>
-
-<input type="password" name="password" placeholder="Create Password" required>
-
-<select name="role" required>
-<option value="">Select Role</option>
-<option value="student">Student</option>
-<option value="organization">Organization</option>
-<option value="admin">Admin</option>
-</select>
-
-<button type="submit" class="register-btn">
-Create Account
-</button>
-
-</form>
-
-<p class="login-link">
-Already have an account?
-<a href="{{ url_for('login') }}">Login</a>
-</p>
-
-</div>
-
-</div>
-
-</div>
-
-</body>
-
+        // Add event listener
+        document
+          .getElementById("roleSelect")
+          .addEventListener("change", toggleOrgFields);
+      </script>
+    </div>
+  </body>
 </html>
 
 {% endblock %}

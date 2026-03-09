@@ -1,0 +1,222 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Page Title & Back Button -->
+<div style="margin-bottom: 30px">
+  <a
+    href="/organization"
+    style="color: #1e7ce8; text-decoration: none; font-weight: 600"
+    >← Back to Dashboard</a
+  >
+  <h1 class="page-title">📊 Internship Analytics</h1>
+  <p class="page-subtitle">
+    {{ internship.title }} • {{ internship.location }}
+  </p>
+</div>
+
+<!-- Analytics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Applications</div>
+          <div class="stat-value">{{ analytics.total_applications }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Shortlisted</div>
+          <div class="stat-value">{{ analytics.shortlisted }}</div>
+          <div class="stat-change">
+            {{ (analytics.shortlisted / analytics.total_applications *
+            100)|round(1) if analytics.total_applications > 0 else 0 }}% of
+            applications
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Selected</div>
+          <div class="stat-value">{{ analytics.selected }}</div>
+          <div class="stat-change">Ready for onboarding</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rejected</div>
+          <div class="stat-value">{{ analytics.rejected }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Match Score</div>
+          <div class="stat-value">{{ analytics.avg_match_score }}%</div>
+          <div class="stat-change">Candidate fit average</div>
+        </div>
+      </div>
+
+      <!-- Internship Details -->
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 30px;
+          margin-bottom: 30px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <h2 style="color: #001a40; margin-top: 0">Internship Details</h2>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+          "
+        >
+          <div>
+            <strong style="color: #666">Position Title</strong>
+            <p style="color: #001a40; font-size: 16px; margin-top: 5px">
+              {{ internship.title }}
+            </p>
+          </div>
+          <div>
+            <strong style="color: #666">Location</strong>
+            <p style="color: #001a40; font-size: 16px; margin-top: 5px">
+              {{ internship.location }}
+            </p>
+          </div>
+          <div>
+            <strong style="color: #666">Duration</strong>
+            <p style="color: #001a40; font-size: 16px; margin-top: 5px">
+              {{ internship.duration }}
+            </p>
+          </div>
+          <div>
+            <strong style="color: #666">Total Capacity</strong>
+            <p style="color: #001a40; font-size: 16px; margin-top: 5px">
+              {{ internship.capacity }} positions
+            </p>
+          </div>
+          {% if internship.stipend %}
+          <div>
+            <strong style="color: #666">Monthly Stipend</strong>
+            <p style="color: #001a40; font-size: 16px; margin-top: 5px">
+              ₹{{ internship.stipend }}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+        <div
+          style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+          "
+        >
+          <strong style="color: #666">Required Skills</strong>
+          <div class="skills-container" style="margin-top: 10px">
+            {% for skill in internship.skills_required.split(',') %}
+            <span class="skill">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 30px;
+        "
+      >
+        <!-- Application Status Chart -->
+        <div
+          style="
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          "
+        >
+          <h3 style="color: #001a40; margin-top: 0">
+            Application Status Distribution
+          </h3>
+          <canvas id="statusChart"></canvas>
+        </div>
+
+        <!-- Conversion Funnel -->
+        <div
+          style="
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          "
+        >
+          <h3 style="color: #001a40; margin-top: 0">Hiring Funnel</h3>
+          <canvas id="funnelChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Application Status Chart
+      const statusCtx = document.getElementById('statusChart').getContext('2d');
+      new Chart(statusCtx, {
+          type: 'doughnut',
+          data: {
+              labels: ['Shortlisted', 'Selected', 'Rejected', 'Applied'],
+              datasets: [{
+                  data: [
+                      {{ analytics.shortlisted }},
+                      {{ analytics.selected }},
+                      {{ analytics.rejected }},
+                      {{ analytics.total_applications - analytics.shortlisted - analytics.selected - analytics.rejected }}
+                  ],
+                  backgroundColor: ['#fef08a', '#dcfce7', '#fee2e2', '#dbeafe'],
+                  borderColor: ['#854d0e', '#166534', '#991b1b', '#0369a1'],
+                  borderWidth: 2
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'bottom'
+                  }
+              }
+          }
+      });
+
+      // Hiring Funnel Chart
+      const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+      new Chart(funnelCtx, {
+          type: 'bar',
+          data: {
+              labels: ['Applied', 'Shortlisted', 'Selected'],
+              datasets: [{
+                  label: 'Number of Candidates',
+                  data: [
+                      {{ analytics.total_applications }},
+                      {{ analytics.shortlisted }},
+                      {{ analytics.selected }}
+                  ],
+                  backgroundColor: ['#1e7ce8', '#fef08a', '#dcfce7'],
+                  borderColor: ['#166ecf', '#854d0e', '#166534'],
+                  borderWidth: 2
+              }]
+          },
+          options: {
+              responsive: true,
+              indexAxis: 'y',
+              plugins: {
+                  legend: {
+                      display: false
+                  }
+              },
+              scales: {
+                  x: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+    </script>
+{% endblock %}

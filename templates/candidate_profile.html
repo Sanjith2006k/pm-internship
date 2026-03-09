@@ -1,0 +1,248 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- Back Button -->
+<div style="margin-bottom: 30px">
+        <a
+          href="javascript:history.back()"
+          style="color: #1e7ce8; text-decoration: none; font-weight: 600"
+          >← Back</a
+        >
+      </div>
+
+      <!-- Candidate Profile Card -->
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 40px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <!-- Header -->
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+          "
+        >
+          <div>
+            <h1 class="page-title" style="margin: 0; margin-bottom: 5px">
+              {{ user.name }}
+            </h1>
+            <p style="color: #666; font-size: 14px">{{ user.email }}</p>
+          </div>
+          {% if profile and profile.is_verified %}
+          <div
+            style="
+              background: #dcfce7;
+              color: #166534;
+              padding: 12px 20px;
+              border-radius: 6px;
+              text-align: center;
+              font-weight: 600;
+            "
+          >
+            ✔ Verified Profile
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Education & Profile Info -->
+        {% if profile %}
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+          "
+        >
+          {% if profile.degree %}
+          <div class="stat-card">
+            <div class="stat-label">Degree</div>
+            <div
+              style="
+                color: #001a40;
+                font-size: 18px;
+                font-weight: 600;
+                margin-top: 8px;
+              "
+            >
+              {{ profile.degree }}
+            </div>
+          </div>
+          {% endif %} {% if profile.university %}
+          <div class="stat-card">
+            <div class="stat-label">University</div>
+            <div
+              style="
+                color: #001a40;
+                font-size: 18px;
+                font-weight: 600;
+                margin-top: 8px;
+              "
+            >
+              {{ profile.university }}
+            </div>
+          </div>
+          {% endif %} {% if profile.cgpa %}
+          <div class="stat-card">
+            <div class="stat-label">CGPA</div>
+            <div
+              style="
+                color: #1e7ce8;
+                font-size: 18px;
+                font-weight: 600;
+                margin-top: 8px;
+              "
+            >
+              {{ profile.cgpa }} / 10
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Skills Section -->
+        <div
+          style="
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+          "
+        >
+          <h3 style="color: #001a40; margin-bottom: 15px; font-size: 18px">
+            🎯 Skills
+          </h3>
+          {% if profile.skills %}
+          <div class="skills-container">
+            {% for skill in profile.skills.split(',') %}
+            <span class="skill">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="color: #999">No skills listed yet</p>
+          {% endif %}
+        </div>
+
+        <!-- Resume Section -->
+        <div style="margin-bottom: 30px">
+          <h3 style="color: #001a40; margin-bottom: 15px; font-size: 18px">
+            📄 Resume
+          </h3>
+          {% if profile.resume_url %}
+          <div
+            style="
+              padding: 20px;
+              background: #e7f5ff;
+              border-radius: 8px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div>
+              <p style="color: #0369a1; font-weight: 600; margin: 0">
+                Resume Uploaded
+              </p>
+              <p style="color: #0369a1; font-size: 12px; margin: 5px 0 0 0">
+                Available for download
+              </p>
+            </div>
+            <a
+              href="{{ profile.resume_url }}"
+              target="_blank"
+              class="btn btn-primary"
+              >📥 Download Resume</a
+            >
+          </div>
+          {% else %}
+          <div style="padding: 20px; background: #fee2e2; border-radius: 8px">
+            <p style="color: #991b1b; margin: 0">No resume uploaded</p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Verification Status -->
+        <div
+          style="
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+          "
+        >
+          <h3 style="color: #001a40; margin-bottom: 15px; font-size: 18px">
+            ✔️ Verification Status
+          </h3>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 15px;
+            "
+          >
+            <div
+              style="padding: 15px; border: 1px solid {% if profile.is_verified %}#22c55e{% else %}#e5e7eb{% endif %}; border-radius: 6px; text-align: center;"
+            >
+              {% if profile.is_verified %}
+              <p style="color: #22c55e; font-size: 24px; margin: 0">✓</p>
+              <p
+                style="
+                  color: #22c55e;
+                  font-weight: 600;
+                  font-size: 14px;
+                  margin-top: 8px;
+                "
+              >
+                DigiLocker Verified
+              </p>
+              {% else %}
+              <p style="color: #999; font-size: 24px; margin: 0">○</p>
+              <p
+                style="
+                  color: #999;
+                  font-weight: 600;
+                  font-size: 14px;
+                  margin-top: 8px;
+                "
+              >
+                Not Verified
+              </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+          "
+        >
+          <button class="btn btn-primary" onclick="contactStudent()">
+            📧 Send Message
+          </button>
+          <button class="btn btn-secondary" onclick="history.back()">
+            ← Back
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function contactStudent() {
+        alert(
+          "Messaging feature coming soon! You can contact {{ user.email }} directly.",
+        );
+      }
+    </script>
+{% endblock %}
