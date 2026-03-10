@@ -1,0 +1,101 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1 class="page-title">Students</h1>
+  <p class="page-subtitle">Monitor all registered students and their internship activity</p>
+
+  <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="stat-card">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value">{{ students|length }}</div>
+      <div class="stat-change">Registered</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">With Skills</div>
+      <div class="stat-value" style="color:#1e7ce8;">{{ students|selectattr('profile')|selectattr('profile.skills')|list|length }}</div>
+      <div class="stat-change">Profile filled</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Allocated</div>
+      <div class="stat-value" style="color:#22c55e;">{{ students|selectattr('profile')|selectattr('profile.allocated_internship')|list|length }}</div>
+      <div class="stat-change">Internship assigned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Verified</div>
+      <div class="stat-value" style="color:#8b5cf6;">{{ students|selectattr('profile')|selectattr('profile.is_verified', 'equalto', true)|list|length }}</div>
+      <div class="stat-change">DigiLocker verified</div>
+    </div>
+  </div>
+
+  <div class="section-header" style="margin-top:10px;">
+    <h2>All Registered Students</h2>
+    <span style="background:#dbeafe;color:#0369a1;padding:6px 12px;border-radius:20px;font-weight:600;font-size:12px;">
+      {{ students|length }} Students
+    </span>
+  </div>
+
+  {% if students %}
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Skills</th>
+          <th>Allocated Internship</th>
+          <th>Match Score</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in students %}
+        <tr>
+          <td style="color:#999;">{{ loop.index }}</td>
+          <td style="font-weight:600;color:#001a40;">{{ item.user.name }}</td>
+          <td style="color:#666;">{{ item.user.email }}</td>
+          <td>
+            {% if item.profile and item.profile.skills %}
+            <div class="skills-container" style="margin-top:0;">
+              {% for skill in item.profile.skills.split(',')[:3] %}
+              <span class="skill">{{ skill.strip() }}</span>
+              {% endfor %}
+              {% if item.profile.skills.split(',')|length > 3 %}
+              <span style="color:#999;font-size:12px;">+{{ item.profile.skills.split(',')|length - 3 }} more</span>
+              {% endif %}
+            </div>
+            {% else %}
+            <span style="color:#999;font-size:13px;">No skills listed</span>
+            {% endif %}
+          </td>
+          <td style="color:#001a40;font-weight:500;">
+            {{ item.profile.allocated_internship if item.profile and item.profile.allocated_internship else '—' }}
+          </td>
+          <td>
+            {% if item.profile and item.profile.match_score %}
+            <span style="font-weight:700;color:{% if item.profile.match_score > 0.7 %}#22c55e{% elif item.profile.match_score > 0.4 %}#fbbf24{% else %}#ef4444{% endif %};">
+              {{ (item.profile.match_score * 100)|round(1) }}%
+            </span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if item.profile and item.profile.allocated_internship %}
+            <span class="badge badge-approved">Allocated</span>
+            {% elif item.profile and item.profile.skills %}
+            <span class="badge badge-applied">Active</span>
+            {% else %}
+            <span class="badge badge-pending">Incomplete</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No students registered yet</p>
+    <p class="empty-state-note">Students will appear here after registration</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -5,6 +5,20 @@
   <h1 class="page-title">Organization Verification</h1>
   <p class="page-subtitle">Review and verify organization registrations</p>
 
+  <!-- Stat Boxes -->
+  <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 30px;">
+    <div class="stat-card">
+      <div class="stat-label">Total Organizations</div>
+      <div class="stat-value">{{ total_orgs }}</div>
+      <div class="stat-change">Registered on platform</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Verified Organizations</div>
+      <div class="stat-value" style="color:#22c55e;">{{ verified_orgs }}</div>
+      <div class="stat-change">Successfully approved</div>
+    </div>
+  </div>
+
   <!-- Verification Guidelines -->
   <div
     style="

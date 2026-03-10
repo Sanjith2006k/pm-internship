@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1 class="page-title">Notifications</h1>
+  <p class="page-subtitle">System alerts and recent platform activity</p>
+
+  {% if notifications %}
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    {% for notif in notifications %}
+    <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:flex-start;gap:16px;border-left:4px solid {{ notif.color }};">
+      <div style="font-size:24px;line-height:1;">{{ notif.icon }}</div>
+      <div style="flex:1;">
+        <p style="font-weight:600;color:#001a40;margin:0 0 4px 0;font-size:15px;">{{ notif.title }}</p>
+        <p style="color:#666;margin:0;font-size:13px;">{{ notif.message }}</p>
+      </div>
+      <div style="color:#999;font-size:12px;white-space:nowrap;">{{ notif.time }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No notifications</p>
+    <p class="empty-state-note">New activity alerts will appear here</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,15 +1,1300 @@
-{% extends "base.html" %} {% block content %}
-<h2>Student Dashboard</h2>
+{% extends "base.html" %}
 
-<form method="POST">
-  Skills (comma separated):<br />
-  <textarea name="skills">{{ profile.skills }}</textarea><br />
-  <button type="submit">Update Skills</button>
-</form>
+{% block nav_links %}
+<a href="#" onclick="showSection('dashboard')" data-section="dashboard" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Dashboard</a>
+<a href="#" onclick="showSection('applications')" data-section="applications" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">My Applications</a>
+<a href="#" onclick="showSection('my-internship')" data-section="my-internship" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Pending Internship</a>
+<div class="nav-dropdown">
+  <button id="profile-dropdown-btn" class="nav-link" onclick="toggleProfileDropdown(event)" style="font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;background:none;border:none;cursor:pointer;font-family:inherit;">Profile &#9660;</button>
+  <div class="nav-dropdown-menu" id="profile-dropdown">
+    <a href="#" onclick="showSection('profile');return false;">Edit Profile</a>
+    <a href="#" onclick="showSection('add-certificate');return false;">Add Certificate</a>
+    <a href="#" onclick="showSection('add-internship');return false;">Add Internship</a>
+  </div>
+</div>
+{% endblock %}
 
-<h3>Allocation Result:</h3>
-<p>Internship: {{ profile.allocated_internship }}</p>
-<p>Match Score: {{ profile.match_score }}</p>
+{% block content %}
 
-<a href="/logout">Logout</a>
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<div class="container">
+
+  <!-- ============================================================
+       SECTION 1: DASHBOARD (Overview)
+       ============================================================ -->
+  <div id="section-dashboard" class="section-view active">
+
+    <!-- Greeting -->
+    <div class="dash-greeting">
+      <div>
+        <h1 class="page-title" id="greeting-text">Hello, {{ user.name }}!</h1>
+        <p class="page-subtitle">Here's your internship journey at a glance. Keep going! 🚀</p>
+      </div>
+      {% if profile and not profile.skills %}
+      <div class="dash-tip">
+        💡 <strong>Tip:</strong> Add your skills to get better AI-matched internship recommendations.
+        <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="showSection('profile')">Update Now</button>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ── ROW 1: Stats + Profile Card ── -->
+    <div class="dash-top-row">
+
+      <!-- Stats Cards -->
+      <div class="dash-stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">Total Applied</div>
+          <div class="stat-value">{{ total_applied }}</div>
+          <div class="stat-change">Applications submitted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Approved</div>
+          <div class="stat-value" style="color:#22c55e;">
+            {{ enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length }}
+          </div>
+          <div class="stat-change success">Internships confirmed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" style="color:#fbbf24;">
+            {{ enriched_applications | selectattr('application.status', 'equalto', 'pending') | list | length }}
+          </div>
+          <div class="stat-change">Awaiting response</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">❌</div>
+          <div class="stat-label">Rejected</div>
+          <div class="stat-value" style="color:#ef4444;">
+            {{ enriched_applications | selectattr('application.status', 'equalto', 'rejected') | list | length }}
+          </div>
+          <div class="stat-change">Not selected</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏢</div>
+          <div class="stat-label">Available</div>
+          <div class="stat-value">{{ total_available }}</div>
+          <div class="stat-change">Open to apply</div>
+        </div>
+        <div class="stat-card" style="cursor:pointer;" onclick="showSection('internships')">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-label">Recommended</div>
+          <div class="stat-value" style="color:#1e7ce8;">{{ [available_internships|length, 3]|min }}</div>
+          <div class="stat-change">Based on your skills</div>
+        </div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-avatar">{{ user.name[0].upper() }}</div>
+        <div class="profile-name">{{ user.name }}</div>
+        <div class="profile-email">{{ user.email }}</div>
+        <div class="profile-role-tag">Student</div>
+        {% if profile and profile.match_score %}
+        <div class="profile-score">
+          <span style="font-size:12px;color:#888;">AI Match Score</span>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+            <div class="progress-bar-container" style="flex:1;">
+              <div class="progress-bar-fill" style="width:{{ '%.0f'|format(profile.match_score * 100) }}%"></div>
+            </div>
+            <span style="font-weight:700;color:#1e7ce8;font-size:14px;">{{ "%.0f"|format(profile.match_score * 100) }}%</span>
+          </div>
+        </div>
+        {% endif %}
+        <div style="margin-top:14px;">
+          <div class="profile-section-label">Skills</div>
+          {% if profile and profile.skills %}
+          <div class="skills-container">
+            {% for skill in profile.skills.split(',') %}
+            {% if skill.strip() %}
+            <span class="skill-tag">{{ skill.strip() }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% else %}
+          <p style="color:#aaa;font-size:12px;font-style:italic;">No skills added yet</p>
+          {% endif %}
+        </div>
+        {% if profile and profile.allocated_internship %}
+        <div class="profile-allocated">
+          <div style="font-size:10px;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">🤖 AI Allocated</div>
+          <div style="color:#001a40;font-weight:600;font-size:13px;">{{ profile.allocated_internship }}</div>
+        </div>
+        {% endif %}
+        <button class="btn btn-secondary btn-sm btn-full" style="margin-top:16px;" onclick="showSection('profile')">Edit Profile</button>
+      </div>
+    </div>
+
+    <!-- ── Internship Progress Timeline ── -->
+    <div class="timeline-section">
+      <h2>Your Internship Progress</h2>
+
+      <div class="timeline">
+        <div class="step active">
+          <div class="circle"></div>
+          <p>Internship Applied</p>
+        </div>
+
+        <div class="step">
+          <div class="circle"></div>
+          <p>Under Review</p>
+        </div>
+
+        <div class="step">
+          <div class="circle"></div>
+          <p>Interview</p>
+        </div>
+
+        <div class="step">
+          <div class="circle"></div>
+          <p>Approved</p>
+        </div>
+
+        <div class="step">
+          <div class="circle"></div>
+          <p>Internship Started</p>
+        </div>
+
+        <div class="step">
+          <div class="circle"></div>
+          <p>Completed</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Application Timeline ── -->
+    {% if enriched_applications %}
+    <div class="dash-section-block">
+      <div class="section-header">
+        <h2>Application Tracker</h2>
+        <button class="btn btn-secondary btn-sm" onclick="showSection('applications')">View All →</button>
+      </div>
+      {% for ea in enriched_applications[:3] %}
+      {% set status = ea.application.status %}
+      <div class="vtl-card">
+
+        <!-- Header -->
+        <div class="vtl-card-header">
+          <div>
+            <div class="vtl-role">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
+            <div class="vtl-company">{{ ea.org.company_name if ea.org else 'N/A' }}</div>
+          </div>
+          <span class="badge badge-{{ status }}">{{ status }}</span>
+        </div>
+
+        <!-- Vertical Stages -->
+        <div class="vtl-stages">
+
+          <!-- Stage 1: Submitted (always done) -->
+          <div class="vtl-node vtl-done">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">✅</div>
+              <div class="vtl-connector"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Application Submitted</div>
+              <div class="vtl-date">{{ ea.application.applied_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+              <div class="vtl-desc">Your application was successfully submitted and is now in the system.</div>
+            </div>
+          </div>
+
+          <!-- Stage 2: Under Review -->
+          {% if status == 'approved' %}
+          <div class="vtl-node vtl-done">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">✅</div>
+              <div class="vtl-connector"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Under Review</div>
+              <div class="vtl-desc">Your application was reviewed by the organization.</div>
+            </div>
+          </div>
+          {% elif status == 'rejected' %}
+          <div class="vtl-node vtl-rejected">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">❌</div>
+              <div class="vtl-connector vtl-connector-red"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Under Review</div>
+              <div class="vtl-desc">Your application was reviewed by the organization.</div>
+            </div>
+          </div>
+          {% else %}
+          <div class="vtl-node vtl-active">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">⏳</div>
+              <div class="vtl-connector vtl-connector-blue"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Under Review</div>
+              <div class="vtl-desc">Your application is currently being reviewed. Hang tight!</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Stage 3: Final Decision -->
+          {% if status == 'approved' %}
+          <div class="vtl-node vtl-done vtl-last">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">🎉</div>
+              <div class="vtl-connector"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Approved</div>
+              <div class="vtl-desc">Congratulations! Your internship has been confirmed.</div>
+            </div>
+          </div>
+          {% elif status == 'rejected' %}
+          <div class="vtl-node vtl-rejected vtl-last">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon">❌</div>
+              <div class="vtl-connector"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Not Selected</div>
+              <div class="vtl-desc">Your application was not selected for this position.</div>
+            </div>
+          </div>
+          {% else %}
+          <div class="vtl-node vtl-future vtl-last">
+            <div class="vtl-icon-col">
+              <div class="vtl-icon vtl-icon-future"></div>
+              <div class="vtl-connector"></div>
+            </div>
+            <div class="vtl-content">
+              <div class="vtl-stage-label">Final Decision</div>
+              <div class="vtl-desc">Waiting for the organization's final decision.</div>
+            </div>
+          </div>
+          {% endif %}
+
+        </div>
+
+        <!-- Next Step Hint -->
+        {% if status == 'pending' %}
+        <div class="vtl-next-step">
+          💡 <strong>Next:</strong> Awaiting company review — expected decision in 2–3 days.
+        </div>
+        {% elif status == 'approved' %}
+        <div class="vtl-next-step vtl-next-success">
+          🎓 <strong>Confirmed!</strong> Head to <a href="#" onclick="showSection('my-internship');return false;" style="color:#166534;font-weight:600;">My Internship</a> for details.
+        </div>
+        {% elif status == 'rejected' %}
+        <div class="vtl-next-step vtl-next-danger">
+          🔍 <strong>Keep going!</strong> Browse more in <a href="#" onclick="showSection('internships');return false;" style="color:#991b1b;font-weight:600;">Available Internships</a>.
+        </div>
+        {% endif %}
+
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ── ROW 3: Quick Actions ── -->
+    <div class="dash-section-block">
+      <div class="section-header"><h2>Quick Actions</h2></div>
+      <div class="quick-actions">
+        <button class="btn btn-primary" onclick="showSection('internships')">🔍 Apply for Internship</button>
+        <button class="btn btn-secondary" onclick="showSection('profile')">✏️ Update Profile</button>
+        <button class="btn btn-secondary" onclick="showSection('applications')">📁 My Applications</button>
+        {% if profile and profile.allocated_internship %}
+        <button class="btn btn-success" onclick="showSection('my-internship')">🎓 My Internship</button>
+        {% endif %}
+        <button class="btn btn-secondary" onclick="showSection('notifications')">🔔 Notifications</button>
+      </div>
+    </div>
+
+    <!-- ── ROW 4: Recommended + Notifications Preview ── -->
+    <div class="dash-mid-row">
+
+      <!-- Recommended Internships -->
+      <div class="dash-section-block" style="flex:2;">
+        <div class="section-header">
+          <h2>Recommended Internships</h2>
+          <button class="btn btn-secondary btn-sm" onclick="showSection('internships')">See All →</button>
+        </div>
+        {% if available_internships %}
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          {% for internship in available_internships[:3] %}
+          {% set org = orgs.get(internship.organization_id) %}
+          <div class="recommended-card">
+            <div class="recommended-left">
+              <div class="recommended-avatar">{{ (org.company_name[0].upper() if org else '?') }}</div>
+              <div>
+                <div class="recommended-title">{{ internship.title }}</div>
+                <div class="recommended-company">{{ org.company_name if org else 'Organization' }}</div>
+                <div class="recommended-meta">
+                  {% if internship.location %}<span>📍 {{ internship.location }}</span>{% endif %}
+                  {% if internship.duration %}<span>🗓 {{ internship.duration }}</span>{% endif %}
+                  {% if internship.stipend %}<span>💰 ₹{{ internship.stipend }}</span>{% endif %}
+                </div>
+              </div>
+            </div>
+            <div>
+              {% if internship.id in applied_ids %}
+              <span class="badge badge-applied">✓ Applied</span>
+              {% else %}
+              <button class="btn btn-primary btn-sm" onclick="applyInternship({{ internship.id }}, this)">Apply Now</button>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:30px;">
+          <div class="empty-icon">🏢</div>
+          <p>No internships available right now</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Notifications Preview + Achievements -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+
+        <!-- Notifications Preview -->
+        <div class="dash-section-block" style="margin-bottom:0;">
+          <div class="section-header" style="margin-bottom:14px;">
+            <h2>Notifications</h2>
+            <button class="btn btn-secondary btn-sm" onclick="showSection('notifications')">All →</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            {% set notif_count = 0 %}
+            {% for ea in enriched_applications[:2] %}
+            {% if notif_count < 2 %}
+            <div class="notif-preview-item {% if ea.application.status == 'approved' %}notif-success{% elif ea.application.status == 'rejected' %}notif-danger{% else %}notif-info{% endif %}">
+              <div class="notif-preview-icon">
+                {% if ea.application.status == 'approved' %}✅{% elif ea.application.status == 'rejected' %}❌{% else %}⏳{% endif %}
+              </div>
+              <div style="font-size:12px;color:#333;line-height:1.4;">
+                <strong>{{ ea.internship.title if ea.internship else 'Internship' }}</strong> at {{ ea.org.company_name if ea.org else 'org' }} —
+                <span style="font-weight:600;color:{% if ea.application.status == 'approved' %}#166534{% elif ea.application.status == 'rejected' %}#991b1b{% else %}#854d0e{% endif %};">{{ ea.application.status }}</span>
+              </div>
+            </div>
+            {% set notif_count = notif_count + 1 %}
+            {% endif %}
+            {% endfor %}
+            {% if not enriched_applications %}
+            <p style="color:#aaa;font-size:13px;text-align:center;padding:16px 0;">No notifications yet</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Achievements / Badges -->
+        <div class="dash-section-block" style="margin-bottom:0;">
+          <div class="section-header" style="margin-bottom:14px;"><h2>Achievements</h2></div>
+          <div class="achievements-grid">
+            <div class="achievement-item {% if total_applied >= 1 %}achievement-unlocked{% endif %}">
+              <div class="achievement-icon">🚀</div>
+              <div class="achievement-label">First Apply</div>
+            </div>
+            <div class="achievement-item {% if enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length >= 1 %}achievement-unlocked{% endif %}">
+              <div class="achievement-icon">🏆</div>
+              <div class="achievement-label">Approved!</div>
+            </div>
+            <div class="achievement-item {% if profile and profile.skills %}achievement-unlocked{% endif %}">
+              <div class="achievement-icon">🧠</div>
+              <div class="achievement-label">Skills Set</div>
+            </div>
+            <div class="achievement-item {% if total_applied >= 3 %}achievement-unlocked{% endif %}">
+              <div class="achievement-icon">🔥</div>
+              <div class="achievement-label">3+ Applied</div>
+            </div>
+            <div class="achievement-item {% if profile and profile.allocated_internship %}achievement-unlocked{% endif %}">
+              <div class="achievement-icon">🎯</div>
+              <div class="achievement-label">AI Matched</div>
+            </div>
+            <div class="achievement-item">
+              <div class="achievement-icon">🎓</div>
+              <div class="achievement-label">Completed</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── ROW 5: Recent Activity Table ── -->
+    <div class="dash-section-block">
+      <div class="section-header">
+        <h2>Recent Activity</h2>
+        {% if enriched_applications | length > 5 %}
+        <button class="btn btn-secondary btn-sm" onclick="showSection('applications')">View All {{ total_applied }} →</button>
+        {% endif %}
+      </div>
+      {% if enriched_applications %}
+      <div class="table-container" style="margin-bottom:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Internship</th>
+              <th>Organization</th>
+              <th>Location</th>
+              <th>Stipend</th>
+              <th>Status</th>
+              <th>Applied On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ea in enriched_applications[:5] %}
+            <tr>
+              <td style="color:#aaa;font-size:12px;">{{ loop.index }}</td>
+              <td style="font-weight:600;color:#001a40;">{{ ea.internship.title if ea.internship else 'N/A' }}</td>
+              <td style="color:#666;">{{ ea.org.company_name if ea.org else 'N/A' }}</td>
+              <td style="color:#888;font-size:13px;">{{ ea.internship.location if ea.internship and ea.internship.location else '—' }}</td>
+              <td style="font-size:13px;">{% if ea.internship and ea.internship.stipend %}₹{{ ea.internship.stipend }}{% else %}—{% endif %}</td>
+              <td><span class="badge badge-{{ ea.application.status }}">{{ ea.application.status }}</span></td>
+              <td style="color:#999;font-size:12px;">{{ ea.application.applied_at.strftime('%d %b %Y') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No applications yet</p>
+        <p class="empty-note">Start applying to internships to see your activity here</p>
+        <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       SECTION 2: AVAILABLE INTERNSHIPS
+       ============================================================ -->
+  <div id="section-internships" class="section-view">
+    <h1 class="page-title">Available Internships</h1>
+    <p class="page-subtitle">Explore open internship opportunities and apply today</p>
+
+    <!-- Search & Filter -->
+    <div class="filter-bar">
+      <input type="text" id="search-input" class="search-input" placeholder="🔍  Search by role or company..." oninput="filterInternships()" />
+      <select id="filter-location" onchange="filterInternships()">
+        <option value="">📍 All Locations</option>
+        {% set locations = [] %}
+        {% for i in available_internships %}
+          {% if i.location and i.location not in locations %}
+            {% set _ = locations.append(i.location) %}
+            <option value="{{ i.location }}">{{ i.location }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <select id="filter-duration" onchange="filterInternships()">
+        <option value="">🗓 All Durations</option>
+        {% set durations = [] %}
+        {% for i in available_internships %}
+          {% if i.duration and i.duration not in durations %}
+            {% set _ = durations.append(i.duration) %}
+            <option value="{{ i.duration }}">{{ i.duration }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
+
+    <div id="no-results" style="display:none;" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <p>No internships match your filters</p>
+      <p class="empty-note">Try changing or clearing your search</p>
+    </div>
+
+    {% if available_internships %}
+    <div class="cards-grid" id="internship-cards">
+      {% for internship in available_internships %}
+      {% set org = orgs.get(internship.organization_id) %}
+      <div class="card card-accent internship-card-item"
+           data-title="{{ internship.title | lower }}"
+           data-company="{{ (org.company_name if org else '') | lower }}"
+           data-location="{{ internship.location | lower }}"
+           data-duration="{{ internship.duration | lower }}">
+        <div class="card-body">
+          <div class="card-title">{{ internship.title }}</div>
+          <div class="card-subtitle">{{ org.company_name if org else 'Organization' }}</div>
+          <div class="meta-list">
+            {% if internship.location %}
+            <div class="meta-item"><span class="meta-icon">📍</span> {{ internship.location }}</div>
+            {% endif %}
+            {% if internship.duration %}
+            <div class="meta-item"><span class="meta-icon">🗓</span> {{ internship.duration }}</div>
+            {% endif %}
+            {% if internship.stipend %}
+            <div class="meta-item"><span class="meta-icon">💰</span> ₹{{ internship.stipend }}/month</div>
+            {% endif %}
+            {% if internship.capacity %}
+            <div class="meta-item"><span class="meta-icon">👥</span> {{ internship.capacity }} position{{ 's' if internship.capacity != 1 else '' }}</div>
+            {% endif %}
+          </div>
+          {% if internship.skills_required %}
+          <div class="skills-container">
+            {% for skill in internship.skills_required.split(',')[:5] %}
+            {% if skill.strip() %}
+            <span class="skill-tag">{{ skill.strip() }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        <div class="card-footer">
+          {% if internship.id in applied_ids %}
+          <span class="badge badge-applied">✓ Applied</span>
+          {% else %}
+          <button class="btn btn-primary btn-sm" onclick="applyInternship({{ internship.id }}, this)">Apply Now</button>
+          {% endif %}
+          <span style="font-size:11px;color:#999;">{{ internship.created_at.strftime('%d %b %Y') if internship.created_at else '' }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🏢</div>
+      <p>No internships available right now</p>
+      <p class="empty-note">Check back later — new opportunities are added regularly</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ============================================================
+       SECTION 3: MY APPLICATIONS
+       ============================================================ -->
+  <div id="section-applications" class="section-view">
+    <h1 class="page-title">My Applications</h1>
+    <p class="page-subtitle">Track the status of all your internship applications</p>
+
+    <div class="section-header">
+      <h2>All Applications <span style="font-size:15px;font-weight:400;color:#666;">({{ total_applied }})</span></h2>
+      <button class="btn btn-primary btn-sm" onclick="showSection('internships')">+ Apply for More</button>
+    </div>
+
+    {% if enriched_applications %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Internship</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Stipend</th>
+            <th>Status</th>
+            <th>Applied On</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ea in enriched_applications %}
+          <tr id="app-row-{{ ea.application.id }}">
+            <td style="color:#999;font-size:12px;">{{ loop.index }}</td>
+            <td style="font-weight:600;color:#001a40;">{{ ea.internship.title if ea.internship else 'N/A' }}</td>
+            <td style="color:#666;">{{ ea.org.company_name if ea.org else 'N/A' }}</td>
+            <td>{{ ea.internship.location if ea.internship and ea.internship.location else '—' }}</td>
+            <td>{% if ea.internship and ea.internship.stipend %}₹{{ ea.internship.stipend }}{% else %}—{% endif %}</td>
+            <td>
+              <span class="badge badge-{{ ea.application.status }}">{{ ea.application.status }}</span>
+            </td>
+            <td style="color:#999;font-size:12px;">{{ ea.application.applied_at.strftime('%d %b %Y') }}</td>
+            <td>
+              {% if ea.application.status == 'pending' %}
+              <button class="btn btn-danger btn-sm" onclick="withdrawApplication({{ ea.application.id }}, this)">Withdraw</button>
+              {% else %}
+              <span style="color:#ccc;font-size:12px;">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>No applications yet</p>
+      <p class="empty-note">You haven't applied to any internships. Browse the available ones!</p>
+      <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ============================================================
+       SECTION 4: MY INTERNSHIP (Ongoing / Allocated)
+       ============================================================ -->
+  <div id="section-my-internship" class="section-view">
+    <h1 class="page-title">My Internship</h1>
+    <p class="page-subtitle">Your active or AI-allocated internship information</p>
+
+    {% if profile and profile.allocated_internship %}
+    <div class="allocated-card">
+      <h3>AI-Allocated Internship</h3>
+      <div class="intern-title">{{ profile.allocated_internship }}</div>
+      {% if profile.match_score %}
+      <div class="score-badge">🤖 Match Score: {{ "%.0f"|format(profile.match_score * 100) }}%</div>
+      {% endif %}
+    </div>
+
+    {% if profile.match_score %}
+    <div class="form-card">
+      <h3>Skill Match Details</h3>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-size:14px;color:#001a40;font-weight:600;">Overall Match</span>
+          <span style="font-size:14px;color:#1e7ce8;font-weight:700;">{{ "%.0f"|format(profile.match_score * 100) }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: {{ "%.0f"|format(profile.match_score * 100) }}%"></div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#666;">This score is calculated by the AI matching engine based on your listed skills compared to the internship requirements.</p>
+    </div>
+    {% endif %}
+
+    {% set active_apps = enriched_applications | selectattr('application.status', 'equalto', 'approved') | list %}
+    {% if active_apps %}
+    <div class="section-header" style="margin-top:10px;">
+      <h2>Approved Internships</h2>
+    </div>
+    <div class="cards-grid">
+      {% for ea in active_apps %}
+      <div class="card card-accent">
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+            <div class="card-title">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div class="card-subtitle">{{ ea.org.company_name if ea.org else 'N/A' }}</div>
+          <div class="meta-list">
+            {% if ea.internship and ea.internship.location %}
+            <div class="meta-item"><span class="meta-icon">📍</span> {{ ea.internship.location }}</div>
+            {% endif %}
+            {% if ea.internship and ea.internship.duration %}
+            <div class="meta-item"><span class="meta-icon">🗓</span> {{ ea.internship.duration }}</div>
+            {% endif %}
+            {% if ea.internship and ea.internship.stipend %}
+            <div class="meta-item"><span class="meta-icon">💰</span> ₹{{ ea.internship.stipend }}/month</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🎓</div>
+      <p>No internship allocated yet</p>
+      <p class="empty-note">The AI matching engine will assign you an internship once it processes your skills. Update your skills profile to improve your match score.</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn btn-primary" onclick="showSection('profile')">Update Skills</button>
+        <button class="btn btn-secondary" onclick="showSection('internships')">Browse & Apply</button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ============================================================
+       SECTION 5: PROFILE
+       ============================================================ -->
+  <div id="section-profile" class="section-view">
+    <!-- Profile Hero Banner -->
+    <div class="profile-page-hero">
+      <div class="profile-page-hero-avatar">{{ user.name[0]|upper if user.name else 'S' }}</div>
+      <div class="profile-page-hero-info">
+        <div class="profile-page-hero-name">{{ user.name }}</div>
+        <div class="profile-page-hero-email">{{ user.email }}</div>
+        <span class="profile-page-hero-badge">&#128100; Student</span>
+      </div>
+      <div class="profile-page-hero-tag">
+        <span class="profile-page-hero-subtitle">Update your info below</span>
+      </div>
+    </div>
+
+    {% if request.args.get('saved') and request.args.get('section') == 'profile' %}
+    <div class="profile-success-msg">
+      &#10003; Profile updated successfully!
+    </div>
+    {% endif %}
+
+    <form action="/student/profile" method="POST" enctype="multipart/form-data">
+      <div class="form-card profile-card-personal">
+        <h3>&#128100; Personal Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" value="{{ user.name }}" required />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" value="{{ user.email }}" disabled style="background:#f9fafb;cursor:not-allowed;" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <input type="text" value="Student" disabled style="background:#f9fafb;cursor:not-allowed;" />
+        </div>
+      </div>
+
+      <div class="form-card profile-card-skills">
+        <h3>&#9998; Skills &amp; Expertise</h3>
+        <div class="form-group">
+          <label for="skills">Skills <span style="color:#888;font-weight:400;">(comma separated)</span></label>
+          <textarea id="skills" name="skills" placeholder="e.g. Python, Machine Learning, React, SQL" rows="3">{{ profile.skills if profile and profile.skills else '' }}</textarea>
+        </div>
+        {% if profile and profile.skills %}
+        <div style="margin-top:-8px;margin-bottom:16px;">
+          <div style="font-size:12px;color:#888;margin-bottom:8px;">Preview:</div>
+          <div class="skills-container">
+            {% for skill in profile.skills.split(',') %}
+            {% if skill.strip() %}
+            <span class="skill-tag">{{ skill.strip() }}</span>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        <p style="font-size:12px;color:#888;">Your skills are used by the AI engine to match you with the best internships.</p>
+      </div>
+
+      <div class="form-card profile-card-portfolio">
+        <h3>&#128279; Portfolio &amp; Links</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>LinkedIn Profile</label>
+            <input type="url" name="linkedin_url" value="{{ portfolio.linkedin_url if portfolio and portfolio.linkedin_url else '' }}" placeholder="https://linkedin.com/in/yourprofile" />
+          </div>
+          <div class="form-group">
+            <label>GitHub / Portfolio</label>
+            <input type="url" name="github_url" value="{{ portfolio.github_url if portfolio and portfolio.github_url else '' }}" placeholder="https://github.com/yourhandle" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Resume / CV</label>
+          <input type="file" name="resume_file" accept=".pdf,.doc,.docx" style="padding:8px;" />
+          {% if portfolio and portfolio.resume_path %}
+          <a href="/{{ portfolio.resume_path }}" target="_blank" class="profile-resume-link">
+            &#128196; View Current Resume
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-save-bar">
+        <span class="profile-save-hint">&#128274; Changes are saved securely to your account</span>
+        <button type="submit" class="btn btn-primary">&#10003; Save Profile</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ============================================================
+       SECTION 6: NOTIFICATIONS
+       ============================================================ -->
+  <div id="section-notifications" class="section-view">
+    <h1 class="page-title">Notifications</h1>
+    <p class="page-subtitle">Stay updated on your applications and messages</p>
+
+    <div class="section-header">
+      <h2>Recent Alerts</h2>
+    </div>
+
+    <div class="notification-list">
+      {% set approved_apps = enriched_applications | selectattr('application.status', 'equalto', 'approved') | list %}
+      {% set rejected_apps = enriched_applications | selectattr('application.status', 'equalto', 'rejected') | list %}
+
+      {% if profile and profile.allocated_internship %}
+      <div class="notification-item unread">
+        <div class="notification-icon">🎉</div>
+        <div class="notification-content">
+          <p><strong>Internship Allocated!</strong> You have been matched to <strong>{{ profile.allocated_internship }}</strong> by the AI engine.</p>
+          <div class="notification-time">AI Matching System</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% for ea in approved_apps %}
+      <div class="notification-item unread">
+        <div class="notification-icon">✅</div>
+        <div class="notification-content">
+          <p>Your application for <strong>{{ ea.internship.title if ea.internship else 'an internship' }}</strong> at <strong>{{ ea.org.company_name if ea.org else 'the organization' }}</strong> has been <strong style="color:#166534;">approved</strong>!</p>
+          <div class="notification-time">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% for ea in rejected_apps %}
+      <div class="notification-item">
+        <div class="notification-icon">❌</div>
+        <div class="notification-content">
+          <p>Your application for <strong>{{ ea.internship.title if ea.internship else 'an internship' }}</strong> was not selected this time.</p>
+          <div class="notification-time">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if total_applied > 0 %}
+      <div class="notification-item">
+        <div class="notification-icon">📋</div>
+        <div class="notification-content">
+          <p>You have submitted <strong>{{ total_applied }}</strong> application{{ 's' if total_applied != 1 else '' }} on InternAI.</p>
+          <div class="notification-time">Platform activity</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not profile or not profile.skills or not profile.skills.strip() %}
+      <div class="notification-item unread">
+        <div class="notification-icon">⚠️</div>
+        <div class="notification-content">
+          <p><strong>Profile Incomplete</strong> — Add your skills to get better internship matches from the AI engine.</p>
+          <div class="notification-time">Recommendation</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if not approved_apps and not rejected_apps and not (profile and profile.allocated_internship) and total_applied == 0 %}
+      <div class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <p>No notifications yet</p>
+        <p class="empty-note">Apply to internships to receive status updates and alerts here</p>
+        <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SECTION 7: SETTINGS
+       ============================================================ -->
+  <div id="section-settings" class="section-view">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Manage your account preferences and security</p>
+
+    {% if request.args.get('saved') and request.args.get('section') == 'settings' %}
+    <div style="background:#dcfce7;border:1px solid #86efac;color:#166534;padding:12px 18px;border-radius:8px;margin-bottom:20px;font-weight:500;">
+      ✓ Password changed successfully!
+    </div>
+    {% endif %}
+    {% if request.args.get('error') %}
+    <div style="background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:12px 18px;border-radius:8px;margin-bottom:20px;font-weight:500;">
+      {% if request.args.get('error') == 'wrong_password' %}✗ Current password is incorrect.
+      {% elif request.args.get('error') == 'short_password' %}✗ New password must be at least 6 characters.
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <form action="/student/change-password" method="POST">
+      <div class="form-card">
+        <h3>Change Password</h3>
+        <div class="form-group">
+          <label for="current_password">Current Password</label>
+          <input type="password" id="current_password" name="current_password" placeholder="Enter your current password" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="new_password">New Password</label>
+            <input type="password" id="new_password" name="new_password" minlength="6" placeholder="Min 6 characters" required />
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm New Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat new password" required />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" onclick="return validatePasswords()">Update Password</button>
+      </div>
+    </form>
+
+    <div class="form-card">
+      <h3>Account Information</h3>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color);">
+          <div>
+            <div style="font-weight:600;color:#001a40;font-size:14px;">Email Address</div>
+            <div style="color:#666;font-size:13px;">{{ user.email }}</div>
+          </div>
+          <span style="background:#dbeafe;color:#0369a1;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">Verified</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-color);">
+          <div>
+            <div style="font-weight:600;color:#001a40;font-size:14px;">Account Role</div>
+            <div style="color:#666;font-size:13px;">Student</div>
+          </div>
+          <span class="badge badge-applied">Student</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+          <div>
+            <div style="font-weight:600;color:#001a40;font-size:14px;">Account Status</div>
+            <div style="color:#666;font-size:13px;">Active and verified</div>
+          </div>
+          <span class="badge badge-approved">Active</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card" style="border-color:rgba(239,68,68,0.3);">
+      <h3 style="color:#991b1b;">Danger Zone</h3>
+      <p style="color:#666;font-size:14px;margin-bottom:16px;">Permanently log out of your account across all sessions.</p>
+      <a href="/logout" class="btn btn-danger">Logout from InternAI</a>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SECTION: ADD CERTIFICATE
+       ============================================================ -->
+  <div id="section-add-certificate" class="section-view">
+    <!-- Certificate Hero Banner -->
+    <div class="cert-page-hero">
+      <div class="cert-page-hero-icon">&#127885;</div>
+      <div class="cert-page-hero-info">
+        <div class="cert-page-hero-title">Add Certificate</div>
+        <div class="cert-page-hero-subtitle">Record certifications you've earned to strengthen your profile</div>
+        <span class="cert-page-hero-badge">&#9733; Certification Record</span>
+      </div>
+    </div>
+
+    {% if request.args.get('saved') and request.args.get('section') == 'add-certificate' %}
+    <div class="profile-success-msg">
+      &#10003; Certificate saved successfully!
+    </div>
+    {% endif %}
+
+    <form action="/student/certificate" method="POST" enctype="multipart/form-data">
+
+    <div class="form-card cert-card-details">
+      <h3>&#128196; Certificate Details</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Certificate Name <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="certificate_name" placeholder="e.g. AWS Certified Developer" required />
+        </div>
+        <div class="form-group">
+          <label>Issuing Organization <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="issuing_organization" placeholder="e.g. Amazon Web Services" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Issue Date <span style="color:#ef4444;">*</span></label>
+          <input type="date" name="issue_date" required />
+        </div>
+        <div class="form-group">
+          <label>Expiry Date <span style="color:#888;font-weight:400;">(optional)</span></label>
+          <input type="date" name="expiry_date" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Upload Certificate <span style="color:#888;font-weight:400;">(optional, PDF/Image)</span></label>
+        <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png,.webp" style="padding:8px;" />
+      </div>
+      <div class="form-group">
+        <label>Description <span style="color:#888;font-weight:400;">(optional)</span></label>
+        <textarea name="description" placeholder="Brief description of what this certificate covers..." rows="2"></textarea>
+      </div>
+    </div>
+    <div class="profile-save-bar">
+      <span class="profile-save-hint">&#127885; Certificate will be saved to your profile</span>
+      <button type="submit" class="btn btn-primary">&#10003; Save Certificate</button>
+    </div>
+    </form>
+
+    <!-- Certificates List -->
+    <div class="dash-section-block">
+      <div class="section-header"><h2>Your Certificates</h2></div>
+      {% if certificates %}
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for cert in certificates %}
+        <div class="recommended-card" style="align-items:flex-start;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="recommended-title">{{ cert.certificate_name }}</div>
+            <div class="recommended-company">{{ cert.issuing_organization }}</div>
+            <div class="recommended-meta">
+              {% if cert.issue_date %}<span>Issued: {{ cert.issue_date.strftime('%d %b %Y') }}</span>{% endif %}
+              {% if cert.expiry_date %}<span>Expires: {{ cert.expiry_date.strftime('%d %b %Y') }}</span>{% endif %}
+            </div>
+            {% if cert.description %}
+            <div style="font-size:12px;color:#666;">{{ cert.description }}</div>
+            {% endif %}
+          </div>
+          {% if cert.certificate_file_path %}
+          <a class="btn btn-secondary btn-sm" href="/{{ cert.certificate_file_path }}" target="_blank">View File</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:40px 20px;">
+        <div class="empty-icon">🏅</div>
+        <p>No certificates added yet</p>
+        <p class="empty-note">Add your certifications to showcase your skills to organizations</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SECTION: ADD INTERNSHIP (Past Experience)
+       ============================================================ -->
+  <div id="section-add-internship" class="section-view">
+    <!-- Internship Hero Banner -->
+    <div class="internship-page-hero">
+      <div class="internship-page-hero-icon">&#128188;</div>
+      <div class="internship-page-hero-info">
+        <div class="internship-page-hero-title">Add Internship</div>
+        <div class="internship-page-hero-subtitle">Record past internship experiences to build your professional portfolio</div>
+        <span class="internship-page-hero-badge">&#128188; Work Experience</span>
+      </div>
+    </div>
+
+    {% if request.args.get('saved') and request.args.get('section') == 'add-internship' %}
+    <div class="profile-success-msg">
+      &#10003; Internship experience saved successfully!
+    </div>
+    {% endif %}
+
+    <form action="/student/internship-experience" method="POST" enctype="multipart/form-data">
+
+    <div class="form-card internship-card-details">
+      <h3>&#128188; Internship Details</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Company / Organization <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="company_name" placeholder="e.g. Google India Pvt. Ltd." required />
+        </div>
+        <div class="form-group">
+          <label>Role / Position <span style="color:#ef4444;">*</span></label>
+          <input type="text" name="role" placeholder="e.g. Software Engineering Intern" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Date <span style="color:#ef4444;">*</span></label>
+          <input type="date" name="start_date" required />
+        </div>
+        <div class="form-group">
+          <label>End Date <span style="color:#ef4444;">*</span></label>
+          <input type="date" name="end_date" required />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" name="location" placeholder="e.g. Bangalore / Remote" />
+        </div>
+        <div class="form-group">
+          <label>Stipend <span style="color:#888;font-weight:400;">(optional)</span></label>
+          <input type="text" name="stipend" placeholder="e.g. ₹15,000/month" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Skills Used <span style="color:#888;font-weight:400;">(comma separated)</span></label>
+        <input type="text" name="skills_used" placeholder="e.g. React, Node.js, MongoDB" />
+      </div>
+      <div class="form-group">
+        <label>Work Description</label>
+        <textarea name="work_description" placeholder="Briefly describe your role and key responsibilities..." rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Offer / Experience Letter <span style="color:#888;font-weight:400;">(optional)</span></label>
+        <input type="file" name="proof_file" accept=".pdf,.jpg,.jpeg,.png,.webp" style="padding:8px;" />
+      </div>
+    </div>
+    <div class="profile-save-bar">
+      <span class="profile-save-hint">&#128188; Experience will be saved to your portfolio</span>
+      <button type="submit" class="btn btn-primary">&#10003; Save Internship</button>
+    </div>
+    </form>
+
+    <!-- Past Internships List -->
+    <div class="dash-section-block">
+      <div class="section-header"><h2>Past Internship Experiences</h2></div>
+      {% if internship_experiences %}
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for exp in internship_experiences %}
+        <div class="recommended-card" style="align-items:flex-start;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="recommended-title">{{ exp.role }}</div>
+            <div class="recommended-company">{{ exp.company_name }}</div>
+            <div class="recommended-meta">
+              {% if exp.location %}<span>📍 {{ exp.location }}</span>{% endif %}
+              {% if exp.start_date %}<span>From: {{ exp.start_date.strftime('%d %b %Y') }}</span>{% endif %}
+              {% if exp.end_date %}<span>To: {{ exp.end_date.strftime('%d %b %Y') }}</span>{% endif %}
+              {% if exp.stipend %}<span>💰 {{ exp.stipend }}</span>{% endif %}
+            </div>
+            {% if exp.skills_used %}<div style="font-size:12px;color:#666;"><strong>Skills:</strong> {{ exp.skills_used }}</div>{% endif %}
+            {% if exp.work_description %}<div style="font-size:12px;color:#666;">{{ exp.work_description }}</div>{% endif %}
+          </div>
+          {% if exp.proof_file_path %}
+          <a class="btn btn-secondary btn-sm" href="/{{ exp.proof_file_path }}" target="_blank">View File</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:40px 20px;">
+        <div class="empty-icon">💼</div>
+        <p>No past internships added yet</p>
+        <p class="empty-note">Adding past experience helps organizations understand your background</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div><!-- /.container -->
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+  var profileSections = ['profile', 'add-certificate', 'add-internship'];
+
+  function showSection(name) {
+    document.querySelectorAll('.section-view').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    var target = document.getElementById('section-' + name);
+    if (target) target.classList.add('active');
+
+    // Reset all nav-links
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+      link.style.backgroundColor = '';
+      link.style.color = '#ffffff';
+    });
+
+    // Highlight matching direct nav-link
+    var direct = document.querySelector('[data-section="' + name + '"]');
+    if (direct) direct.style.backgroundColor = '#1e7ce8';
+
+    // Highlight Profile dropdown btn when any sub-section is active
+    var profileBtn = document.getElementById('profile-dropdown-btn');
+    if (profileBtn && profileSections.indexOf(name) !== -1) {
+      profileBtn.style.backgroundColor = '#1e7ce8';
+    }
+
+    closeDropdown();
+    history.replaceState(null, '', window.location.pathname + '?section=' + name);
+  }
+
+  function toggleProfileDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('profile-dropdown').classList.toggle('open');
+  }
+
+  function closeDropdown() {
+    var menu = document.getElementById('profile-dropdown');
+    if (menu) menu.classList.remove('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-dropdown')) closeDropdown();
+  });
+
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var section = params.get('section');
+    if (section) {
+      showSection(section);
+    } else {
+      var defLink = document.querySelector('[data-section="dashboard"]');
+      if (defLink) defLink.style.backgroundColor = '#1e7ce8';
+    }
+
+    // Time-based greeting
+    var hour = new Date().getHours();
+    var greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    var el = document.getElementById('greeting-text');
+    if (el) el.textContent = greeting + ', {{ user.name }}! 👋';
+  })();
+
+  function applyInternship(id, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Applying…';
+    fetch('/student/apply/' + id, { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'success') {
+          btn.textContent = '✓ Applied';
+          btn.className = 'btn btn-success btn-sm';
+          showToast(data.message, 'success');
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Apply Now';
+          showToast(data.message, 'error');
+        }
+      })
+      .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Apply Now';
+        showToast('Something went wrong. Please try again.', 'error');
+      });
+  }
+
+  function withdrawApplication(id, btn) {
+    if (!confirm('Are you sure you want to withdraw this application?')) return;
+    btn.disabled = true;
+    btn.textContent = 'Withdrawing…';
+    fetch('/student/withdraw/' + id, { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'success') {
+          var row = document.getElementById('app-row-' + id);
+          if (row) row.style.opacity = '0.4';
+          btn.textContent = 'Withdrawn';
+          showToast('Application withdrawn', 'success');
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Withdraw';
+          showToast(data.message, 'error');
+        }
+      });
+  }
+
+  function filterInternships() {
+    var query = document.getElementById('search-input').value.toLowerCase().trim();
+    var locationFilter = document.getElementById('filter-location').value.toLowerCase();
+    var durationFilter = document.getElementById('filter-duration').value.toLowerCase();
+    var cards = document.querySelectorAll('.internship-card-item');
+    var visible = 0;
+    cards.forEach(function(card) {
+      var title = card.getAttribute('data-title') || '';
+      var company = card.getAttribute('data-company') || '';
+      var location = card.getAttribute('data-location') || '';
+      var duration = card.getAttribute('data-duration') || '';
+      var matchSearch = !query || title.includes(query) || company.includes(query);
+      var matchLocation = !locationFilter || location.includes(locationFilter);
+      var matchDuration = !durationFilter || duration.includes(durationFilter);
+      if (matchSearch && matchLocation && matchDuration) {
+        card.style.display = '';
+        visible++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    var noResults = document.getElementById('no-results');
+    if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  function validatePasswords() {
+    var np = document.getElementById('new_password').value;
+    var cp = document.getElementById('confirm_password').value;
+    if (np !== cp) {
+      showToast('New passwords do not match!', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  function showToast(msg, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast ' + (type || '');
+    toast.style.display = 'block';
+    setTimeout(function() { toast.style.display = 'none'; }, 3500);
+  }
+</script>
 {% endblock %}

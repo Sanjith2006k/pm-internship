@@ -1,0 +1,238 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <h1 class="page-title">Settings</h1>
+  <p class="page-subtitle">Manage your admin account and preferences</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;">
+
+    <!-- Profile Settings -->
+    <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:30px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h2 style="color:#001a40;font-size:20px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #e5e7eb;">Profile</h2>
+      {% if success == 'profile' %}
+      <div style="background:#dcfce7;color:#166534;padding:12px;border-radius:6px;margin-bottom:20px;font-size:14px;">Profile updated successfully.</div>
+      {% endif %}
+      <form method="POST" action="/admin/settings">
+        <input type="hidden" name="action" value="profile">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="name" value="{{ current_user.name }}" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" value="{{ current_user.email }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Profile</button>
+      </form>
+    </div>
+
+    <!-- Change Password (3-step OTP flow) -->
+    <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:30px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h2 style="color:#001a40;font-size:20px;margin-bottom:6px;padding-bottom:15px;border-bottom:2px solid #e5e7eb;">Change Password</h2>
+
+      <!-- Step indicator -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:22px;padding-top:4px;">
+        {% set steps = [('1','Request OTP'), ('2','Verify Code'), ('3','New Password')] %}
+        {% for num, label in steps %}
+        {% set active = (num == '1' and not step) or (num == '2' and step == 'otp') or (num == '3' and step == 'newpass') %}
+        {% set done   = (num == '1' and step in ['otp','newpass']) or (num == '2' and step == 'newpass') %}
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+                      background:{% if done %}#22c55e{% elif active %}#1e7ce8{% else %}#e5e7eb{% endif %};
+                      color:{% if done or active %}white{% else %}#aaa{% endif %};">
+            {% if done %}✓{% else %}{{ num }}{% endif %}
+          </div>
+          <span style="font-size:12px;font-weight:{% if active %}600{% else %}400{% endif %};
+                       color:{% if active %}#001a40{% elif done %}#15803d{% else %}#aaa{% endif %};">
+            {{ label }}
+          </span>
+        </div>
+        {% if not loop.last %}
+        <div style="flex:1;height:1px;background:{% if (num == '1' and step in ['otp','newpass']) or (num == '2' and step == 'newpass') %}#22c55e{% else %}#e5e7eb{% endif %};min-width:10px;"></div>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <!-- Success banner -->
+      {% if success == 'password' %}
+      <div style="background:#dcfce7;color:#166534;padding:12px 14px;border-radius:8px;margin-bottom:18px;font-size:14px;display:flex;align-items:center;gap:8px;">
+        ✅ Password changed successfully.
+      </div>
+      {% endif %}
+
+      <!-- ── STEP 1: Request OTP ── -->
+      {% if not step or (error in ['email_failed','no_otp','otp_expired']) %}
+
+      {% if error == 'email_failed' %}
+      <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ❌ Failed to send email. Check server email configuration.
+      </div>
+      {% endif %}
+      {% if error == 'otp_expired' %}
+      <div style="background:#fef9c3;color:#854d0e;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ⏰ Your OTP expired. Request a new one.
+      </div>
+      {% endif %}
+
+      <p style="color:#555;font-size:14px;margin-bottom:16px;">
+        For security, a one-time code will be sent to your registered email before you can change your password.
+      </p>
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">📧</span>
+        <div>
+          <div style="font-size:12px;color:#555;">Verification code will be sent to</div>
+          <div style="font-size:14px;font-weight:700;color:#1e3a5f;">{{ current_user.email }}</div>
+        </div>
+      </div>
+      <form method="POST" action="/admin/settings">
+        <input type="hidden" name="action" value="send_otp">
+        <button type="submit" class="btn btn-primary" style="width:100%;">Send Verification Code →</button>
+      </form>
+
+      <!-- ── STEP 2: Enter OTP ── -->
+      {% elif step == 'otp' %}
+
+      {% if request.args.get('sent') %}
+      <div style="background:#dcfce7;color:#166534;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:8px;">
+        ✅ Code sent to <strong>{{ current_user.email }}</strong>. Check your inbox.
+      </div>
+      {% endif %}
+      {% if error == 'wrong_otp' %}
+      <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ❌ Incorrect code. Please try again.
+      </div>
+      {% endif %}
+
+      <p style="color:#555;font-size:14px;margin-bottom:20px;">
+        Enter the 6-digit code sent to <strong>{{ current_user.email }}</strong>. It's valid for 10 minutes.
+      </p>
+      <form method="POST" action="/admin/settings?step=otp">
+        <input type="hidden" name="action" value="verify_otp">
+        <div style="margin-bottom:20px;">
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:8px;">Verification Code</label>
+          <input type="text" name="otp" maxlength="6" placeholder="_ _ _ _ _ _" required autofocus
+            style="width:100%;padding:14px 16px;font-size:26px;font-weight:700;letter-spacing:14px;text-align:center;
+                   border:2px solid #d1d5db;border-radius:8px;outline:none;color:#001a40;
+                   transition:border 0.2s;"
+            onfocus="this.style.borderColor='#1e7ce8'"
+            onblur="this.style.borderColor='#d1d5db'">
+        </div>
+
+        <!-- 10-min countdown timer -->
+        <div style="text-align:center;margin-bottom:16px;">
+          <span style="font-size:12px;color:#888;">Code expires in </span>
+          <span id="otp-timer" style="font-size:12px;font-weight:700;color:#1e7ce8;">10:00</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:10px;">Verify Code</button>
+      </form>
+      <form method="POST" action="/admin/settings">
+        <input type="hidden" name="action" value="send_otp">
+        <button type="submit" class="btn btn-secondary" style="width:100%;font-size:13px;">Resend Code</button>
+      </form>
+
+      <!-- ── STEP 3: New Password ── -->
+      {% elif step == 'newpass' %}
+
+      <div style="background:#dcfce7;color:#166534;padding:10px 14px;border-radius:8px;margin-bottom:18px;font-size:13px;display:flex;align-items:center;gap:8px;">
+        🔓 Email verified. Set your new password below.
+      </div>
+
+      {% if error == 'password_mismatch' %}
+      <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ❌ Passwords do not match.
+      </div>
+      {% elif error == 'password_short' %}
+      <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ❌ Password must be at least 6 characters.
+      </div>
+      {% elif error == 'not_verified' %}
+      <div style="background:#fee2e2;color:#991b1b;padding:12px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;">
+        ❌ Session expired. Please start over.
+      </div>
+      {% endif %}
+
+      <form method="POST" action="/admin/settings?step=newpass">
+        <input type="hidden" name="action" value="password">
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" name="new_password" required minlength="6" autofocus>
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" name="confirm_password" required minlength="6"
+                 oninput="document.getElementById('pw-match').style.display=this.value&&this.value!==this.form.new_password.value?'block':'none'">
+          <small id="pw-match" style="display:none;color:#ef4444;font-size:12px;margin-top:4px;">Passwords do not match</small>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Change Password</button>
+      </form>
+      {% endif %}
+
+    </div>
+
+    <!-- Admin Preferences -->
+    <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:30px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h2 style="color:#001a40;font-size:20px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #e5e7eb;">Admin Preferences</h2>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;">
+          <div>
+            <p style="font-weight:600;color:#001a40;margin:0;">Email Notifications</p>
+            <p style="color:#666;font-size:13px;margin:4px 0 0 0;">Receive alerts for new registrations</p>
+          </div>
+          <span style="background:#dbeafe;color:#0369a1;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Coming Soon</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;">
+          <div>
+            <p style="font-weight:600;color:#001a40;margin:0;">Auto-Approve Organizations</p>
+            <p style="color:#666;font-size:13px;margin:4px 0 0 0;">Skip manual verification step</p>
+          </div>
+          <span style="background:#dbeafe;color:#0369a1;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Coming Soon</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;">
+          <div>
+            <p style="font-weight:600;color:#001a40;margin:0;">Data Export</p>
+            <p style="color:#666;font-size:13px;margin:4px 0 0 0;">Export student and internship data to CSV</p>
+          </div>
+          <span style="background:#dbeafe;color:#0369a1;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:30px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h2 style="color:#001a40;font-size:20px;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #e5e7eb;">Account Info</h2>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        {% for label, value in [('Account Type', 'Administrator'), ('Email', current_user.email), ('Name', current_user.name), ('User ID', '#' ~ current_user.id)] %}
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #f3f4f6;">
+          <span style="color:#666;font-size:14px;">{{ label }}</span>
+          <span style="font-weight:600;color:#001a40;font-size:14px;">{{ value }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// OTP 10-minute countdown timer (only runs on OTP step)
+(function () {
+  var el = document.getElementById('otp-timer');
+  if (!el) return;
+  var remaining = 10 * 60;
+  var iv = setInterval(function () {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      el.textContent = 'expired';
+      el.style.color = '#ef4444';
+      return;
+    }
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+    el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if (remaining < 60) el.style.color = '#ef4444';
+  }, 1000);
+})();
+</script>
+
+{% endblock %}
