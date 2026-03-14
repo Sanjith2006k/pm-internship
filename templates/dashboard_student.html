@@ -30,11 +30,11 @@
     <div class="dash-greeting">
       <div>
         <h1 class="page-title" id="greeting-text">Hello, {{ user.name }}!</h1>
-        <p class="page-subtitle">Here's your internship journey at a glance. Keep going! 🚀</p>
+        <p class="page-subtitle">Here's your internship journey at a glance. Keep going! </p>
       </div>
       {% if profile and not profile.skills %}
       <div class="dash-tip">
-        💡 <strong>Tip:</strong> Add your skills to get better AI-matched internship recommendations.
+         <strong>Tip:</strong> Add your skills to get better AI-matched internship recommendations.
         <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="showSection('profile')">Update Now</button>
       </div>
       {% endif %}
@@ -46,13 +46,13 @@
       <!-- Stats Cards -->
       <div class="dash-stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">📋</div>
+          <div class="stat-icon">#</div>
           <div class="stat-label">Total Applied</div>
           <div class="stat-value">{{ total_applied }}</div>
           <div class="stat-change">Applications submitted</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">✅</div>
+          <div class="stat-icon">&check;</div>
           <div class="stat-label">Approved</div>
           <div class="stat-value" style="color:#22c55e;">
             {{ enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length }}
@@ -60,7 +60,7 @@
           <div class="stat-change success">Internships confirmed</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">⏳</div>
+          <div class="stat-icon">&hellip;</div>
           <div class="stat-label">Pending</div>
           <div class="stat-value" style="color:#fbbf24;">
             {{ enriched_applications | selectattr('application.status', 'equalto', 'pending') | list | length }}
@@ -68,7 +68,7 @@
           <div class="stat-change">Awaiting response</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">❌</div>
+          <div class="stat-icon">&times;</div>
           <div class="stat-label">Rejected</div>
           <div class="stat-value" style="color:#ef4444;">
             {{ enriched_applications | selectattr('application.status', 'equalto', 'rejected') | list | length }}
@@ -76,13 +76,13 @@
           <div class="stat-change">Not selected</div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon">🏢</div>
+          <div class="stat-icon">&diams;</div>
           <div class="stat-label">Available</div>
           <div class="stat-value">{{ total_available }}</div>
           <div class="stat-change">Open to apply</div>
         </div>
         <div class="stat-card" style="cursor:pointer;" onclick="showSection('internships')">
-          <div class="stat-icon">🎯</div>
+          <div class="stat-icon">&starf;</div>
           <div class="stat-label">Recommended</div>
           <div class="stat-value" style="color:#1e7ce8;">{{ [available_internships|length, 3]|min }}</div>
           <div class="stat-change">Based on your skills</div>
@@ -122,7 +122,7 @@
         </div>
         {% if profile and profile.allocated_internship %}
         <div class="profile-allocated">
-          <div style="font-size:10px;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">🤖 AI Allocated</div>
+          <div style="font-size:10px;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;"> AI Allocated</div>
           <div style="color:#001a40;font-weight:600;font-size:13px;">{{ profile.allocated_internship }}</div>
         </div>
         {% endif %}
@@ -193,7 +193,7 @@
           <!-- Stage 1: Submitted (always done) -->
           <div class="vtl-node vtl-done">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">✅</div>
+              <div class="vtl-icon">&check;</div>
               <div class="vtl-connector"></div>
             </div>
             <div class="vtl-content">
@@ -207,7 +207,7 @@
           {% if status == 'approved' %}
           <div class="vtl-node vtl-done">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">✅</div>
+              <div class="vtl-icon">&check;</div>
               <div class="vtl-connector"></div>
             </div>
             <div class="vtl-content">
@@ -218,7 +218,7 @@
           {% elif status == 'rejected' %}
           <div class="vtl-node vtl-rejected">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">❌</div>
+              <div class="vtl-icon">&times;</div>
               <div class="vtl-connector vtl-connector-red"></div>
             </div>
             <div class="vtl-content">
@@ -229,7 +229,7 @@
           {% else %}
           <div class="vtl-node vtl-active">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">⏳</div>
+              <div class="vtl-icon">&bull;</div>
               <div class="vtl-connector vtl-connector-blue"></div>
             </div>
             <div class="vtl-content">
@@ -243,7 +243,7 @@
           {% if status == 'approved' %}
           <div class="vtl-node vtl-done vtl-last">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">🎉</div>
+              <div class="vtl-icon">&check;</div>
               <div class="vtl-connector"></div>
             </div>
             <div class="vtl-content">
@@ -254,7 +254,7 @@
           {% elif status == 'rejected' %}
           <div class="vtl-node vtl-rejected vtl-last">
             <div class="vtl-icon-col">
-              <div class="vtl-icon">❌</div>
+              <div class="vtl-icon">&times;</div>
               <div class="vtl-connector"></div>
             </div>
             <div class="vtl-content">
@@ -280,15 +280,15 @@
         <!-- Next Step Hint -->
         {% if status == 'pending' %}
         <div class="vtl-next-step">
-          💡 <strong>Next:</strong> Awaiting company review — expected decision in 2–3 days.
+           <strong>Next:</strong> Awaiting company review — expected decision in 2–3 days.
         </div>
         {% elif status == 'approved' %}
         <div class="vtl-next-step vtl-next-success">
-          🎓 <strong>Confirmed!</strong> Head to <a href="#" onclick="showSection('my-internship');return false;" style="color:#166534;font-weight:600;">My Internship</a> for details.
+           <strong>Confirmed!</strong> Head to <a href="#" onclick="showSection('my-internship');return false;" style="color:#166534;font-weight:600;">My Internship</a> for details.
         </div>
         {% elif status == 'rejected' %}
         <div class="vtl-next-step vtl-next-danger">
-          🔍 <strong>Keep going!</strong> Browse more in <a href="#" onclick="showSection('internships');return false;" style="color:#991b1b;font-weight:600;">Available Internships</a>.
+           <strong>Keep going!</strong> Browse more in <a href="#" onclick="showSection('internships');return false;" style="color:#991b1b;font-weight:600;">Available Internships</a>.
         </div>
         {% endif %}
 
@@ -301,13 +301,13 @@
     <div class="dash-section-block">
       <div class="section-header"><h2>Quick Actions</h2></div>
       <div class="quick-actions">
-        <button class="btn btn-primary" onclick="showSection('internships')">🔍 Apply for Internship</button>
-        <button class="btn btn-secondary" onclick="showSection('profile')">✏️ Update Profile</button>
-        <button class="btn btn-secondary" onclick="showSection('applications')">📁 My Applications</button>
+        <button class="btn btn-primary" onclick="showSection('internships')"> Apply for Internship</button>
+        <button class="btn btn-secondary" onclick="showSection('profile')"> Update Profile</button>
+        <button class="btn btn-secondary" onclick="showSection('applications')"> My Applications</button>
         {% if profile and profile.allocated_internship %}
-        <button class="btn btn-success" onclick="showSection('my-internship')">🎓 My Internship</button>
+        <button class="btn btn-success" onclick="showSection('my-internship')"> My Internship</button>
         {% endif %}
-        <button class="btn btn-secondary" onclick="showSection('notifications')">🔔 Notifications</button>
+        <button class="btn btn-secondary" onclick="showSection('notifications')"> Notifications</button>
       </div>
     </div>
 
@@ -331,9 +331,9 @@
                 <div class="recommended-title">{{ internship.title }}</div>
                 <div class="recommended-company">{{ org.company_name if org else 'Organization' }}</div>
                 <div class="recommended-meta">
-                  {% if internship.location %}<span>📍 {{ internship.location }}</span>{% endif %}
-                  {% if internship.duration %}<span>🗓 {{ internship.duration }}</span>{% endif %}
-                  {% if internship.stipend %}<span>💰 ₹{{ internship.stipend }}</span>{% endif %}
+                  {% if internship.location %}<span> {{ internship.location }}</span>{% endif %}
+                  {% if internship.duration %}<span> {{ internship.duration }}</span>{% endif %}
+                  {% if internship.stipend %}<span> ₹{{ internship.stipend }}</span>{% endif %}
                 </div>
               </div>
             </div>
@@ -349,7 +349,7 @@
         </div>
         {% else %}
         <div class="empty-state" style="padding:30px;">
-          <div class="empty-icon">🏢</div>
+          <div class="empty-icon">&mdash;</div>
           <p>No internships available right now</p>
         </div>
         {% endif %}
@@ -370,7 +370,7 @@
             {% if notif_count < 2 %}
             <div class="notif-preview-item {% if ea.application.status == 'approved' %}notif-success{% elif ea.application.status == 'rejected' %}notif-danger{% else %}notif-info{% endif %}">
               <div class="notif-preview-icon">
-                {% if ea.application.status == 'approved' %}✅{% elif ea.application.status == 'rejected' %}❌{% else %}⏳{% endif %}
+                {% if ea.application.status == 'approved' %}{% elif ea.application.status == 'rejected' %}{% else %}{% endif %}
               </div>
               <div style="font-size:12px;color:#333;line-height:1.4;">
                 <strong>{{ ea.internship.title if ea.internship else 'Internship' }}</strong> at {{ ea.org.company_name if ea.org else 'org' }} —
@@ -391,27 +391,27 @@
           <div class="section-header" style="margin-bottom:14px;"><h2>Achievements</h2></div>
           <div class="achievements-grid">
             <div class="achievement-item {% if total_applied >= 1 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">🚀</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">First Apply</div>
             </div>
             <div class="achievement-item {% if enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length >= 1 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">🏆</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">Approved!</div>
             </div>
             <div class="achievement-item {% if profile and profile.skills %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">🧠</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">Skills Set</div>
             </div>
             <div class="achievement-item {% if total_applied >= 3 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">🔥</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">3+ Applied</div>
             </div>
             <div class="achievement-item {% if profile and profile.allocated_internship %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">🎯</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">AI Matched</div>
             </div>
             <div class="achievement-item">
-              <div class="achievement-icon">🎓</div>
+              <div class="achievement-icon">&#9733;</div>
               <div class="achievement-label">Completed</div>
             </div>
           </div>
@@ -459,7 +459,7 @@
       </div>
       {% else %}
       <div class="empty-state">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon">&mdash;</div>
         <p>No applications yet</p>
         <p class="empty-note">Start applying to internships to see your activity here</p>
         <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
@@ -478,9 +478,9 @@
 
     <!-- Search & Filter -->
     <div class="filter-bar">
-      <input type="text" id="search-input" class="search-input" placeholder="🔍  Search by role or company..." oninput="filterInternships()" />
+      <input type="text" id="search-input" class="search-input" placeholder="  Search by role or company..." oninput="filterInternships()" />
       <select id="filter-location" onchange="filterInternships()">
-        <option value="">📍 All Locations</option>
+        <option value=""> All Locations</option>
         {% set locations = [] %}
         {% for i in available_internships %}
           {% if i.location and i.location not in locations %}
@@ -490,7 +490,7 @@
         {% endfor %}
       </select>
       <select id="filter-duration" onchange="filterInternships()">
-        <option value="">🗓 All Durations</option>
+        <option value=""> All Durations</option>
         {% set durations = [] %}
         {% for i in available_internships %}
           {% if i.duration and i.duration not in durations %}
@@ -502,7 +502,7 @@
     </div>
 
     <div id="no-results" style="display:none;" class="empty-state">
-      <div class="empty-icon">🔍</div>
+      <div class="empty-icon">&mdash;</div>
       <p>No internships match your filters</p>
       <p class="empty-note">Try changing or clearing your search</p>
     </div>
@@ -521,16 +521,16 @@
           <div class="card-subtitle">{{ org.company_name if org else 'Organization' }}</div>
           <div class="meta-list">
             {% if internship.location %}
-            <div class="meta-item"><span class="meta-icon">📍</span> {{ internship.location }}</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> {{ internship.location }}</div>
             {% endif %}
             {% if internship.duration %}
-            <div class="meta-item"><span class="meta-icon">🗓</span> {{ internship.duration }}</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> {{ internship.duration }}</div>
             {% endif %}
             {% if internship.stipend %}
-            <div class="meta-item"><span class="meta-icon">💰</span> ₹{{ internship.stipend }}/month</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> ₹{{ internship.stipend }}/month</div>
             {% endif %}
             {% if internship.capacity %}
-            <div class="meta-item"><span class="meta-icon">👥</span> {{ internship.capacity }} position{{ 's' if internship.capacity != 1 else '' }}</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> {{ internship.capacity }} position{{ 's' if internship.capacity != 1 else '' }}</div>
             {% endif %}
           </div>
           {% if internship.skills_required %}
@@ -556,7 +556,7 @@
     </div>
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">🏢</div>
+      <div class="empty-icon">&mdash;</div>
       <p>No internships available right now</p>
       <p class="empty-note">Check back later — new opportunities are added regularly</p>
     </div>
@@ -616,7 +616,7 @@
     </div>
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">📭</div>
+      <div class="empty-icon">&mdash;</div>
       <p>No applications yet</p>
       <p class="empty-note">You haven't applied to any internships. Browse the available ones!</p>
       <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
@@ -636,7 +636,7 @@
       <h3>AI-Allocated Internship</h3>
       <div class="intern-title">{{ profile.allocated_internship }}</div>
       {% if profile.match_score %}
-      <div class="score-badge">🤖 Match Score: {{ "%.0f"|format(profile.match_score * 100) }}%</div>
+      <div class="score-badge"> Match Score: {{ "%.0f"|format(profile.match_score * 100) }}%</div>
       {% endif %}
     </div>
 
@@ -672,13 +672,13 @@
           <div class="card-subtitle">{{ ea.org.company_name if ea.org else 'N/A' }}</div>
           <div class="meta-list">
             {% if ea.internship and ea.internship.location %}
-            <div class="meta-item"><span class="meta-icon">📍</span> {{ ea.internship.location }}</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> {{ ea.internship.location }}</div>
             {% endif %}
             {% if ea.internship and ea.internship.duration %}
-            <div class="meta-item"><span class="meta-icon">🗓</span> {{ ea.internship.duration }}</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> {{ ea.internship.duration }}</div>
             {% endif %}
             {% if ea.internship and ea.internship.stipend %}
-            <div class="meta-item"><span class="meta-icon">💰</span> ₹{{ ea.internship.stipend }}/month</div>
+            <div class="meta-item"><span class="meta-icon">&bull;</span> ₹{{ ea.internship.stipend }}/month</div>
             {% endif %}
           </div>
         </div>
@@ -689,7 +689,7 @@
 
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">🎓</div>
+      <div class="empty-icon">&mdash;</div>
       <p>No internship allocated yet</p>
       <p class="empty-note">The AI matching engine will assign you an internship once it processes your skills. Update your skills profile to improve your match score.</p>
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
@@ -810,7 +810,7 @@
 
       {% if profile and profile.allocated_internship %}
       <div class="notification-item unread">
-        <div class="notification-icon">🎉</div>
+        <div class="notification-icon">&starf;</div>
         <div class="notification-content">
           <p><strong>Internship Allocated!</strong> You have been matched to <strong>{{ profile.allocated_internship }}</strong> by the AI engine.</p>
           <div class="notification-time">AI Matching System</div>
@@ -820,7 +820,7 @@
 
       {% for ea in approved_apps %}
       <div class="notification-item unread">
-        <div class="notification-icon">✅</div>
+        <div class="notification-icon">&check;</div>
         <div class="notification-content">
           <p>Your application for <strong>{{ ea.internship.title if ea.internship else 'an internship' }}</strong> at <strong>{{ ea.org.company_name if ea.org else 'the organization' }}</strong> has been <strong style="color:#166534;">approved</strong>!</p>
           <div class="notification-time">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
@@ -830,7 +830,7 @@
 
       {% for ea in rejected_apps %}
       <div class="notification-item">
-        <div class="notification-icon">❌</div>
+        <div class="notification-icon">&times;</div>
         <div class="notification-content">
           <p>Your application for <strong>{{ ea.internship.title if ea.internship else 'an internship' }}</strong> was not selected this time.</p>
           <div class="notification-time">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
@@ -840,7 +840,7 @@
 
       {% if total_applied > 0 %}
       <div class="notification-item">
-        <div class="notification-icon">📋</div>
+        <div class="notification-icon">#</div>
         <div class="notification-content">
           <p>You have submitted <strong>{{ total_applied }}</strong> application{{ 's' if total_applied != 1 else '' }} on InternAI.</p>
           <div class="notification-time">Platform activity</div>
@@ -850,7 +850,7 @@
 
       {% if not profile or not profile.skills or not profile.skills.strip() %}
       <div class="notification-item unread">
-        <div class="notification-icon">⚠️</div>
+        <div class="notification-icon">!</div>
         <div class="notification-content">
           <p><strong>Profile Incomplete</strong> — Add your skills to get better internship matches from the AI engine.</p>
           <div class="notification-time">Recommendation</div>
@@ -860,7 +860,7 @@
 
       {% if not approved_apps and not rejected_apps and not (profile and profile.allocated_internship) and total_applied == 0 %}
       <div class="empty-state">
-        <div class="empty-icon">🔔</div>
+        <div class="empty-icon">&mdash;</div>
         <p>No notifications yet</p>
         <p class="empty-note">Apply to internships to receive status updates and alerts here</p>
         <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
@@ -1029,7 +1029,7 @@
       </div>
       {% else %}
       <div class="empty-state" style="padding:40px 20px;">
-        <div class="empty-icon">🏅</div>
+        <div class="empty-icon">&mdash;</div>
         <p>No certificates added yet</p>
         <p class="empty-note">Add your certifications to showcase your skills to organizations</p>
       </div>
@@ -1121,10 +1121,10 @@
             <div class="recommended-title">{{ exp.role }}</div>
             <div class="recommended-company">{{ exp.company_name }}</div>
             <div class="recommended-meta">
-              {% if exp.location %}<span>📍 {{ exp.location }}</span>{% endif %}
+              {% if exp.location %}<span> {{ exp.location }}</span>{% endif %}
               {% if exp.start_date %}<span>From: {{ exp.start_date.strftime('%d %b %Y') }}</span>{% endif %}
               {% if exp.end_date %}<span>To: {{ exp.end_date.strftime('%d %b %Y') }}</span>{% endif %}
-              {% if exp.stipend %}<span>💰 {{ exp.stipend }}</span>{% endif %}
+              {% if exp.stipend %}<span> {{ exp.stipend }}</span>{% endif %}
             </div>
             {% if exp.skills_used %}<div style="font-size:12px;color:#666;"><strong>Skills:</strong> {{ exp.skills_used }}</div>{% endif %}
             {% if exp.work_description %}<div style="font-size:12px;color:#666;">{{ exp.work_description }}</div>{% endif %}
@@ -1137,7 +1137,7 @@
       </div>
       {% else %}
       <div class="empty-state" style="padding:40px 20px;">
-        <div class="empty-icon">💼</div>
+        <div class="empty-icon">&mdash;</div>
         <p>No past internships added yet</p>
         <p class="empty-note">Adding past experience helps organizations understand your background</p>
       </div>
@@ -1208,7 +1208,7 @@
     var hour = new Date().getHours();
     var greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     var el = document.getElementById('greeting-text');
-    if (el) el.textContent = greeting + ', {{ user.name }}! 👋';
+    if (el) el.textContent = greeting + ', {{ user.name }}!';
   })();
 
   function applyInternship(id, btn) {

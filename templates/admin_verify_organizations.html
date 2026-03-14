@@ -6,7 +6,10 @@
   <p class="page-subtitle">Review and verify organization registrations</p>
 
   <!-- Stat Boxes -->
-  <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 30px;">
+  <div
+    class="stats-grid"
+    style="grid-template-columns: repeat(2, 1fr); margin-bottom: 30px"
+  >
     <div class="stat-card">
       <div class="stat-label">Total Organizations</div>
       <div class="stat-value">{{ total_orgs }}</div>
@@ -14,7 +17,7 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Verified Organizations</div>
-      <div class="stat-value" style="color:#22c55e;">{{ verified_orgs }}</div>
+      <div class="stat-value" style="color: #22c55e">{{ verified_orgs }}</div>
       <div class="stat-change">Successfully approved</div>
     </div>
   </div>
@@ -30,7 +33,7 @@
     "
   >
     <h2 style="color: #001a40; margin: 0 0 15px 0; font-size: 18px">
-      ✅ Verification Checklist
+       Verification Checklist
     </h2>
     <p style="color: #666; font-size: 13px; margin: 0 0 15px 0">
       Before approving an organization, verify all three requirements below:
@@ -46,7 +49,7 @@
         "
       >
         <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-          🔢 GST Verification
+           GST Verification
         </h3>
         <ul
           style="
@@ -81,7 +84,7 @@
         "
       >
         <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-          🔗 LinkedIn Check
+           LinkedIn Check
         </h3>
         <ul
           style="
@@ -108,7 +111,7 @@
         "
       >
         <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-          📧 Domain Email
+           Domain Email
         </h3>
         <ul
           style="
@@ -131,7 +134,7 @@
   <!-- Verification List -->
   <div style="margin-top: 40px">
     <div class="section-header">
-      <h2>📋 Pending Organization Verifications</h2>
+      <h2> Pending Organization Verifications</h2>
       <span
         style="
           background: #fbbf24;
@@ -210,7 +213,7 @@
                 display: inline-block;
               "
             >
-              ⏳ PENDING
+               PENDING
             </span>
           </div>
         </div>
@@ -283,7 +286,7 @@
           "
         >
           <h3 style="color: #001a40; margin: 0 0 15px 0; font-size: 18px">
-            🔍 Verification Details
+             Verification Details
           </h3>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
@@ -303,7 +306,7 @@
                   display: block;
                   margin-bottom: 8px;
                 "
-                >🔢 GST Number</strong
+                > GST Number</strong
               >
               <p
                 style="
@@ -339,13 +342,13 @@
                   display: block;
                   margin-bottom: 8px;
                 "
-                >📧 Domain Email</strong
+                > Domain Email</strong
               >
               <p style="color: #001a40; margin: 0; font-family: monospace">
                 {% if org.domain_email %} {{ org.domain_email }} {% if '@gmail'
                 in org.domain_email or '@yahoo' in org.domain_email %}
                 <span style="color: #ef4444; font-size: 12px; margin-left: 5px"
-                  >⚠️ Personal email (not domain)</span
+                  > Personal email (not domain)</span
                 >
                 {% else %}
                 <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
@@ -373,7 +376,7 @@
                   display: block;
                   margin-bottom: 8px;
                 "
-                >🔗 LinkedIn Profile</strong
+                > LinkedIn Profile</strong
               >
               <p style="color: #001a40; margin: 0">
                 {% if org.linkedin_profile %}
@@ -409,7 +412,7 @@
                   display: block;
                   margin-bottom: 8px;
                 "
-                >📋 Status</strong
+                > Status</strong
               >
               <p style="color: #001a40; margin: 0; font-weight: 600">
                 {% if org.verification_status == 'pending' %}
@@ -468,7 +471,7 @@
               display: block;
               margin-bottom: 8px;
             "
-            >📝 Company Description</strong
+            > Company Description</strong
           >
           <p style="color: #001a40; margin: 0; line-height: 1.6">
             {{ org.description }}
@@ -488,7 +491,7 @@
           "
         >
           <strong style="color: #666; font-size: 12px"
-            >📌 Previous Admin Notes:</strong
+            > Previous Admin Notes:</strong
           >
           <p style="color: #001a40; margin: 5px 0 0 0">
             {{ org.verification_notes }}
@@ -512,7 +515,7 @@
               >Verification Decision & Notes</label
             >
             <p style="color: #666; font-size: 13px; margin: 5px 0 15px 0">
-              ℹ️ Check the organization details above (GST, Domain Email,
+               Check the organization details above (GST, Domain Email,
               LinkedIn) before approving.
             </p>
             <textarea
@@ -571,6 +574,188 @@
     </div>
     {% endif %}
   </div>
+
+  <!-- Verified Organizations -->
+  <style>
+    .vo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .vo-list li {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #fff;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .vo-list li:hover {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    .vo-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .vo-row h3 {
+      margin: 0;
+      font-size: 15px;
+      color: #001a40;
+    }
+    .vo-row .vo-industry {
+      font-size: 13px;
+      color: #666;
+      margin-left: 10px;
+    }
+    .vo-arrow {
+      font-size: 18px;
+      color: #999;
+      transition: transform 0.2s;
+    }
+    .vo-arrow-open {
+      transform: rotate(180deg);
+    }
+    .vo-detail {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .vo-show {
+      display: block;
+    }
+    .vo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .vo-grid-item strong {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    .vo-grid-item p {
+      margin: 0;
+      font-size: 14px;
+      color: #001a40;
+      font-weight: 600;
+      word-break: break-all;
+    }
+  </style>
+  <div style="margin-top: 40px">
+    <div class="section-header">
+      <h2> Verified Organizations</h2>
+      <span
+        style="
+          background: #22c55e;
+          color: #fff;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 12px;
+        "
+        >{{ verified_orgs }} Verified</span
+      >
+    </div>
+
+    {% if verified_orgs_list %}
+    <ul class="vo-list">
+      {% for org in verified_orgs_list %}
+      <li>
+        <div class="vo-row" onclick="toggleVerifiedOrg(this)">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              flex-wrap: wrap;
+            "
+          >
+            <h3>{{ org.company_name }}</h3>
+            {% if org.industry %}
+            <span class="vo-industry">— {{ org.industry }}</span>
+            {% endif %}
+          </div>
+          <span class="vo-arrow">▼</span>
+        </div>
+        <div class="vo-detail">
+          <div class="vo-grid">
+            {% if org.location %}
+            <div class="vo-grid-item">
+              <strong> Location</strong>
+              <p>{{ org.location }}</p>
+            </div>
+            {% endif %} {% if org.gst_number %}
+            <div class="vo-grid-item">
+              <strong> GST Number</strong>
+              <p>{{ org.gst_number }}</p>
+            </div>
+            {% endif %} {% if org.domain_email %}
+            <div class="vo-grid-item">
+              <strong> Domain Email</strong>
+              <p>{{ org.domain_email }}</p>
+            </div>
+            {% endif %} {% if org.linkedin_profile %}
+            <div class="vo-grid-item">
+              <strong> LinkedIn</strong>
+              <p>
+                <a
+                  href="{{ org.linkedin_profile }}"
+                  target="_blank"
+                  style="color: #1e7ce8; text-decoration: none"
+                  >View Profile →</a
+                >
+              </p>
+            </div>
+            {% endif %} {% if org.created_at %}
+            <div class="vo-grid-item">
+              <strong> Registered</strong>
+              <p>{{ org.created_at.strftime('%d %b %Y') }}</p>
+            </div>
+            {% endif %}
+          </div>
+          {% if org.description %}
+          <div style="margin-top: 14px">
+            <strong style="color: #888; font-size: 12px"> Description</strong>
+            <p
+              style="
+                margin: 4px 0 0;
+                font-size: 14px;
+                color: #444;
+                line-height: 1.5;
+              "
+            >
+              {{ org.description }}
+            </p>
+          </div>
+          {% endif %} {% if org.verification_notes %}
+          <div style="margin-top: 14px">
+            <strong style="color: #888; font-size: 12px"> Admin Notes</strong>
+            <p
+              style="
+                margin: 4px 0 0;
+                font-size: 14px;
+                color: #444;
+                line-height: 1.5;
+              "
+            >
+              {{ org.verification_notes }}
+            </p>
+          </div>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state"><p>No verified organizations yet</p></div>
+    {% endif %}
+  </div>
 </div>
 
 <script>
@@ -599,6 +784,13 @@
       .catch((error) => {
         alert("Error verifying organization: " + error);
       });
+  }
+
+  function toggleVerifiedOrg(row) {
+    var detail = row.nextElementSibling;
+    var arrow = row.querySelector(".vo-arrow");
+    detail.classList.toggle("vo-show");
+    arrow.classList.toggle("vo-arrow-open");
   }
 </script>
 {% endblock %}

@@ -162,7 +162,7 @@ class Internship(db.Model):
     location = db.Column(db.String(200), default='Remote')
     duration = db.Column(db.String(100), default='3 months')
     stipend = db.Column(db.String(100))
-    status = db.Column(db.String(50), default='pending')  # pending, approved, rejected
+    status = db.Column(db.String(50), default='approved')  # approved by default once org is verified
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     admin_notes = db.Column(db.Text)
 
@@ -579,8 +579,7 @@ def admin_dashboard():
     total_orgs = Organization.query.count()
     verified_orgs = Organization.query.filter_by(is_verified=True).count()
     pending_orgs = Organization.query.filter_by(verification_status='pending').count()
-    pending_internships_count = Internship.query.filter_by(status='pending').count()
-    approved_internships_count = Internship.query.filter_by(status='approved').count()
+    total_internships = Internship.query.count()
 
     recent_internships = []
     for i in all_internships[:8]:
@@ -588,66 +587,39 @@ def admin_dashboard():
         recent_internships.append({'internship': i, 'org': org})
 
     pending_org_list = Organization.query.filter_by(verification_status='pending').all()
-    pending_internship_list = [
-        {'internship': i, 'org': Organization.query.filter_by(id=i.organization_id).first()}
-        for i in Internship.query.filter_by(status='pending').all()
-    ]
 
     stats = {
         'total_students': total_students,
         'total_orgs': total_orgs,
         'verified_orgs': verified_orgs,
         'pending_orgs': pending_orgs,
-        'pending_internships': pending_internships_count,
-        'approved_internships': approved_internships_count,
-        'total_internships': Internship.query.count(),
+        'total_internships': total_internships,
     }
-    return render_template('dashboard_admin.html', stats=stats, recent_users=all_users, recent_internships=recent_internships, pending_org_list=pending_org_list, pending_internship_list=pending_internship_list)
+    return render_template('dashboard_admin.html', stats=stats, recent_users=all_users, recent_internships=recent_internships, pending_org_list=pending_org_list)
 
 @app.route('/admin/internships')
 @login_required
 @admin_required
 def admin_internships():
     all_internships = Internship.query.all()
-    pending_internships = [
+    internships = [
         {'internship': i, 'org': Organization.query.filter_by(id=i.organization_id).first() if i.organization_id else None}
-        for i in all_internships if i.status == 'pending'
+        for i in all_internships
     ]
     stats = {
-        'total_pending': len([i for i in all_internships if i.status == 'pending']),
-        'total_approved': len([i for i in all_internships if i.status == 'approved']),
-        'total_rejected': len([i for i in all_internships if i.status == 'rejected']),
+        'total_internships': len(all_internships),
     }
-    return render_template('admin_internships.html', pending_internships=pending_internships, stats=stats)
-
-@app.route('/admin/internship/<int:internship_id>/approve', methods=['POST'])
-@login_required
-@admin_required
-def approve_internship(internship_id):
-    internship = Internship.query.get_or_404(internship_id)
-    internship.status = 'approved'
-    internship.admin_notes = request.form.get('notes', '')
-    db.session.commit()
-    return jsonify({'status': 'success', 'message': 'Internship approved'})
-
-@app.route('/admin/internship/<int:internship_id>/reject', methods=['POST'])
-@login_required
-@admin_required
-def reject_internship(internship_id):
-    internship = Internship.query.get_or_404(internship_id)
-    internship.status = 'rejected'
-    internship.admin_notes = request.form.get('notes', '')
-    db.session.commit()
-    return jsonify({'status': 'success', 'message': 'Internship rejected'})
+    return render_template('admin_internships.html', internships=internships, stats=stats)
 
 @app.route('/admin/organizations')
 @login_required
 @admin_required
 def admin_organizations():
     pending_orgs = Organization.query.filter_by(verification_status='pending').all()
+    verified_orgs_list = Organization.query.filter_by(verification_status='approved').all()
     total_orgs = Organization.query.count()
-    verified_orgs = Organization.query.filter_by(verification_status='approved').count()
-    return render_template('admin_verify_organizations.html', organizations=pending_orgs, total_orgs=total_orgs, verified_orgs=verified_orgs)
+    verified_orgs = len(verified_orgs_list)
+    return render_template('admin_verify_organizations.html', organizations=pending_orgs, verified_orgs_list=verified_orgs_list, total_orgs=total_orgs, verified_orgs=verified_orgs)
 
 @app.route('/admin/organization/<int:org_id>/verify', methods=['POST'])
 @login_required
@@ -687,10 +659,7 @@ def admin_reports():
     verified_orgs = Organization.query.filter_by(is_verified=True).count()
     pending_orgs = Organization.query.filter_by(verification_status='pending').count()
     rejected_orgs = Organization.query.filter_by(verification_status='rejected').count()
-    all_internships = Internship.query.all()
-    approved_internships = len([i for i in all_internships if i.status == 'approved'])
-    pending_internships = len([i for i in all_internships if i.status == 'pending'])
-    rejected_internships = len([i for i in all_internships if i.status == 'rejected'])
+    total_internships = Internship.query.count()
     allocated_students = StudentProfile.query.filter(StudentProfile.allocated_internship != None).count()
     students_with_skills = StudentProfile.query.filter(StudentProfile.skills != None, StudentProfile.skills != '').count()
 
@@ -700,9 +669,7 @@ def admin_reports():
         'verified_orgs': verified_orgs,
         'pending_orgs': pending_orgs,
         'rejected_orgs': rejected_orgs,
-        'approved_internships': approved_internships,
-        'pending_internships': pending_internships,
-        'rejected_internships': rejected_internships,
+        'total_internships': total_internships,
         'allocated_students': allocated_students,
         'students_with_skills': students_with_skills,
     }
@@ -717,7 +684,7 @@ def admin_notifications():
     recent_orgs = Organization.query.order_by(Organization.created_at.desc()).limit(5).all()
     for org in recent_orgs:
         notifications.append({
-            'icon': '🏢',
+            'icon': 'ORG',
             'title': f'New organization registered: {org.company_name}',
             'message': f'Status: {org.verification_status}',
             'color': '#fbbf24' if org.verification_status == 'pending' else '#22c55e',
@@ -727,17 +694,17 @@ def admin_notifications():
     recent_internships = Internship.query.order_by(Internship.created_at.desc()).limit(5).all()
     for internship in recent_internships:
         notifications.append({
-            'icon': '📋',
+            'icon': 'INT',
             'title': f'New internship posted: {internship.title}',
-            'message': f'Status: {internship.status}',
-            'color': '#1e7ce8' if internship.status == 'pending' else '#22c55e',
+            'message': 'Active internship posting',
+            'color': '#22c55e',
             'time': internship.created_at.strftime('%d %b %Y') if internship.created_at else ''
         })
 
     recent_students = User.query.filter_by(role='student').order_by(User.id.desc()).limit(5).all()
     for student in recent_students:
         notifications.append({
-            'icon': '🎓',
+            'icon': 'STU',
             'title': f'New student registered: {student.name}',
             'message': student.email,
             'color': '#8b5cf6',

@@ -11,10 +11,14 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='admin.css') }}"
     />
-    {% elif current_user.is_authenticated and current_user.role == 'organization' %}
+    {% elif current_user.is_authenticated and current_user.role ==
+    'organization' %}
     <link rel="stylesheet" href="{{ url_for('static', filename='org.css') }}" />
     {% elif current_user.is_authenticated and current_user.role == 'student' %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='student.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='student.css') }}"
+    />
     {% endif %}
   </head>
   <body>
@@ -46,11 +50,10 @@
       "
     >
       <div style="font-size: 28px; font-weight: bold; color: #1e7ce8">
-        📋 InternAI
+         InternAI
       </div>
       <div style="display: flex; gap: 4px; align-items: center">
-        {% block nav_links %}
-        {% if current_user.role == 'organization' %}
+        {% block nav_links %} {% if current_user.role == 'organization' %}
         <a
           href="/organization"
           style="
@@ -63,14 +66,29 @@
           "
           >Dashboard</a
         >
-        {% elif current_user.role == 'admin' %}
-        {% for label, url in [('Dashboard','/admin'),('Verify Organization','/admin/organizations'),('Internship Approval','/admin/internships'),('Students','/admin/students'),('Reports','/admin/reports'),('Notifications','/admin/notifications'),('Settings','/admin/settings')] %}
-        <a href="{{ url }}" style="color:{% if request.path == url %}#1e7ce8{% else %}#ffffff{% endif %};text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:color 0.2s;white-space:nowrap;">{{ label }}</a>
-        {% endfor %}
-        {% elif current_user.role == 'student' %}
-        <a href="/student" style="color:#ffffff;text-decoration:none;font-size:14px;padding:8px 16px;border-radius:4px;transition:background-color 0.3s ease;">Dashboard</a>
-        {% endif %}
-        {% endblock %}
+        {% elif current_user.role == 'admin' %} {% for label, url in
+        [('Dashboard','/admin'),('Verify
+        Organization','/admin/organizations'),('Internships','/admin/internships'),('Students','/admin/students'),('Reports','/admin/reports'),('Notifications','/admin/notifications'),('Settings','/admin/settings')]
+        %}
+        <a
+          href="{{ url }}"
+          style="color:{% if request.path == url %}#1e7ce8{% else %}#ffffff{% endif %};text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:color 0.2s;white-space:nowrap;"
+          >{{ label }}</a
+        >
+        {% endfor %} {% elif current_user.role == 'student' %}
+        <a
+          href="/student"
+          style="
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+          "
+          >Dashboard</a
+        >
+        {% endif %} {% endblock %}
         <a
           href="/logout"
           style="

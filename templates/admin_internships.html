@@ -1,120 +1,179 @@
 {% extends "base.html" %} {% block content %}
+<style>
+  .intern-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .intern-list li {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .intern-list li:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+  .intern-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .intern-title-row h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #001a40;
+  }
+  .intern-title-row .company {
+    font-size: 13px;
+    color: #666;
+    margin-left: 10px;
+  }
+  .intern-title-row .arrow {
+    font-size: 18px;
+    color: #999;
+    transition: transform 0.2s;
+  }
+  .intern-title-row .arrow.open {
+    transform: rotate(180deg);
+  }
+  .intern-detail {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .intern-detail.show {
+    display: block;
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+  }
+  .detail-item strong {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .detail-item p {
+    margin: 0;
+    font-size: 14px;
+    color: #001a40;
+    font-weight: 600;
+  }
+</style>
 <div class="container">
-  <h1 class="page-title">Internship Approvals</h1>
-  <p class="page-subtitle">Review and approve internship postings from organizations</p>
+  <h1 class="page-title">Internships</h1>
+  <p class="page-subtitle">All internship postings by verified organizations</p>
 
-  <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+  <div class="stats-grid" style="grid-template-columns: repeat(1, 1fr)">
     <div class="stat-card">
-      <div class="stat-label">Pending Review</div>
-      <div class="stat-value">{{ stats.total_pending }}</div>
-      <div class="stat-change">Awaiting approval</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Approved</div>
-      <div class="stat-value" style="color:#22c55e;">{{ stats.total_approved }}</div>
-      <div class="stat-change">Published to students</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Rejected</div>
-      <div class="stat-value" style="color:#ef4444;">{{ stats.total_rejected }}</div>
+      <div class="stat-label">Total Internships</div>
+      <div class="stat-value">{{ stats.total_internships }}</div>
+      <div class="stat-change">Posted by verified organizations</div>
     </div>
   </div>
 
   <div style="margin-top: 40px">
     <div class="section-header">
-      <h2>Pending Internship Approvals</h2>
-      <span style="background:#fbbf24;color:#92400e;padding:6px 12px;border-radius:20px;font-weight:600;font-size:12px;">
-        {{ stats.total_pending }} Pending
-      </span>
+      <h2>Internship Listings</h2>
+      <span
+        style="
+          background: #22c55e;
+          color: #fff;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: 600;
+          font-size: 12px;
+        "
+        >{{ stats.total_internships }} Total</span
+      >
     </div>
 
-    {% if pending_internships %}
-    <div>
-      {% for item in pending_internships %}
-      <div class="internship-item">
-        <div class="internship-item-header">
-          <div>
-            <h3 class="internship-item-title">{{ item.internship.title }}</h3>
-            <p class="internship-item-meta"><strong>Company:</strong> {{ item.org.company_name if item.org else 'Unknown' }}</p>
-            <p class="internship-item-meta"><strong>Status:</strong> <span class="badge badge-pending">{{ item.internship.status }}</span></p>
+    {% if internships %}
+    <ul class="intern-list">
+      {% for item in internships %}
+      <li>
+        <div class="intern-title-row" onclick="toggleDetail(this)">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              flex-wrap: wrap;
+            "
+          >
+            <h3>{{ item.internship.title }}</h3>
+            <span class="company"
+              >— {{ item.org.company_name if item.org else 'Unknown' }}</span
+            >
           </div>
-          <div>
-            <p style="color:#999;font-size:12px;margin:0;">Posted on</p>
-            <p style="color:#001a40;font-weight:600;margin:5px 0 0 0;">
-              {{ item.internship.created_at.strftime('%d %b %Y') if item.internship.created_at else 'N/A' }}
-            </p>
-          </div>
+          <span class="arrow">▼</span>
         </div>
-
-        <div class="internship-item-details">
-          {% if item.internship.location %}
-          <div class="internship-item-detail"><strong>Location</strong><p>{{ item.internship.location }}</p></div>
-          {% endif %}
-          {% if item.internship.duration %}
-          <div class="internship-item-detail"><strong>Duration</strong><p>{{ item.internship.duration }}</p></div>
-          {% endif %}
-          <div class="internship-item-detail"><strong>Positions</strong><p>{{ item.internship.capacity }}</p></div>
-          {% if item.internship.stipend %}
-          <div class="internship-item-detail"><strong>Stipend</strong><p>₹{{ item.internship.stipend }}/month</p></div>
-          {% endif %}
-        </div>
-
-        <div style="margin-bottom:20px;">
-          <strong style="color:#666;font-size:12px;">Required Skills:</strong>
-          <div class="skills-container">
-            {% for skill in item.internship.skills_required.split(',') %}
-            <span class="skill">{{ skill.strip() }}</span>
-            {% endfor %}
+        <div class="intern-detail">
+          <div class="detail-grid">
+            {% if item.internship.location %}
+            <div class="detail-item">
+              <strong>Location</strong>
+              <p>{{ item.internship.location }}</p>
+            </div>
+            {% endif %} {% if item.internship.duration %}
+            <div class="detail-item">
+              <strong>Duration</strong>
+              <p>{{ item.internship.duration }}</p>
+            </div>
+            {% endif %}
+            <div class="detail-item">
+              <strong>Positions</strong>
+              <p>{{ item.internship.capacity }}</p>
+            </div>
+            {% if item.internship.stipend %}
+            <div class="detail-item">
+              <strong>Stipend</strong>
+              <p>₹{{ item.internship.stipend }}/month</p>
+            </div>
+            {% endif %} {% if item.internship.created_at %}
+            <div class="detail-item">
+              <strong>Posted On</strong>
+              <p>{{ item.internship.created_at.strftime('%d %b %Y') }}</p>
+            </div>
+            {% endif %}
           </div>
-        </div>
-
-        <div class="approval-form">
-          <div class="form-group">
-            <label for="notes_{{ item.internship.id }}">Admin Notes (Optional)</label>
-            <textarea id="notes_{{ item.internship.id }}" placeholder="Add approval or rejection notes..."></textarea>
-          </div>
-          <div class="approval-buttons">
-            <div></div>
-            <div style="display:flex;gap:10px;flex-direction:column;">
-              <button class="btn btn-success" onclick="approveInternship({{ item.internship.id }})">✓ Approve</button>
-              <button class="btn btn-danger" onclick="rejectInternship({{ item.internship.id }})">✗ Reject</button>
+          {% if item.internship.skills_required %}
+          <div style="margin-top: 16px">
+            <strong style="color: #888; font-size: 12px"
+              >Required Skills</strong
+            >
+            <div class="skills-container" style="margin-top: 6px">
+              {% for skill in item.internship.skills_required.split(',') %}
+              <span class="skill">{{ skill.strip() }}</span>
+              {% endfor %}
             </div>
           </div>
+          {% endif %}
         </div>
-      </div>
+      </li>
       {% endfor %}
-    </div>
+    </ul>
     {% else %}
-    <div class="empty-state">
-      <p>✓ No pending internships</p>
-      <p class="empty-state-note">All internship postings have been reviewed</p>
-    </div>
+    <div class="empty-state"><p>No internships posted yet</p></div>
     {% endif %}
   </div>
 </div>
 
 <script>
-  function approveInternship(internshipId) {
-    const notes = document.getElementById("notes_" + internshipId).value;
-    fetch("/admin/internship/" + internshipId + "/approve", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "notes=" + encodeURIComponent(notes),
-    }).then(r => r.json()).then(data => {
-      if (data.status === "success") { alert("Internship approved!"); location.reload(); }
-    }).catch(err => alert("Error: " + err));
-  }
-
-  function rejectInternship(internshipId) {
-    const notes = document.getElementById("notes_" + internshipId).value;
-    if (!notes.trim()) { alert("Please provide rejection reason in notes"); return; }
-    fetch("/admin/internship/" + internshipId + "/reject", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "notes=" + encodeURIComponent(notes),
-    }).then(r => r.json()).then(data => {
-      if (data.status === "success") { alert("Internship rejected."); location.reload(); }
-    }).catch(err => alert("Error: " + err));
+  function toggleDetail(row) {
+    var detail = row.nextElementSibling;
+    var arrow = row.querySelector(".arrow");
+    detail.classList.toggle("show");
+    arrow.classList.toggle("open");
   }
 </script>
 {% endblock %}

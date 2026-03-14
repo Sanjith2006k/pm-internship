@@ -11,70 +11,104 @@
     </div>
     <div class="stat-card">
       <div class="stat-label">Verified Organizations</div>
-      <div class="stat-value" style="color:#22c55e;">{{ stats.verified_orgs }}</div>
+      <div class="stat-value" style="color: #22c55e">
+        {{ stats.verified_orgs }}
+      </div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Active Internships</div>
-      <div class="stat-value" style="color:#1e7ce8;">{{ stats.approved_internships }}</div>
+      <div class="stat-label">Total Internships</div>
+      <div class="stat-value" style="color: #1e7ce8">
+        {{ stats.total_internships }}
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Students Allocated</div>
-      <div class="stat-value" style="color:#8b5cf6;">{{ stats.allocated_students }}</div>
+      <div class="stat-value" style="color: #8b5cf6">
+        {{ stats.allocated_students }}
+      </div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Allocation Rate</div>
-      <div class="stat-value" style="color:#22c55e;">
-        {% if stats.total_students > 0 %}{{ ((stats.allocated_students / stats.total_students) * 100)|round(1) }}%{% else %}0%{% endif %}
+      <div class="stat-value" style="color: #22c55e">
+        {% if stats.total_students > 0 %}{{ ((stats.allocated_students /
+        stats.total_students) * 100)|round(1) }}%{% else %}0%{% endif %}
       </div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Org Approval Rate</div>
-      <div class="stat-value" style="color:#1e7ce8;">
-        {% if stats.total_orgs > 0 %}{{ ((stats.verified_orgs / stats.total_orgs) * 100)|round(1) }}%{% else %}0%{% endif %}
+      <div class="stat-value" style="color: #1e7ce8">
+        {% if stats.total_orgs > 0 %}{{ ((stats.verified_orgs /
+        stats.total_orgs) * 100)|round(1) }}%{% else %}0%{% endif %}
       </div>
     </div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px;">
-
-    <!-- Internship Status Breakdown -->
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 10px;
+    "
+  >
+    <!-- Internship Overview -->
     <div>
       <div class="section-header"><h2>Internship Statistics</h2></div>
-      <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-        {% for label, value, color in [
-          ('Pending Approval', stats.pending_internships, '#fbbf24'),
-          ('Approved', stats.approved_internships, '#22c55e'),
-          ('Rejected', stats.rejected_internships, '#ef4444')
-        ] %}
-        <div style="margin-bottom:20px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:14px;color:#666;">{{ label }}</span>
-            <span style="font-weight:700;color:#001a40;">{{ value }}</span>
-          </div>
-          <div style="background:#f3f4f6;border-radius:20px;height:10px;">
-            {% set total = stats.pending_internships + stats.approved_internships + stats.rejected_internships %}
-            {% set pct = ((value / total * 100) if total > 0 else 0)|round(1) %}
-            <div style="background:{{ color }};width:{{ pct }}%;height:10px;border-radius:20px;transition:width 0.5s;"></div>
-          </div>
-          <span style="font-size:12px;color:#999;">{{ pct }}%</span>
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 25px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+          "
+        >
+          <span style="font-size: 14px; color: #666">Total Internships</span>
+          <span style="font-weight: 700; font-size: 20px; color: #1e7ce8"
+            >{{ stats.total_internships }}</span
+          >
         </div>
-        {% endfor %}
       </div>
     </div>
 
     <!-- Organization Activity -->
     <div>
       <div class="section-header"><h2>Organization Activity</h2></div>
-      <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-        {% for label, value, color in [
-          ('Total Registered', stats.total_orgs, '#1e7ce8'),
-          ('Verified', stats.verified_orgs, '#22c55e'),
-          ('Pending Verification', stats.pending_orgs, '#fbbf24'),
-          ('Rejected', stats.rejected_orgs, '#ef4444')
-        ] %}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;">
-          <span style="font-size:14px;color:#666;">{{ label }}</span>
-          <span style="font-weight:700;font-size:20px;color:{{ color }};">{{ value }}</span>
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 25px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        {% for label, value, color in [ ('Total Registered', stats.total_orgs,
+        '#1e7ce8'), ('Verified', stats.verified_orgs, '#22c55e'), ('Pending
+        Verification', stats.pending_orgs, '#fbbf24'), ('Rejected',
+        stats.rejected_orgs, '#ef4444') ] %}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+          "
+        >
+          <span style="font-size: 14px; color: #666">{{ label }}</span>
+          <span style="font-weight:700;font-size:20px;color:{{ color }};"
+            >{{ value }}</span
+          >
         </div>
         {% endfor %}
       </div>
@@ -83,16 +117,33 @@
     <!-- Student Participation -->
     <div>
       <div class="section-header"><h2>Student Participation</h2></div>
-      <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-        {% for label, value, color in [
-          ('Total Registered', stats.total_students, '#1e7ce8'),
-          ('Skills Filled', stats.students_with_skills, '#8b5cf6'),
-          ('Allocated', stats.allocated_students, '#22c55e'),
-          ('Not Yet Allocated', stats.total_students - stats.allocated_students, '#fbbf24')
-        ] %}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f3f4f6;">
-          <span style="font-size:14px;color:#666;">{{ label }}</span>
-          <span style="font-weight:700;font-size:20px;color:{{ color }};">{{ value }}</span>
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 25px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        {% for label, value, color in [ ('Total Registered',
+        stats.total_students, '#1e7ce8'), ('Skills Filled',
+        stats.students_with_skills, '#8b5cf6'), ('Allocated',
+        stats.allocated_students, '#22c55e'), ('Not Yet Allocated',
+        stats.total_students - stats.allocated_students, '#fbbf24') ] %}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f3f4f6;
+          "
+        >
+          <span style="font-size: 14px; color: #666">{{ label }}</span>
+          <span style="font-weight:700;font-size:20px;color:{{ color }};"
+            >{{ value }}</span
+          >
         </div>
         {% endfor %}
       </div>
@@ -101,25 +152,44 @@
     <!-- Monthly Reports (static summary) -->
     <div>
       <div class="section-header"><h2>Monthly Summary</h2></div>
-      <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:25px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-        {% if monthly_data %}
-        {% for month in monthly_data %}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f3f4f6;">
-          <span style="font-size:14px;font-weight:600;color:#001a40;">{{ month.label }}</span>
-          <div style="display:flex;gap:15px;">
-            <span style="font-size:12px;color:#666;">{{ month.students }} students</span>
-            <span style="font-size:12px;color:#666;">{{ month.internships }} internships</span>
+      <div
+        style="
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          padding: 25px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        "
+      >
+        {% if monthly_data %} {% for month in monthly_data %}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+          "
+        >
+          <span style="font-size: 14px; font-weight: 600; color: #001a40"
+            >{{ month.label }}</span
+          >
+          <div style="display: flex; gap: 15px">
+            <span style="font-size: 12px; color: #666"
+              >{{ month.students }} students</span
+            >
+            <span style="font-size: 12px; color: #666"
+              >{{ month.internships }} internships</span
+            >
           </div>
         </div>
-        {% endfor %}
-        {% else %}
-        <div style="text-align:center;padding:30px;color:#999;">
+        {% endfor %} {% else %}
+        <div style="text-align: center; padding: 30px; color: #999">
           <p>Monthly data will appear as activity grows</p>
         </div>
         {% endif %}
       </div>
     </div>
-
   </div>
 </div>
 {% endblock %}

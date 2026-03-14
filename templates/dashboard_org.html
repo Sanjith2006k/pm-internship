@@ -10,7 +10,7 @@
   <!-- Verification Warning (if not verified) -->
   {% if org and not org.is_verified %}
   <div class="alert alert-warning">
-    <div class="alert-icon">⏳</div>
+    <div class="alert-icon">!</div>
     <div>
       <h3>Organization Verification Pending</h3>
       <p>
@@ -32,7 +32,7 @@
   </div>
   {% elif org and org.verification_status == 'rejected' %}
   <div class="alert alert-warning">
-    <div class="alert-icon">❌</div>
+    <div class="alert-icon">&times;</div>
     <div>
       <h3>Organization Verification Rejected</h3>
       <p>
@@ -50,7 +50,7 @@
   </div>
   {% elif org and org.is_verified %}
   <div class="alert alert-success">
-    <div class="alert-icon">✅</div>
+    <div class="alert-icon">&check;</div>
     <div>
       <h3>Organization Verified</h3>
       <p>
@@ -73,7 +73,7 @@
     "
   >
     <h2 style="color: #001a40; margin: 0 0 20px 0; font-size: 20px">
-      🔍 Our Verification Process
+      Our Verification Process
     </h2>
     <p style="color: #666; margin: 0 0 15px 0; font-size: 14px">
       We verify companies through three methods to ensure legitimacy and protect
@@ -105,7 +105,7 @@
             margin-bottom: 15px;
           "
         >
-          <span style="font-size: 24px">🔢</span>
+          <span style="font-size: 24px"></span>
           <h3 style="color: #001a40; margin: 0; font-size: 16px">
             GST Verification
           </h3>
@@ -159,7 +159,7 @@
             margin-bottom: 15px;
           "
         >
-          <span style="font-size: 24px">🔗</span>
+          <span style="font-size: 24px"></span>
           <h3 style="color: #001a40; margin: 0; font-size: 16px">
             LinkedIn Check
           </h3>
@@ -216,7 +216,7 @@
             margin-bottom: 15px;
           "
         >
-          <span style="font-size: 24px">📧</span>
+          <span style="font-size: 24px"></span>
           <h3 style="color: #001a40; margin: 0; font-size: 16px">
             Domain Email
           </h3>
@@ -247,8 +247,8 @@
             <strong>Your Email:</strong><br />
             {% if org.domain_email %} {{ org.domain_email }} {% if '@gmail' in
             org.domain_email or '@yahoo' in org.domain_email %}
-            <span style="color: #ef4444; display: block; margin-top: 5px"
-              >⚠️ Personal email flagged</span
+            <span style="color: #ef4444; display: block; margin-top: 5px">
+              Personal email flagged</span
             >
             {% else %}
             <span style="color: #22c55e; display: block; margin-top: 5px"
@@ -271,7 +271,7 @@
       "
     >
       <h3 style="color: #001a40; margin: 0 0 15px 0">
-        📋 Your Submitted Information
+        Your Submitted Information
       </h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
         <div>
@@ -336,7 +336,7 @@
               font-weight: 600;
             "
           >
-            ⏳ PENDING REVIEW
+            PENDING REVIEW
           </p>
         </div>
       </div>
@@ -371,9 +371,9 @@
       "
     >
       <p style="color: #1e40af; margin: 0; font-size: 13px">
-        <strong>⏱️ Estimated Timeline:</strong> Your organization will be
-        verified within 24-48 hours. Once approved, you'll receive an email and
-        can immediately start posting internships!
+        <strong> Estimated Timeline:</strong> Your organization will be verified
+        within 24-48 hours. Once approved, you'll receive an email and can
+        immediately start posting internships!
       </p>
     </div>
   </div>
@@ -406,7 +406,7 @@
     <!-- Internships Section -->
     <div>
       <div class="section-header">
-        <h2>📊 Open Internship Positions</h2>
+        <h2>Open Internship Positions</h2>
         {% if org and org.is_verified %}
         <button class="btn btn-primary" onclick="openPostInternshipModal()">
           + Post New Internship
@@ -424,16 +424,16 @@
 
             <div class="internship-meta">
               <div class="meta-item">
-                <span class="meta-icon">⏱️</span>
+                <span class="meta-icon">&bull;</span>
                 <span>{{ internship.duration }}</span>
               </div>
               <div class="meta-item">
-                <span class="meta-icon">👥</span>
+                <span class="meta-icon">&bull;</span>
                 <span>{{ internship.capacity }} positions</span>
               </div>
               {% if internship.stipend %}
               <div class="meta-item">
-                <span class="meta-icon">💰</span>
+                <span class="meta-icon">&bull;</span>
                 <span>₹{{ internship.stipend }}/month</span>
               </div>
               {% endif %}
@@ -510,7 +510,7 @@
       "
     >
       <h2 style="color: #001a40; margin: 0; font-size: 22px">
-        📝 Post New Internship
+        Post New Internship
       </h2>
       <button class="close-btn" onclick="closePostInternshipModal()">
         &times;
