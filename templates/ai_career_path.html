@@ -1,0 +1,310 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >AI Hub</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-page {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-page-header {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .ai-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .ai-page-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+  .no-skills-box {
+    background: #fffbeb;
+    border: 2px dashed #fbbf24;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    color: #92400e;
+  }
+  .no-skills-box a {
+    display: inline-block;
+    margin-top: 16px;
+    background: #1e7ce8;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .career-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .career-card.rank-1 {
+    border-color: #1e7ce8;
+    box-shadow: 0 4px 20px rgba(30, 124, 232, 0.15);
+  }
+  .career-rank {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .career-rank.r1 {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  .career-rank.r2 {
+    background: #f3f4f6;
+    color: #374151;
+  }
+  .career-rank.r3 {
+    background: #f3f4f6;
+    color: #374151;
+  }
+  .career-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .career-icon {
+    font-size: 40px;
+    line-height: 1;
+  }
+  .career-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #001a40;
+  }
+  .career-desc {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 4px 0 0;
+  }
+  .career-score-bar {
+    background: #f3f4f6;
+    border-radius: 20px;
+    height: 12px;
+    margin: 4px 0 16px;
+    overflow: hidden;
+  }
+  .career-score-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #1e7ce8, #7c3aed);
+    transition: width 1s;
+  }
+  .career-score-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 4px;
+  }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
+  .skill-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .skill-tag.matched {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .skill-tag.missing {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .career-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .career-meta-item {
+    font-size: 13px;
+    color: #374151;
+  }
+  .career-meta-item strong {
+    display: block;
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+</style>
+
+<div class="ai-page">
+  <div class="ai-page-header">
+    <h1>🎯 AI Career Path Predictor</h1>
+    <p>
+      AI analyzed your skills using sentence embeddings and identified your
+      best-fit career paths.
+    </p>
+  </div>
+
+  {% if not profile or not profile.skills %}
+  <div class="no-skills-box">
+    <div style="font-size: 48px; margin-bottom: 12px">⚠️</div>
+    <h3 style="margin: 0 0 8px; font-size: 18px">No Skills Found</h3>
+    <p style="margin: 0; font-size: 14px">
+      Add your skills to your profile to get AI career predictions.
+    </p>
+    <a href="/student?section=profile">Update Profile Now</a>
+  </div>
+  {% elif not predictions %}
+  <div class="no-skills-box">
+    <div style="font-size: 48px">🤔</div>
+    <p>
+      Could not generate predictions. Try adding more detailed skills to your
+      profile.
+    </p>
+    <a href="/student?section=profile">Update Skills</a>
+  </div>
+  {% else %}
+
+  <div
+    style="
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #1e40af;
+    "
+  >
+    <strong>Your Skills:</strong> {{ profile.skills }}
+  </div>
+
+  {% for pred in predictions %}
+  <div class="career-card {% if loop.index == 1 %}rank-1{% endif %}">
+    <span class="career-rank r{{ loop.index }}">#{{ loop.index }} Match</span>
+    <div class="career-header">
+      <div class="career-icon">{{ pred.icon }}</div>
+      <div>
+        <div class="career-title">{{ pred.career }}</div>
+        <div class="career-desc">{{ pred.description }}</div>
+      </div>
+    </div>
+
+    <div class="career-score-label">AI Match Score: {{ pred.score }}%</div>
+    <div class="career-score-bar">
+      <div class="career-score-fill" style="width:{{ pred.score }}%;"></div>
+    </div>
+
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 4px;
+      "
+    >
+      <div>
+        <div
+          style="
+            font-size: 12px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 6px;
+          "
+        >
+          ✅ Your Matching Skills
+        </div>
+        <div class="skill-tags">
+          {% for s in pred.matching_skills %}
+          <span class="skill-tag matched">{{ s }}</span>
+          {% else %}
+          <span style="font-size: 12px; color: #9ca3af">None yet</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <div
+          style="
+            font-size: 12px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 6px;
+          "
+        >
+          ❌ Skills to Develop
+        </div>
+        <div class="skill-tags">
+          {% for s in pred.missing_skills %}
+          <span class="skill-tag missing">{{ s }}</span>
+          {% else %}
+          <span style="font-size: 12px; color: #9ca3af"
+            >None – great match!</span
+          >
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="career-meta">
+      <div class="career-meta-item">
+        <strong>Salary Range</strong>
+        {{ pred.salary_range }}
+      </div>
+      <div class="career-meta-item">
+        <strong>Recommended Internships</strong>
+        {{ pred.recommended_internships | join(' · ') }}
+      </div>
+    </div>
+  </div>
+  {% endfor %} {% endif %}
+
+  <div style="margin-top: 24px">
+    <a
+      href="/student/ai"
+      style="color: #1e7ce8; text-decoration: none; font-size: 14px"
+      >← Back to AI Hub</a
+    >
+  </div>
+</div>
+{% endblock %}

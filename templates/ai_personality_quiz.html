@@ -1,0 +1,338 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >AI Hub</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-page-header {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .ai-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .ai-page-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+  .quiz-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .quiz-question {
+    font-size: 15px;
+    font-weight: 600;
+    color: #001a40;
+    margin: 0 0 16px;
+  }
+  .slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .slider-wrap input[type="range"] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: linear-gradient(
+      90deg,
+      #1e7ce8 var(--val, 50%),
+      #e5e7eb var(--val, 50%)
+    );
+    border-radius: 3px;
+    cursor: pointer;
+    outline: none;
+  }
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1e7ce8;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(30, 124, 232, 0.4);
+  }
+  .slider-label {
+    font-size: 12px;
+    color: #9ca3af;
+    min-width: 80px;
+  }
+  .slider-val {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1e7ce8;
+  }
+  .culture-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    transition: box-shadow 0.2s;
+  }
+  .culture-card.rank-1 {
+    border-color: #7c3aed;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12);
+  }
+  .culture-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+  .culture-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #001a40;
+    margin: 0 0 4px;
+  }
+  .culture-desc {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 8px;
+  }
+  .culture-match-bar {
+    background: #f3f4f6;
+    border-radius: 20px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .culture-match-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #7c3aed, #1e7ce8);
+  }
+  .example-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .example-tag {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: #ede9fe;
+    color: #6d28d9;
+    font-weight: 500;
+  }
+  .culture-rank {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #ede9fe;
+    color: #6d28d9;
+    margin-bottom: 8px;
+  }
+  .submit-btn {
+    background: linear-gradient(135deg, #7c3aed, #1e7ce8);
+    color: #fff;
+    border: none;
+    padding: 14px 36px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .submit-btn:hover {
+    opacity: 0.9;
+  }
+</style>
+
+<div class="ai-page">
+  <div class="ai-page-header">
+    <h1>🧬 AI Personality & Culture Match</h1>
+    <p>
+      Take a 5-question quiz and AI will match your work personality to the best
+      company cultures.
+    </p>
+  </div>
+
+  {% if not submitted %}
+  <!-- Quiz Form -->
+  <form method="POST" action="/student/ai/personality-quiz">
+    <div class="quiz-card">
+      <h3
+        style="
+          font-size: 16px;
+          font-weight: 700;
+          color: #001a40;
+          margin: 0 0 24px;
+        "
+      >
+        Rate yourself on these 5 dimensions (1 = Low, 5 = High)
+      </h3>
+
+      {% set questions = [ ('risk_taking', 'Risk Taking', 'I prefer safe, stable
+      tasks', 'I love taking bold risks'), ('teamwork', 'Teamwork Preference',
+      'I prefer working solo', 'I love collaborating in teams'), ('structure',
+      'Structure Preference', 'I prefer freedom & flexibility', 'I prefer clear
+      rules & processes'), ('creativity', 'Creativity', 'I prefer routine,
+      proven approaches', 'I thrive on creative, novel ideas'), ('pace', 'Work
+      Pace', 'I prefer slow, steady, thorough work', 'I thrive in fast-paced
+      environments'), ] %} {% for name, label, low_label, high_label in
+      questions %}
+      <div style="margin-bottom: 24px">
+        <div class="quiz-question">{{ loop.index }}. {{ label }}</div>
+        <div class="slider-wrap">
+          <span class="slider-label" style="text-align: right"
+            >{{ low_label }}</span
+          >
+          <input
+            type="range"
+            name="{{ name }}"
+            min="1"
+            max="5"
+            value="3"
+            oninput="
+              this.style.setProperty(
+                '--val',
+                ((this.value - 1) / 4) * 100 + '%',
+              );
+              this.nextElementSibling.textContent = this.value;
+            "
+          />
+          <span class="slider-val">3</span>
+          <span class="slider-label">{{ high_label }}</span>
+        </div>
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="submit-btn">
+        🧠 Analyze My Personality →
+      </button>
+    </div>
+  </form>
+
+  {% else %}
+  <!-- Results -->
+  <div
+    style="
+      background: #ede9fe;
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-bottom: 28px;
+    "
+  >
+    <h3
+      style="font-size: 15px; font-weight: 700; color: #6d28d9; margin: 0 0 6px"
+    >
+      Your Answers
+    </h3>
+    <div
+      style="
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: #374151;
+      "
+    >
+      <span>Risk Taking: <strong>{{ answers.risk_taking }}/5</strong></span>
+      <span>Teamwork: <strong>{{ answers.teamwork }}/5</strong></span>
+      <span>Structure: <strong>{{ answers.structure }}/5</strong></span>
+      <span>Creativity: <strong>{{ answers.creativity }}/5</strong></span>
+      <span>Pace: <strong>{{ answers.pace }}/5</strong></span>
+    </div>
+  </div>
+
+  {% for r in results %}
+  <div class="culture-card {% if loop.index == 1 %}rank-1{% endif %}">
+    <div class="culture-icon">{{ r.icon }}</div>
+    <div style="flex: 1">
+      {% if loop.index == 1 %}<span class="culture-rank">Best Match</span>{%
+      endif %}
+      <div class="culture-title">{{ r.culture }}</div>
+      <div class="culture-desc">{{ r.description }}</div>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        "
+      >
+        <span style="font-size: 12px; font-weight: 600; color: #6d28d9"
+          >Culture Fit: {{ r.score }}%</span
+        >
+      </div>
+      <div class="culture-match-bar">
+        <div class="culture-match-fill" style="width:{{ r.score }}%;"></div>
+      </div>
+      <div class="example-tags">
+        {% for ex in r.examples %}
+        <span class="example-tag">{{ ex }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div style="margin-top: 20px">
+    <a
+      href="/student/ai/personality-quiz"
+      style="
+        background: #7c3aed;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+      "
+      >Retake Quiz</a
+    >
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 24px">
+    <a
+      href="/student/ai"
+      style="color: #1e7ce8; text-decoration: none; font-size: 14px"
+      >← AI Hub</a
+    >
+  </div>
+</div>
+{% endblock %}

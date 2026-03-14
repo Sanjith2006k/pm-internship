@@ -1,7 +1,12 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from ai.matcher import match_student
+from ai.matcher import (
+    match_student, predict_career_paths, analyze_skill_gap,
+    predict_success_probability, recommend_internships, optimize_allocation,
+    match_personality_culture, get_interview_question, evaluate_interview_answer,
+    calculate_ai_score, verify_certificate, extract_resume_data
+)
 from functools import wraps
 from datetime import datetime, timedelta
 import smtplib, random, string, os
@@ -102,6 +107,7 @@ class StudentProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     skills = db.Column(db.Text)
+    location = db.Column(db.String(200))
     allocated_internship = db.Column(db.String(200))
     match_score = db.Column(db.Float)
 
@@ -172,6 +178,39 @@ class Application(db.Model):
     internship_id = db.Column(db.Integer)
     status = db.Column(db.String(50), default='pending')  # pending, approved, rejected
     applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class PersonalityProfile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, unique=True, index=True)
+    risk_taking = db.Column(db.Integer, default=3)
+    teamwork = db.Column(db.Integer, default=3)
+    structure = db.Column(db.Integer, default=3)
+    creativity = db.Column(db.Integer, default=3)
+    pace = db.Column(db.Integer, default=3)
+    top_culture = db.Column(db.String(100))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class InterviewSession(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, index=True)
+    question_text = db.Column(db.Text)
+    student_answer = db.Column(db.Text)
+    score = db.Column(db.Float)
+    feedback = db.Column(db.Text)
+    topic = db.Column(db.String(100))
+    difficulty = db.Column(db.String(20))
+    asked_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class StudentAIScore(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, unique=True, index=True)
+    total_score = db.Column(db.Integer, default=0)
+    skill_score = db.Column(db.Integer, default=0)
+    cert_score = db.Column(db.Integer, default=0)
+    exp_score = db.Column(db.Integer, default=0)
+    activity_score = db.Column(db.Integer, default=0)
+    level = db.Column(db.String(20), default='Bronze')
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 # ---------------- LOGIN MANAGER ---------------- #
 
@@ -267,13 +306,26 @@ def student_dashboard():
     available_internships = Internship.query.filter_by(status='approved').all()
     applications = Application.query.filter_by(student_id=profile.id).all() if profile else []
     applied_ids = {a.internship_id for a in applications}
+    has_active_app = any(a.status in ('pending', 'approved') for a in applications)
     orgs = {o.id: o for o in Organization.query.all()}
+    # Sort internships: near student's location first
+    student_location = (profile.location or '').strip().lower() if profile else ''
+    def location_key(i):
+        iloc = (i.location or '').strip().lower()
+        if not student_location or not iloc:
+            return 1
+        if iloc == 'remote':
+            return 0  # remote is always near
+        return 0 if student_location and any(w in iloc for w in student_location.split()) else 1
+    available_internships = sorted(available_internships, key=location_key)
     # Enrich applications with internship info
     enriched_applications = []
     for app_obj in applications:
         intern = Internship.query.get(app_obj.internship_id)
         org = orgs.get(intern.organization_id) if intern else None
         enriched_applications.append({'application': app_obj, 'internship': intern, 'org': org})
+    # Pop resume scan result from session (shown once after redirect)
+    resume_scan = session.pop('resume_scan', None)
     return render_template(
         'dashboard_student.html',
         profile=profile,
@@ -284,9 +336,11 @@ def student_dashboard():
         available_internships=available_internships,
         enriched_applications=enriched_applications,
         applied_ids=applied_ids,
+        has_active_app=has_active_app,
         orgs=orgs,
         total_available=len(available_internships),
         total_applied=len(applications),
+        resume_scan=resume_scan,
     )
 
 @app.route('/student/apply/<int:internship_id>', methods=['POST'])
@@ -296,6 +350,13 @@ def apply_internship(internship_id):
     profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
     if not profile:
         return jsonify({'status': 'error', 'message': 'Profile not found'})
+    # One active application at a time rule
+    active_app = Application.query.filter(
+        Application.student_id == profile.id,
+        Application.status.in_(['pending', 'approved'])
+    ).first()
+    if active_app:
+        return jsonify({'status': 'error', 'message': 'You already have an active application. Withdraw it or wait for a decision before applying to another internship.'})
     existing = Application.query.filter_by(student_id=profile.id, internship_id=internship_id).first()
     if existing:
         return jsonify({'status': 'error', 'message': 'Already applied'})
@@ -330,17 +391,53 @@ def update_student_profile():
 
     current_user.name = request.form.get('name', current_user.name).strip()
     profile.skills = request.form.get('skills', '').strip()
+    profile.location = request.form.get('student_location', '').strip() or None
 
     portfolio.linkedin_url = request.form.get('linkedin_url', '').strip() or None
     portfolio.github_url = request.form.get('github_url', '').strip() or None
 
     resume_file = request.files.get('resume_file')
+    scanned = False
     if resume_file and resume_file.filename:
         if _is_allowed_upload(resume_file.filename, {'pdf', 'doc', 'docx'}):
             portfolio.resume_path = _save_student_file(resume_file, current_user.id, 'resume')
 
+            # ── AI Resume Auto-Scan ──────────────────────────────────────────
+            absolute_path = os.path.join(app.static_folder,
+                portfolio.resume_path.replace('static/', '', 1))
+            scan = extract_resume_data(absolute_path)
+
+            if scan['success']:
+                scanned = True
+                # Merge detected skills with current skills (deduplicate)
+                existing = [s.strip().lower() for s in (profile.skills or '').split(',') if s.strip()]
+                new_skills = [s for s in scan['skills'] if s.lower() not in existing]
+                if new_skills:
+                    merged = [profile.skills] + new_skills if profile.skills else new_skills
+                    profile.skills = ', '.join(filter(None, merged))
+
+                # Auto-fill portfolio links only if not already set by user
+                if scan['linkedin_url'] and not portfolio.linkedin_url:
+                    portfolio.linkedin_url = scan['linkedin_url']
+                if scan['github_url'] and not portfolio.github_url:
+                    portfolio.github_url = scan['github_url']
+
+                # Store scan result in session for the UI banner
+                session['resume_scan'] = {
+                    'skills': scan['skills'],
+                    'new_skills': new_skills,
+                    'linkedin_url': scan['linkedin_url'],
+                    'github_url': scan['github_url'],
+                    'text_preview': scan['text_preview'],
+                    'total_detected': len(scan['skills']),
+                    'total_new': len(new_skills),
+                }
+            else:
+                session['resume_scan'] = {'error': scan['error']}
+
     db.session.commit()
-    return redirect(url_for('student_dashboard') + '?section=profile&saved=1')
+    suffix = '&scanned=1' if scanned else '&saved=1'
+    return redirect(url_for('student_dashboard') + '?section=profile' + suffix)
 
 @app.route('/student/certificate', methods=['POST'])
 @login_required
@@ -372,6 +469,48 @@ def add_student_certificate():
     db.session.add(cert)
     db.session.commit()
     return redirect(url_for('student_dashboard') + '?section=add-certificate&saved=1')
+
+
+@app.route('/student/certificate/<int:cert_id>/edit', methods=['POST'])
+@login_required
+@role_required('student')
+def edit_student_certificate(cert_id):
+    cert = StudentCertificate.query.filter_by(id=cert_id, user_id=current_user.id).first_or_404()
+
+    cert.certificate_name = request.form.get('certificate_name', '').strip() or cert.certificate_name
+    cert.issuing_organization = request.form.get('issuing_organization', '').strip() or cert.issuing_organization
+    cert.issue_date = _parse_date(request.form.get('issue_date')) or cert.issue_date
+    cert.expiry_date = _parse_date(request.form.get('expiry_date'))
+    cert.description = request.form.get('description', '').strip() or None
+
+    new_file = request.files.get('certificate_file')
+    if new_file and new_file.filename:
+        if _is_allowed_upload(new_file.filename, {'pdf', 'jpg', 'jpeg', 'png', 'webp'}):
+            # Delete old file if it exists
+            if cert.certificate_file_path:
+                old_abs = os.path.join(app.root_path, cert.certificate_file_path)
+                if os.path.exists(old_abs):
+                    os.remove(old_abs)
+            cert.certificate_file_path = _save_student_file(new_file, current_user.id, 'certificates')
+
+    db.session.commit()
+    return redirect(url_for('student_dashboard') + '?section=add-certificate&updated=1')
+
+
+@app.route('/student/certificate/<int:cert_id>/delete', methods=['POST'])
+@login_required
+@role_required('student')
+def delete_student_certificate(cert_id):
+    cert = StudentCertificate.query.filter_by(id=cert_id, user_id=current_user.id).first_or_404()
+
+    if cert.certificate_file_path:
+        abs_path = os.path.join(app.root_path, cert.certificate_file_path)
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+
+    db.session.delete(cert)
+    db.session.commit()
+    return redirect(url_for('student_dashboard') + '?section=add-certificate&deleted=1')
 
 @app.route('/student/internship-experience', methods=['POST'])
 @login_required
@@ -558,14 +697,48 @@ def org_matched_candidates(internship_id):
     org = Organization.query.filter_by(user_id=current_user.id).first()
     if internship.organization_id != (org.id if org else None):
         return redirect(url_for('org_dashboard'))
-    return render_template('matched_candidates.html', internship=internship)
+
+    # Fetch students who have actually applied, compute AI scores and rank them
+    applications = Application.query.filter_by(internship_id=internship_id).all()
+    candidates = []
+    for app_obj in applications:
+        sp = StudentProfile.query.filter_by(id=app_obj.student_id).first()
+        if not sp:
+            continue
+        student_user = User.query.get(sp.user_id)
+        if not student_user:
+            continue
+        certs = StudentCertificate.query.filter_by(user_id=sp.user_id).count()
+        exps  = StudentInternshipExperience.query.filter_by(user_id=sp.user_id).count()
+        gap   = analyze_skill_gap(sp.skills or '', internship.skills_required or '')
+        success = predict_success_probability(
+            sp.skills or '', internship.skills_required or '', certs, exps
+        )
+        candidates.append({
+            'application': app_obj,
+            'student': student_user,
+            'profile': sp,
+            'matched_skills': gap,
+            'match_score': round(success['probability']),
+            'cert_count': certs,
+            'exp_count': exps,
+            'readiness': gap['readiness_level'],
+            'readiness_color': gap['readiness_color'],
+        })
+    candidates.sort(key=lambda c: c['match_score'], reverse=True)
+    return render_template('matched_candidates.html', internship=internship, candidates=candidates)
 
 @app.route('/org/candidate/<int:candidate_id>')
 @login_required
 @role_required('organization')
 def org_candidate_profile(candidate_id):
-    candidate = StudentProfile.query.get_or_404(candidate_id)
-    return render_template('candidate_profile.html', candidate=candidate)
+    profile = StudentProfile.query.get_or_404(candidate_id)
+    user = User.query.get_or_404(profile.user_id)
+    certs = StudentCertificate.query.filter_by(user_id=profile.user_id).all()
+    exps  = StudentInternshipExperience.query.filter_by(user_id=profile.user_id).all()
+    portfolio = StudentPortfolio.query.filter_by(user_id=profile.user_id).first()
+    return render_template('candidate_profile.html', user=user, profile=profile,
+                           certs=certs, exps=exps, portfolio=portfolio)
 
 # ---------------- ADMIN ---------------- #
 
@@ -780,9 +953,292 @@ def admin_settings():
 
     return render_template('admin_settings.html', success=success, error=error, step=step)
 
+# ---------------- AI FEATURES ---------------- #
+
+@app.route('/student/ai')
+@login_required
+@role_required('student')
+def ai_hub():
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    ai_score_row = StudentAIScore.query.filter_by(user_id=current_user.id).first()
+    personality = PersonalityProfile.query.filter_by(user_id=current_user.id).first()
+    interview_count = InterviewSession.query.filter_by(user_id=current_user.id).count()
+    interview_avg = db.session.query(db.func.avg(InterviewSession.score)).filter_by(user_id=current_user.id).scalar()
+    return render_template(
+        'ai_hub.html',
+        profile=profile,
+        ai_score=ai_score_row,
+        personality=personality,
+        interview_count=interview_count,
+        interview_avg=round(interview_avg or 0, 1),
+    )
+
+
+@app.route('/student/ai/career-path')
+@login_required
+@role_required('student')
+def ai_career_path():
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    predictions = []
+    if profile and profile.skills:
+        predictions = predict_career_paths(profile.skills)
+    return render_template('ai_career_path.html', predictions=predictions, profile=profile)
+
+
+@app.route('/student/ai/skill-gap/<int:internship_id>')
+@login_required
+@role_required('student')
+def ai_skill_gap(internship_id):
+    internship = Internship.query.get_or_404(internship_id)
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    gap = analyze_skill_gap(profile.skills or '', internship.skills_required or '')
+    org = Organization.query.filter_by(id=internship.organization_id).first()
+    return render_template('ai_skill_gap.html', internship=internship, gap=gap, org=org)
+
+
+@app.route('/student/ai/success/<int:internship_id>')
+@login_required
+@role_required('student')
+def ai_success_predictor(internship_id):
+    internship = Internship.query.get_or_404(internship_id)
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    certs = StudentCertificate.query.filter_by(user_id=current_user.id).count()
+    exps = StudentInternshipExperience.query.filter_by(user_id=current_user.id).count()
+    result = predict_success_probability(
+        profile.skills or '', internship.skills_required or '', certs, exps
+    )
+    org = Organization.query.filter_by(id=internship.organization_id).first()
+    return render_template('ai_success.html', internship=internship, result=result, org=org)
+
+
+@app.route('/student/ai/recommendations')
+@login_required
+@role_required('student')
+def ai_recommendations():
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    all_internships = Internship.query.filter_by(status='approved').all()
+    recommendations = recommend_internships(profile.skills or '', all_internships)
+    # Boost location matches to top (stable sort)
+    student_location = (profile.location or '').strip().lower() if profile else ''
+    if student_location:
+        def loc_key(r):
+            iloc = (r['internship'].location or '').strip().lower()
+            if iloc == 'remote' or student_location in iloc or iloc in student_location:
+                return 0
+            return 1
+        recommendations.sort(key=loc_key)
+    orgs = {o.id: o for o in Organization.query.all()}
+    return render_template('ai_recommendations.html', recommendations=recommendations, orgs=orgs, profile=profile)
+
+
+@app.route('/student/ai/personality-quiz', methods=['GET', 'POST'])
+@login_required
+@role_required('student')
+def ai_personality_quiz():
+    if request.method == 'POST':
+        answers = {
+            'risk_taking': int(request.form.get('risk_taking', 3)),
+            'teamwork': int(request.form.get('teamwork', 3)),
+            'structure': int(request.form.get('structure', 3)),
+            'creativity': int(request.form.get('creativity', 3)),
+            'pace': int(request.form.get('pace', 3)),
+        }
+        results = match_personality_culture(answers)
+        p = PersonalityProfile.query.filter_by(user_id=current_user.id).first()
+        if not p:
+            p = PersonalityProfile(user_id=current_user.id)
+            db.session.add(p)
+        for k, v in answers.items():
+            setattr(p, k, v)
+        p.top_culture = results[0]['culture'] if results else ''
+        p.updated_at = datetime.utcnow()
+        db.session.commit()
+        return render_template('ai_personality_quiz.html', results=results, answers=answers, submitted=True)
+    return render_template('ai_personality_quiz.html', results=None, submitted=False)
+
+
+@app.route('/student/ai/interview', methods=['GET', 'POST'])
+@login_required
+@role_required('student')
+def ai_interview():
+    profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
+    if request.method == 'POST':
+        question_text = request.form.get('question_text', '')
+        student_answer = request.form.get('student_answer', '')
+        keywords = request.form.get('keywords', '').split('|')
+        topic = request.form.get('topic', 'general')
+        difficulty = request.form.get('difficulty', 'Easy')
+        evaluation = evaluate_interview_answer(question_text, student_answer, keywords)
+        sess = InterviewSession(
+            user_id=current_user.id,
+            question_text=question_text,
+            student_answer=student_answer,
+            score=evaluation['score'],
+            feedback=evaluation['feedback'],
+            topic=topic,
+            difficulty=difficulty,
+        )
+        db.session.add(sess)
+        db.session.commit()
+        asked_ids = session.get('interview_asked_ids', [])
+        asked_ids_hashed = [abs(hash(question_text)) % (10 ** 9)]
+        asked_ids.extend(asked_ids_hashed)
+        session['interview_asked_ids'] = asked_ids[-20:]
+        next_question = get_interview_question(profile.skills or '', asked_ids)
+        history = InterviewSession.query.filter_by(user_id=current_user.id).order_by(
+            InterviewSession.asked_at.desc()).limit(5).all()
+        return render_template(
+            'ai_interview.html',
+            profile=profile,
+            evaluation=evaluation,
+            next_question=next_question,
+            history=history,
+            last_question=question_text,
+            last_answer=student_answer,
+        )
+    asked_ids = session.get('interview_asked_ids', [])
+    question = get_interview_question(profile.skills or '', asked_ids)
+    history = InterviewSession.query.filter_by(user_id=current_user.id).order_by(
+        InterviewSession.asked_at.desc()).limit(5).all()
+    return render_template('ai_interview.html', profile=profile, question=question, history=history, evaluation=None)
+
+
+@app.route('/student/ai/scoreboard')
+@login_required
+@role_required('student')
+def ai_scoreboard():
+    all_profiles = StudentProfile.query.all()
+    leaderboard = []
+    for p in all_profiles:
+        user = User.query.get(p.user_id)
+        if not user:
+            continue
+        certs = StudentCertificate.query.filter_by(user_id=p.user_id).count()
+        exps = StudentInternshipExperience.query.filter_by(user_id=p.user_id).count()
+        apps = Application.query.filter_by(student_id=p.id).count()
+        score_data = calculate_ai_score(p.skills or '', certs, exps, apps)
+        # Upsert into StudentAIScore
+        ai_row = StudentAIScore.query.filter_by(user_id=p.user_id).first()
+        if not ai_row:
+            ai_row = StudentAIScore(user_id=p.user_id)
+            db.session.add(ai_row)
+        ai_row.total_score = score_data['total']
+        ai_row.skill_score = score_data['skill_score']
+        ai_row.cert_score = score_data['cert_score']
+        ai_row.exp_score = score_data['exp_score']
+        ai_row.activity_score = score_data['activity_score']
+        ai_row.level = score_data['level']
+        ai_row.updated_at = datetime.utcnow()
+        leaderboard.append({
+            'user': user,
+            'score': score_data,
+            'is_current': p.user_id == current_user.id,
+        })
+    db.session.commit()
+    leaderboard.sort(key=lambda x: x['score']['total'], reverse=True)
+    my_entry = next((e for e in leaderboard if e['is_current']), None)
+    my_rank = next((i + 1 for i, e in enumerate(leaderboard) if e['is_current']), None)
+    return render_template(
+        'ai_scoreboard.html',
+        leaderboard=leaderboard[:20],
+        my_entry=my_entry,
+        my_rank=my_rank,
+    )
+
+
+@app.route('/student/ai/certificate-verify/<int:cert_id>')
+@login_required
+@role_required('student')
+def ai_certificate_verify(cert_id):
+    cert = StudentCertificate.query.filter_by(id=cert_id, user_id=current_user.id).first_or_404()
+    file_path = None
+    if cert.certificate_file_path:
+        file_path = os.path.join(app.root_path, cert.certificate_file_path)
+    result = verify_certificate(
+        cert.certificate_name,
+        cert.issuing_organization,
+        cert.issue_date,
+        cert.expiry_date,
+        file_path=file_path,
+    )
+    return render_template('ai_cert_verify.html', cert=cert, result=result)
+
+
+@app.route('/org/certificate-verify/<int:cert_id>')
+@login_required
+@role_required('organization')
+def org_certificate_verify(cert_id):
+    cert = StudentCertificate.query.get_or_404(cert_id)
+    student_user = User.query.get_or_404(cert.user_id)
+    file_path = None
+    if cert.certificate_file_path:
+        file_path = os.path.join(app.root_path, cert.certificate_file_path)
+    result = verify_certificate(
+        cert.certificate_name,
+        cert.issuing_organization,
+        cert.issue_date,
+        cert.expiry_date,
+        file_path=file_path,
+    )
+    return render_template('ai_cert_verify.html', cert=cert, result=result,
+                           student=student_user, viewer_role='organization')
+
+
+@app.route('/admin/ai/allocation', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_ai_allocation():
+    all_profiles = StudentProfile.query.filter(
+        StudentProfile.skills != None, StudentProfile.skills != ''
+    ).all()
+    all_internships = Internship.query.filter_by(status='approved').all()
+    allocation_details = []
+    unallocated = []
+    ran = False
+    if request.method == 'POST':
+        ran = True
+        students_data = []
+        for p in all_profiles:
+            user = User.query.get(p.user_id)
+            if not user:
+                continue
+            certs = StudentCertificate.query.filter_by(user_id=p.user_id).count()
+            exps = StudentInternshipExperience.query.filter_by(user_id=p.user_id).count()
+            students_data.append({
+                'id': p.user_id,
+                'name': user.name,
+                'skills': p.skills or '',
+                'cert_count': certs,
+                'exp_count': exps,
+            })
+        allocation_details, unallocated = optimize_allocation(students_data, all_internships)
+        # Persist allocations to StudentProfile
+        alloc_map = {d['student_id']: d for d in allocation_details}
+        for p in all_profiles:
+            if p.user_id in alloc_map:
+                d = alloc_map[p.user_id]
+                p.allocated_internship = d['internship_title']
+                p.match_score = d['score'] / 100.0
+        db.session.commit()
+    return render_template(
+        'admin_ai_allocation.html',
+        allocation_details=allocation_details,
+        unallocated=unallocated,
+        total_students=len(all_profiles),
+        total_internships=len(all_internships),
+        ran=ran,
+    )
+
+
 # ---------------- RUN ---------------- #
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        # Migrate: add StudentProfile.location column if missing (safe on re-run)
+        try:
+            db.session.execute(db.text('ALTER TABLE student_profile ADD COLUMN location VARCHAR(200)'))
+            db.session.commit()
+        except Exception:
+            pass
     app.run(debug=True)

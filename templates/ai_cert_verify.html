@@ -1,0 +1,280 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >AI Hub</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-page-header {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .ai-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .ai-page-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+  .cert-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .cert-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .cert-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #001a40;
+    margin: 0 0 4px;
+  }
+  .cert-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  .trust-score-bar {
+    background: #f3f4f6;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+  }
+  .trust-fill {
+    height: 100%;
+    border-radius: 20px;
+  }
+  .flag-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .flag-success {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .flag-warning {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .flag-danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .status-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .badge-success {
+    background: #dcfce7;
+    color: #166634;
+  }
+  .badge-warning {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+</style>
+
+<div class="ai-page">
+  <div class="ai-page-header">
+    <h1>🛡️ AI Certificate Fraud Detector</h1>
+    {% if viewer_role == 'organization' and student %}
+    <p style="color:#bfdbfe;font-size:14px;margin:4px 0 0;">
+      Verifying certificate for candidate: <strong style="color:#fff;">{{ student.name }}</strong>
+    </p>
+    {% else %}
+    <p>
+      AI verification using issuer registry, date analysis, and pattern
+      recognition.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="cert-card">
+    <div class="cert-header">
+      <div>
+        <div class="cert-title">{{ cert.certificate_name }}</div>
+        <div class="cert-subtitle">
+          Issued by: {{ cert.issuing_organization }}
+        </div>
+        {% if cert.issue_date %}
+        <div class="cert-subtitle">
+          Issue date: {{ cert.issue_date.strftime('%d %b %Y') }}
+        </div>
+        {% endif %} {% if cert.expiry_date %}
+        <div class="cert-subtitle">
+          Expires: {{ cert.expiry_date.strftime('%d %b %Y') }}
+        </div>
+        {% endif %}
+      </div>
+      <span class="status-badge badge-{{ result.status_color }}">
+        {{ '✅' if result.status == 'Verified' else '⚠️' if result.status ==
+        'Suspicious' else '🚨' }} {{ result.status }}
+      </span>
+    </div>
+
+    <!-- Trust Score Bar -->
+    <div style="margin-bottom: 20px">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 4px;
+        "
+      >
+        <span style="font-size: 13px; font-weight: 600; color: #374151"
+          >AI Trust Score</span
+        >
+        <span
+          style="font-size:13px;font-weight:700;color:#{{ '16a34a' if result.trust_score >= 80 else 'f59e0b' if result.trust_score >= 50 else 'dc2626' }};"
+          >{{ result.trust_score }}/100</span
+        >
+      </div>
+      <div class="trust-score-bar">
+        <div
+          class="trust-fill"
+          style="width:{{ result.trust_score }}%;background:{{ '#22c55e' if result.trust_score >= 80 else '#fbbf24' if result.trust_score >= 50 else '#ef4444' }};"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Trusted Issuer -->
+    <div
+      style="padding:12px 16px;border-radius:8px;background:{{ '#dcfce7' if result.is_trusted_issuer else '#f3f4f6' }};margin-bottom:16px;font-size:13px;"
+    >
+      {{ '✅ Issuer is in the Trusted Institution Registry' if
+      result.is_trusted_issuer else '⚠️ Issuer not found in Trusted Registry –
+      please verify manually' }}
+    </div>
+
+    <!-- Flags -->
+    <h3
+      style="
+        font-size: 14px;
+        font-weight: 700;
+        color: #001a40;
+        margin: 0 0 10px;
+      "
+    >
+      AI Detection Flags
+    </h3>
+    {% for flag in result.flags %}
+    <div class="flag-item flag-{{ flag.type }}">
+      {{ '✅' if flag.type == 'success' else '⚠️' if flag.type == 'warning' else
+      '🚨' }} {{ flag.msg }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Institution Summary Panel -->
+  {% if result.institution_info %}
+  <div class="cert-card" style="margin-top: 0; border-left: 4px solid #1e7ce8;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+      <div>
+        <h3 style="font-size:16px;font-weight:800;color:#001a40;margin:0 0 4px;">
+          🏛️ Institution Profile
+        </h3>
+        <div style="font-size:18px;font-weight:700;color:#1e7ce8;">{{ result.institution_info.name }}</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">{{ result.institution_info.type }}</div>
+      </div>
+      <!-- Issuer match badge (only for PDF with detected_issuer) -->
+      {% if result.detected_issuer %}
+        {% if result.issuer_match %}
+        <span style="background:#dcfce7;color:#166534;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap;">
+          ✅ Confirmed in Document
+        </span>
+        {% else %}
+        <span style="background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap;">
+          ⚠️ Issuer Mismatch Detected
+        </span>
+        {% endif %}
+      {% elif result.institution_info %}
+      <span style="background:#fef9c3;color:#854d0e;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;white-space:nowrap;">
+        🔍 Institution detected from claimed metadata
+      </span>
+      {% endif %}
+    </div>
+
+    <p style="font-size:13px;color:#374151;line-height:1.6;margin:0 0 16px;">
+      {{ result.institution_info.description }}
+    </p>
+
+    <!-- Certificate types -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;">Certificates issued by this institution:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        {% for ct in result.institution_info.cert_types %}
+        <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:#eff6ff;color:#1e40af;font-weight:500;">{{ ct }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Verification note -->
+    <div style="background:#f9fafb;border-radius:8px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:4px;">🔎 How to verify this certificate:</div>
+      <div style="font-size:12px;color:#6b7280;line-height:1.5;">{{ result.institution_info.verification_note }}</div>
+    </div>
+
+    <a href="{{ result.institution_info.verify_url }}" target="_blank"
+       style="display:inline-block;background:#1e7ce8;color:#fff;padding:9px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">
+      🔗 Visit Official Verification Portal →
+    </a>
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 24px">
+    {% if viewer_role == 'organization' %}
+    <a href="javascript:history.back()" style="color: #1e7ce8; text-decoration: none; font-size: 14px">← Back to Candidate Profile</a>
+    {% else %}
+    <a href="/student/ai" style="color: #1e7ce8; text-decoration: none; font-size: 14px">← AI Hub</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,375 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #1e7ce8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+  "
+  >AI Hub</a
+>
+<a
+  href="/student/ai/scoreboard"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Scoreboard</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-hub-wrap {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-hero {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 16px;
+    padding: 40px 48px;
+    color: #fff;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-hero::before {
+    content: "";
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 300px;
+    height: 300px;
+    background: rgba(30, 124, 232, 0.15);
+    border-radius: 50%;
+  }
+  .ai-hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0 0 10px;
+  }
+  .ai-hero p {
+    font-size: 16px;
+    color: #93c5fd;
+    margin: 0 0 20px;
+  }
+  .ai-hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .ai-hero-stat {
+    text-align: center;
+  }
+  .ai-hero-stat .val {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1e7ce8;
+  }
+  .ai-hero-stat .lbl {
+    font-size: 12px;
+    color: #93c5fd;
+  }
+  .ai-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .ai-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition:
+      box-shadow 0.2s,
+      transform 0.2s;
+    cursor: pointer;
+  }
+  .ai-card:hover {
+    box-shadow: 0 8px 32px rgba(30, 124, 232, 0.12);
+    transform: translateY(-3px);
+  }
+  .ai-card-icon {
+    font-size: 36px;
+    line-height: 1;
+  }
+  .ai-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #001a40;
+  }
+  .ai-card-desc {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.6;
+    flex: 1;
+  }
+  .ai-card-btn {
+    display: inline-block;
+    background: #1e7ce8;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 20px;
+    border-radius: 8px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .ai-card-btn:hover {
+    background: #1565c0;
+  }
+  .ai-card-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e7ce8;
+    margin-bottom: 4px;
+  }
+  .ai-score-banner {
+    background: #fff;
+    border: 2px solid #1e7ce8;
+    border-radius: 14px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .ai-score-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e7ce8, #7c3aed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .ai-score-circle .score-val {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .ai-score-circle .score-lbl {
+    font-size: 10px;
+    opacity: 0.85;
+  }
+  .ai-score-info h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #001a40;
+    margin: 0 0 4px;
+  }
+  .ai-score-info p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+  }
+  .section-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #001a40;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+
+<div class="ai-hub-wrap">
+  <!-- Hero -->
+  <div class="ai-hero">
+    <h1>🧠 AI Intelligence Hub</h1>
+    <p>
+      Your personal AI-powered career assistant. Predict paths, analyze gaps,
+      simulate interviews and more.
+    </p>
+    <div class="ai-hero-stats">
+      <div class="ai-hero-stat">
+        <div class="val">{{ interview_count }}</div>
+        <div class="lbl">Interview Questions</div>
+      </div>
+      <div class="ai-hero-stat">
+        <div class="val">{{ interview_avg }}/10</div>
+        <div class="lbl">Avg Interview Score</div>
+      </div>
+      <div class="ai-hero-stat">
+        <div class="val">{{ ai_score.level if ai_score else 'Bronze' }}</div>
+        <div class="lbl">AI Level</div>
+      </div>
+      <div class="ai-hero-stat">
+        <div class="val">{{ ai_score.total_score if ai_score else 0 }}</div>
+        <div class="lbl">AI Score Points</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Banner -->
+  {% if ai_score %}
+  <div class="ai-score-banner">
+    <div class="ai-score-circle">
+      <span class="score-val">{{ ai_score.total_score }}</span>
+      <span class="score-lbl">pts</span>
+    </div>
+    <div class="ai-score-info">
+      <h3>{{ ai_score.level }} Level · AI Score</h3>
+      <p>
+        Skills: {{ ai_score.skill_score }}pts &nbsp;|&nbsp; Certs: {{
+        ai_score.cert_score }}pts &nbsp;|&nbsp; Experience: {{
+        ai_score.exp_score }}pts &nbsp;|&nbsp; Activity: {{
+        ai_score.activity_score }}pts
+      </p>
+    </div>
+    <a
+      href="/student/ai/scoreboard"
+      class="ai-card-btn"
+      style="margin-left: auto"
+      >View Leaderboard →</a
+    >
+  </div>
+  {% endif %}
+
+  <!-- AI Features Grid -->
+  <div class="section-label">⚡ AI Features</div>
+  <div class="ai-grid">
+    <div class="ai-card" onclick="window.location = '/student/ai/career-path'">
+      <span class="ai-card-badge">Career Intelligence</span>
+      <div class="ai-card-icon">🎯</div>
+      <div class="ai-card-title">AI Career Path Predictor</div>
+      <div class="ai-card-desc">
+        AI analyzes your skills and predicts the best-fit career paths with
+        expected salaries, matching skills, and recommended internships.
+      </div>
+      <a href="/student/ai/career-path" class="ai-card-btn"
+        >Predict My Career →</a
+      >
+    </div>
+
+    <div
+      class="ai-card"
+      onclick="window.location = '/student/ai/recommendations'"
+    >
+      <span class="ai-card-badge">Smart Matching</span>
+      <div class="ai-card-icon">💡</div>
+      <div class="ai-card-title">AI Internship Recommendations</div>
+      <div class="ai-card-desc">
+        Netflix-style recommendations using semantic AI to surface internships
+        that perfectly match your skill profile.
+      </div>
+      <a href="/student/ai/recommendations" class="ai-card-btn"
+        >See Recommendations →</a
+      >
+    </div>
+
+    <div class="ai-card" onclick="window.location = '/student/ai/interview'">
+      <span class="ai-card-badge">Interview Prep</span>
+      <div class="ai-card-icon">🎤</div>
+      <div class="ai-card-title">AI Interview Simulator</div>
+      <div class="ai-card-desc">
+        Practice real interview questions. AI evaluates your answers using NLP
+        and semantic analysis, then gives instant scores and feedback.
+      </div>
+      <a href="/student/ai/interview" class="ai-card-btn">Start Interview →</a>
+    </div>
+
+    <div
+      class="ai-card"
+      onclick="window.location = '/student/ai/personality-quiz'"
+    >
+      <span class="ai-card-badge">Culture Fit</span>
+      <div class="ai-card-icon">🧬</div>
+      <div class="ai-card-title">AI Personality & Culture Match</div>
+      <div class="ai-card-desc">
+        Discover which company cultures align with your work personality. Take a
+        5-question AI quiz for culture-fit insights.
+      </div>
+      {% if personality %}
+      <p style="font-size: 12px; color: #6b7280; margin: 0">
+        Last result: <strong>{{ personality.top_culture }}</strong>
+      </p>
+      {% endif %}
+      <a href="/student/ai/personality-quiz" class="ai-card-btn">Take Quiz →</a>
+    </div>
+
+    <div class="ai-card" onclick="window.location = '/student/ai/scoreboard'">
+      <span class="ai-card-badge">Gamification</span>
+      <div class="ai-card-icon">🏆</div>
+      <div class="ai-card-title">AI Dynamic Scoreboard</div>
+      <div class="ai-card-desc">
+        Gamified leaderboard where AI scores every student based on skills,
+        certifications, experience, and platform activity. Earn badges!
+      </div>
+      <a href="/student/ai/scoreboard" class="ai-card-btn"
+        >View Leaderboard →</a
+      >
+    </div>
+
+    <div class="ai-card">
+      <span class="ai-card-badge">Skill Analysis</span>
+      <div class="ai-card-icon">🔍</div>
+      <div class="ai-card-title">AI Skill Gap Analyzer</div>
+      <div class="ai-card-desc">
+        Select any internship and AI will instantly show which skills you have,
+        which are missing, and recommend the best courses to close the gap.
+      </div>
+      <a href="/student" class="ai-card-btn" style="background: #6b7280"
+        >Select from Internships →</a
+      >
+    </div>
+
+    <div class="ai-card">
+      <span class="ai-card-badge">Success Prediction</span>
+      <div class="ai-card-icon">📊</div>
+      <div class="ai-card-title">AI Success Predictor</div>
+      <div class="ai-card-desc">
+        Before applying, know your probability of success. AI weighs your
+        skills, certifications, and experience to compute a success score.
+      </div>
+      <a href="/student" class="ai-card-btn" style="background: #6b7280"
+        >Select from Internships →</a
+      >
+    </div>
+
+    <div class="ai-card">
+      <span class="ai-card-badge">Fraud Detection</span>
+      <div class="ai-card-icon">🛡️</div>
+      <div class="ai-card-title">AI Certificate Fraud Detector</div>
+      <div class="ai-card-desc">
+        AI verifies your uploaded certificates by checking issuing authority,
+        date validity, and comparing against a trusted institution registry.
+      </div>
+      <a
+        href="/student?section=profile"
+        class="ai-card-btn"
+        >Go to Certificates →</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

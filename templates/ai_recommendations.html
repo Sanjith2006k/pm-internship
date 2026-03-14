@@ -1,0 +1,345 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >AI Hub</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-page {
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-page-header {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .ai-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .ai-page-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+  .rec-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    transition:
+      box-shadow 0.2s,
+      transform 0.2s;
+  }
+  .rec-card:hover {
+    box-shadow: 0 6px 24px rgba(30, 124, 232, 0.12);
+    transform: translateY(-2px);
+  }
+  .rec-rank {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .rec-rank.r1 {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  .rec-rank.r2 {
+    background: #f3f4f6;
+    color: #374151;
+  }
+  .rec-rank.r3 {
+    background: #fef9c3;
+    color: #92400e;
+  }
+  .rec-rank.rn {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+  .rec-body {
+    flex: 1;
+  }
+  .rec-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #001a40;
+    margin: 0 0 4px;
+  }
+  .rec-meta {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 12px;
+  }
+  .rec-score-bar {
+    background: #f3f4f6;
+    border-radius: 20px;
+    height: 10px;
+    overflow: hidden;
+    margin: 4px 0 12px;
+  }
+  .rec-score-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #1e7ce8, #7c3aed);
+  }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .skill-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .skill-tag.matched {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .skill-tag.missing {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .readiness-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-high {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .badge-medium {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .badge-low {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .rec-actions {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .rec-actions a {
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: #1e7ce8;
+    color: #fff;
+  }
+  .btn-secondary {
+    background: #eff6ff;
+    color: #1e7ce8;
+  }
+  .no-rec {
+    background: #fffbeb;
+    border: 2px dashed #fbbf24;
+    border-radius: 12px;
+    padding: 48px;
+    text-align: center;
+    color: #92400e;
+  }
+</style>
+
+<div class="ai-page">
+  <div class="ai-page-header">
+    <h1>💡 AI Internship Recommendations</h1>
+    <p>
+      Semantic AI analyzes your skills and recommends the best-matching
+      internships — Netflix-style.
+    </p>
+  </div>
+
+  {% if not profile or not profile.skills %}
+  <div class="no-rec">
+    <div style="font-size: 48px; margin-bottom: 12px">⚠️</div>
+    <h3 style="margin: 0 0 8px">No Skills Detected</h3>
+    <p style="margin: 0 0 16px; font-size: 14px">
+      Add your skills to unlock AI-powered recommendations.
+    </p>
+    <a
+      href="/student?section=profile"
+      style="
+        background: #1e7ce8;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+      "
+      >Update Profile →</a
+    >
+  </div>
+  {% elif not recommendations %}
+  <div class="no-rec">
+    <div style="font-size: 48px">🔍</div>
+    <p style="margin: 16px 0 0; font-size: 14px">
+      No approved internships available right now. Check back later!
+    </p>
+  </div>
+  {% else %}
+
+  <div
+    style="
+      background: #eff6ff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #1e40af;
+    "
+  >
+    <strong>Based on your skills:</strong> {{ profile.skills }}
+  </div>
+
+  {% for rec in recommendations %}
+  <div class="rec-card">
+    <div
+      class="rec-rank {{ 'r1' if loop.index == 1 else 'r2' if loop.index == 2 else 'r3' if loop.index == 3 else 'rn' }}"
+    >
+      #{{ loop.index }}
+    </div>
+    <div class="rec-body">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 4px;
+        "
+      >
+        <div class="rec-title">{{ rec.internship.title }}</div>
+        <span class="readiness-badge badge-{{ rec.readiness_color }}"
+          >{{ rec.readiness }} Fit</span
+        >
+      </div>
+      <div class="rec-meta">
+        📍 {{ rec.internship.location or 'Remote' }} &nbsp;·&nbsp; ⏰ {{
+        rec.internship.duration or '3 months' }} {% if rec.internship.stipend %}
+        &nbsp;·&nbsp; 💰 {{ rec.internship.stipend }}{% endif %}
+      </div>
+
+      <div
+        style="
+          font-size: 12px;
+          font-weight: 600;
+          color: #1e40af;
+          margin-bottom: 4px;
+        "
+      >
+        AI Match: {{ rec.score }}%
+      </div>
+      <div class="rec-score-bar">
+        <div class="rec-score-fill" style="width:{{ rec.score }}%;"></div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+        <div>
+          <div
+            style="
+              font-size: 11px;
+              font-weight: 700;
+              color: #166534;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            ✅ You have
+          </div>
+          <div class="skill-tags">
+            {% for s in rec.matched_skills %}
+            <span class="skill-tag matched">{{ s }}</span>
+            {% else %}<span style="font-size: 12px; color: #9ca3af">–</span>
+            {% endfor %}
+          </div>
+        </div>
+        <div>
+          <div
+            style="
+              font-size: 11px;
+              font-weight: 700;
+              color: #991b1b;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            "
+          >
+            ❌ Missing
+          </div>
+          <div class="skill-tags">
+            {% for s in rec.missing_skills %}
+            <span class="skill-tag missing">{{ s }}</span>
+            {% else %}<span style="font-size: 12px; color: #9ca3af">None!</span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rec-actions">
+      <a
+        href="/student/ai/skill-gap/{{ rec.internship.id }}"
+        class="btn-secondary"
+        >🔍 Skill Gap</a
+      >
+      <a
+        href="/student/ai/success/{{ rec.internship.id }}"
+        class="btn-secondary"
+        >📊 Success %</a
+      >
+    </div>
+  </div>
+  {% endfor %} {% endif %}
+
+  <div style="margin-top: 24px">
+    <a
+      href="/student/ai"
+      style="color: #1e7ce8; text-decoration: none; font-size: 14px"
+      >← AI Hub</a
+    >
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,398 @@
+{% extends "base.html" %} {% block nav_links %}
+<a
+  href="/student"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >Dashboard</a
+>
+<a
+  href="/student/ai"
+  style="
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+  "
+  >AI Hub</a
+>
+{% endblock %} {% block content %}
+<style>
+  .ai-page {
+    max-width: 860px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+  .ai-page-header {
+    background: linear-gradient(135deg, #001a40, #0a3066);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .ai-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+  .ai-page-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+  .interview-box {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .question-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .badge-Easy {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .badge-Medium {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .badge-Hard {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .question-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #001a40;
+    margin: 0 0 20px;
+    line-height: 1.5;
+  }
+  .answer-area {
+    width: 100%;
+    min-height: 120px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .answer-area:focus {
+    border-color: #1e7ce8;
+  }
+  .submit-btn {
+    background: #1e7ce8;
+    color: #fff;
+    border: none;
+    padding: 12px 32px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 12px;
+  }
+  .submit-btn:hover {
+    background: #1565c0;
+  }
+  .evaluation-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .eval-good {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+  }
+  .eval-bad {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+  }
+  .eval-score {
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .eval-label {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+  .history-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .history-q {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 6px;
+  }
+  .history-a {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0 0 8px;
+  }
+  .history-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .score-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .score-good {
+    background: #dcfce7;
+    color: #166534;
+  }
+  .score-bad {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .next-btn {
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  .no-skills-tip {
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="ai-page">
+  <div class="ai-page-header">
+    <h1>🎤 AI Interview Simulator</h1>
+    <p>
+      Practice real interview questions. AI evaluates your answers using NLP and
+      gives instant feedback.
+    </p>
+  </div>
+
+  {% if not profile or not profile.skills %}
+  <div class="no-skills-tip">
+    <strong>Tip:</strong> Add skills to your profile to get skill-specific
+    interview questions!
+    <a href="/student?section=profile" style="color: #1e7ce8; margin-left: 8px"
+      >Update Profile →</a
+    >
+  </div>
+  {% endif %}
+
+  <!-- Evaluation Result (after answering) -->
+  {% if evaluation %}
+  <div
+    class="evaluation-box {{ 'eval-good' if evaluation.good else 'eval-bad' }}"
+  >
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap">
+      <div style="text-align: center">
+        <div
+          class="eval-score"
+          style="color:{{ '#166534' if evaluation.good else '#991b1b' }};"
+        >
+          {{ evaluation.score }}/10
+        </div>
+        <div class="eval-label">Your Score</div>
+      </div>
+      <div style="flex: 1">
+        <div
+          style="font-size:14px;font-weight:700;color:{{ '#166534' if evaluation.good else '#991b1b' }};margin-bottom:6px;"
+        >
+          {{ '✅ Great Answer!' if evaluation.good else '💡 Room for
+          Improvement' }}
+        </div>
+        <div style="font-size: 13px; color: #374151">
+          {{ evaluation.feedback }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    style="
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    "
+  >
+    <div
+      style="
+        font-size: 12px;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      "
+    >
+      Your Answer Was
+    </div>
+    <p style="font-size: 13px; color: #374151; margin: 0">{{ last_answer }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Question Box -->
+  {% set current_q = next_question if evaluation else question %} {% if
+  current_q %}
+  <div class="interview-box">
+    <div
+      style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px"
+    >
+      <span
+        style="
+          font-size: 12px;
+          font-weight: 600;
+          color: #6b7280;
+          text-transform: uppercase;
+        "
+        >Topic: {{ current_q.topic | title }}</span
+      >
+      <span class="question-badge badge-{{ current_q.difficulty }}"
+        >{{ current_q.difficulty }}</span
+      >
+    </div>
+    <div class="question-text">{{ current_q.q }}</div>
+
+    <form method="POST" action="/student/ai/interview">
+      <input type="hidden" name="question_text" value="{{ current_q.q }}" />
+      <input
+        type="hidden"
+        name="keywords"
+        value="{{ current_q.keywords | join('|') }}"
+      />
+      <input type="hidden" name="topic" value="{{ current_q.topic }}" />
+      <input
+        type="hidden"
+        name="difficulty"
+        value="{{ current_q.difficulty }}"
+      />
+      <label
+        style="
+          font-size: 13px;
+          font-weight: 600;
+          color: #374151;
+          display: block;
+          margin-bottom: 6px;
+        "
+        >Your Answer:</label
+      >
+      <textarea
+        name="student_answer"
+        class="answer-area"
+        placeholder="Type your detailed answer here..."
+      ></textarea>
+      <button type="submit" class="submit-btn">Submit Answer →</button>
+    </form>
+  </div>
+  {% else %}
+  <div
+    style="
+      background: #eff6ff;
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      color: #1e40af;
+      margin-bottom: 24px;
+    "
+  >
+    <div style="font-size: 32px; margin-bottom: 12px">🎉</div>
+    <h3 style="margin: 0 0 8px">All Questions Completed!</h3>
+    <p style="margin: 0 0 16px">
+      You've answered all available interview questions.
+    </p>
+    <a
+      href="/student/ai/interview"
+      style="
+        background: #1e7ce8;
+        color: #fff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+      "
+      >Start Fresh →</a
+    >
+  </div>
+  {% endif %}
+
+  <!-- History -->
+  {% if history %}
+  <div>
+    <h3
+      style="
+        font-size: 15px;
+        font-weight: 700;
+        color: #001a40;
+        margin: 0 0 14px;
+      "
+    >
+      📋 Recent Interview History
+    </h3>
+    {% for session in history %}
+    <div class="history-item">
+      <div class="history-q">
+        Q: {{ session.question_text[:100] }}{% if session.question_text|length >
+        100 %}...{% endif %}
+      </div>
+      <div class="history-a">
+        A: {{ session.student_answer[:120] if session.student_answer else '–'
+        }}{% if session.student_answer and session.student_answer|length > 120
+        %}...{% endif %}
+      </div>
+      <div class="history-meta">
+        <span
+          class="score-pill {{ 'score-good' if session.score >= 6 else 'score-bad' }}"
+          >{{ session.score }}/10</span
+        >
+        <span style="font-size: 11px; color: #9ca3af"
+          >{{ session.topic | title }} · {{ session.difficulty }}</span
+        >
+        <span style="font-size: 11px; color: #9ca3af"
+          >{{ session.asked_at.strftime('%d %b, %H:%M') }}</span
+        >
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="margin-top: 24px">
+    <a
+      href="/student/ai"
+      style="color: #1e7ce8; text-decoration: none; font-size: 14px"
+      >← AI Hub</a
+    >
+  </div>
+</div>
+{% endblock %}

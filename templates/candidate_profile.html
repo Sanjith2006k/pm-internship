@@ -135,7 +135,7 @@
           <h3 style="color: #001a40; margin-bottom: 15px; font-size: 18px">
             Resume
           </h3>
-          {% if profile.resume_url %}
+          {% if portfolio and portfolio.resume_path %}
           <div
             style="
               padding: 20px;
@@ -151,14 +151,14 @@
                 Resume Uploaded
               </p>
               <p style="color: #0369a1; font-size: 12px; margin: 5px 0 0 0">
-                Available for download
+                Click to view or download
               </p>
             </div>
             <a
-              href="{{ profile.resume_url }}"
+              href="/{{ portfolio.resume_path }}"
               target="_blank"
               class="btn btn-primary"
-              >Download Resume</a
+              >View / Download Resume</a
             >
           </div>
           {% else %}
@@ -168,7 +168,82 @@
           {% endif %}
         </div>
 
-        <!-- Verification Status -->
+        <!-- Portfolio Links -->
+        {% if portfolio and (portfolio.linkedin_url or portfolio.github_url) %}
+        <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+          <h3 style="color: #001a40; margin-bottom: 14px; font-size: 18px">Portfolio Links</h3>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            {% if portfolio.linkedin_url %}
+            <a href="{{ portfolio.linkedin_url }}" target="_blank"
+               style="background:#0a66c2;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">
+              🔗 LinkedIn
+            </a>
+            {% endif %}
+            {% if portfolio.github_url %}
+            <a href="{{ portfolio.github_url }}" target="_blank"
+               style="background:#24292e;color:#fff;padding:8px 16px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:600;">
+              🐱 GitHub / Portfolio
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Certificates -->
+        {% if certs %}
+        <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+          <h3 style="color: #001a40; margin-bottom: 14px; font-size: 18px">🎓 Certificates ({{ certs | length }})</h3>
+          {% for c in certs %}
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;color:#001a40;font-size:14px;">{{ c.certificate_name }}</div>
+              <div style="font-size:12px;color:#6b7280;margin-top:2px;">{{ c.issuing_organization }}</div>
+              {% if c.issue_date %}
+              <div style="font-size:12px;color:#9ca3af;margin-top:2px;">Issued: {{ c.issue_date.strftime('%b %Y') }}{% if c.expiry_date %} · Expires: {{ c.expiry_date.strftime('%b %Y') }}{% endif %}</div>
+              {% endif %}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0;">
+              {% if c.certificate_file_path %}
+              <a href="/{{ c.certificate_file_path }}" target="_blank"
+                 style="font-size:12px;color:#1e7ce8;font-weight:600;text-decoration:none;white-space:nowrap;">View →</a>
+              {% endif %}
+              <a href="/org/certificate-verify/{{ c.id }}" target="_blank"
+                 style="font-size:11px;padding:3px 10px;background:#eff6ff;color:#1e40af;border-radius:6px;text-decoration:none;font-weight:700;white-space:nowrap;">
+                🛡️ AI Verify
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Experience -->
+        {% if exps %}
+        <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+          <h3 style="color: #001a40; margin-bottom: 14px; font-size: 18px">💼 Internship Experience ({{ exps | length }})</h3>
+          {% for e in exps %}
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;margin-bottom:10px;">
+            <div style="font-weight:700;color:#001a40;font-size:14px;">{{ e.role }} @ {{ e.company_name }}</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px;">
+              {% if e.start_date %}{{ e.start_date.strftime('%b %Y') }}{% endif %}
+              {% if e.end_date %} – {{ e.end_date.strftime('%b %Y') }}{% endif %}
+              {% if e.location %} &nbsp;·&nbsp; {{ e.location }}{% endif %}
+              {% if e.stipend %} &nbsp;·&nbsp; ₹{{ e.stipend }}{% endif %}
+            </div>
+            {% if e.skills_used %}
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">
+              {% for sk in e.skills_used.split(',') %}{% if sk.strip() %}
+              <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:#eff6ff;color:#1e40af;font-weight:500;">{{ sk.strip() }}</span>
+              {% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if e.work_description %}
+            <div style="font-size:12px;color:#374151;margin-top:8px;line-height:1.5;">{{ e.work_description }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
         <div
           style="
             margin-bottom: 30px;
@@ -245,4 +320,5 @@
         );
       }
     </script>
+{% endif %}
 {% endblock %}

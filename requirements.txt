@@ -3,3 +3,5 @@ flask_sqlalchemy
 flask_login
 sentence_transformers
 scikit_learn
+pdfplumber
+python-docx
