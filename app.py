@@ -17,6 +17,8 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.jinja_env.auto_reload = True
 
 # Email config – set MAIL_USERNAME / MAIL_PASSWORD as environment variables
 app.config['MAIL_SERVER']   = 'smtp.gmail.com'
@@ -66,6 +68,62 @@ def send_otp_email(to_email, otp):
     except Exception as e:
         print(f"Email send error: {e}")
         return False
+
+def send_internship_status_email(to_email, org_name, internship_title, action, notes=''):
+    """Notify an organization that their internship was approved or rejected."""
+    username = app.config['MAIL_USERNAME']
+    password = app.config['MAIL_PASSWORD']
+    if not username or not password:
+        print(f"MAIL not configured – internship '{internship_title}' {action}d for {to_email}")
+        return True
+
+    is_approved = (action == 'approve')
+    color   = '#22c55e' if is_approved else '#ef4444'
+    heading = 'Internship Approved!' if is_approved else 'Internship Rejected'
+    body    = (
+        'Your internship posting has been <strong>approved</strong> and is now visible to students.'
+        if is_approved else
+        'Your internship posting was <strong>not approved</strong>. Please review the notes below and resubmit if needed.'
+    )
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f'InternAI – Internship {heading}'
+    msg['From']    = username
+    msg['To']      = to_email
+
+    notes_block = (
+        f'<div style="background:#f9fafb;border-left:4px solid {color};padding:12px 16px;'
+        f'border-radius:0 6px 6px 0;margin-top:16px;">'
+        f'<p style="margin:0;font-size:13px;color:#555;"><strong>Admin Notes:</strong> {notes}</p></div>'
+    ) if notes.strip() else ''
+
+    html = f"""
+    <html><body>
+    <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px;">
+      <h2 style="color:#001a40;margin-bottom:4px;">{heading}</h2>
+      <p style="color:#555;font-size:14px;">Hello {org_name},</p>
+      <div style="background:#f0fdf4 if is_approved else #fef2f2;border:2px solid {color};
+                  border-radius:10px;padding:20px;margin:20px 0;">
+        <p style="margin:0;font-size:14px;color:#001a40;"><strong>Internship:</strong> {internship_title}</p>
+        <p style="margin:10px 0 0;font-size:13px;color:#555;">{body}</p>
+        {notes_block}
+      </div>
+      <p style="color:#888;font-size:12px;">Log in to InternAI to view details or post a new internship.</p>
+    </div>
+    </body></html>
+    """
+    msg.attach(MIMEText(html, 'html'))
+    try:
+        server = smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT'])
+        server.starttls()
+        server.login(username, password)
+        server.sendmail(username, to_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Email send error: {e}")
+        return False
+
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -168,7 +226,7 @@ class Internship(db.Model):
     location = db.Column(db.String(200), default='Remote')
     duration = db.Column(db.String(100), default='3 months')
     stipend = db.Column(db.String(100))
-    status = db.Column(db.String(50), default='approved')  # approved by default once org is verified
+    status = db.Column(db.String(50), default='pending')  # pending until admin verifies
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     admin_notes = db.Column(db.Text)
 
@@ -223,6 +281,16 @@ def load_user(user_id):
 @app.route('/')
 def home():
     return render_template('base.html')
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@app.route('/features')
+def features():
+    return render_template('features.html')
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -306,7 +374,6 @@ def student_dashboard():
     available_internships = Internship.query.filter_by(status='approved').all()
     applications = Application.query.filter_by(student_id=profile.id).all() if profile else []
     applied_ids = {a.internship_id for a in applications}
-    has_active_app = any(a.status in ('pending', 'approved') for a in applications)
     orgs = {o.id: o for o in Organization.query.all()}
     # Sort internships: near student's location first
     student_location = (profile.location or '').strip().lower() if profile else ''
@@ -336,7 +403,6 @@ def student_dashboard():
         available_internships=available_internships,
         enriched_applications=enriched_applications,
         applied_ids=applied_ids,
-        has_active_app=has_active_app,
         orgs=orgs,
         total_available=len(available_internships),
         total_applied=len(applications),
@@ -350,13 +416,6 @@ def apply_internship(internship_id):
     profile = StudentProfile.query.filter_by(user_id=current_user.id).first()
     if not profile:
         return jsonify({'status': 'error', 'message': 'Profile not found'})
-    # One active application at a time rule
-    active_app = Application.query.filter(
-        Application.student_id == profile.id,
-        Application.status.in_(['pending', 'approved'])
-    ).first()
-    if active_app:
-        return jsonify({'status': 'error', 'message': 'You already have an active application. Withdraw it or wait for a decision before applying to another internship.'})
     existing = Application.query.filter_by(student_id=profile.id, internship_id=internship_id).first()
     if existing:
         return jsonify({'status': 'error', 'message': 'Already applied'})
@@ -687,7 +746,43 @@ def org_applications(internship_id):
     org = Organization.query.filter_by(user_id=current_user.id).first()
     if internship.organization_id != (org.id if org else None):
         return redirect(url_for('org_dashboard'))
-    return render_template('view_applications.html', internship=internship)
+    applications = Application.query.filter_by(internship_id=internship_id).all()
+    app_data = []
+    for app_obj in applications:
+        profile = StudentProfile.query.filter_by(id=app_obj.student_id).first()
+        student = User.query.get(profile.user_id) if profile else None
+        if not student or not profile:
+            continue
+        certs = StudentCertificate.query.filter_by(user_id=profile.user_id).count()
+        exps  = StudentInternshipExperience.query.filter_by(user_id=profile.user_id).count()
+        result = predict_success_probability(
+            profile.skills or '', internship.skills_required or '', certs, exps
+        )
+        app_data.append({
+            'application': app_obj,
+            'student': student,
+            'profile': profile,
+            'match_score': round(result['probability']),
+        })
+    app_data.sort(key=lambda x: x['match_score'], reverse=True)
+    return render_template('view_applications.html', internship=internship, app_data=app_data)
+
+@app.route('/org/shortlist/<int:internship_id>/<int:student_user_id>/<status>', methods=['POST'])
+@login_required
+@role_required('organization')
+def org_update_application_status(internship_id, student_user_id, status):
+    if status not in ('shortlisted', 'rejected', 'approved'):
+        return jsonify({'status': 'error', 'message': 'Invalid status'})
+    profile = StudentProfile.query.filter_by(user_id=student_user_id).first()
+    if not profile:
+        return jsonify({'status': 'error', 'message': 'Student not found'})
+    application = Application.query.filter_by(
+        internship_id=internship_id, student_id=profile.id).first()
+    if not application:
+        return jsonify({'status': 'error', 'message': 'Application not found'})
+    application.status = status
+    db.session.commit()
+    return jsonify({'status': 'success', 'message': f'Candidate {status}'})
 
 @app.route('/org/internship/<int:internship_id>/matched-candidates')
 @login_required
@@ -755,7 +850,9 @@ def admin_dashboard():
     total_internships = Internship.query.count()
 
     recent_internships = []
-    for i in all_internships[:8]:
+    pending_first = Internship.query.filter_by(status='pending').order_by(Internship.created_at.desc()).all()
+    other_recent  = Internship.query.filter(Internship.status != 'pending').order_by(Internship.created_at.desc()).limit(5).all()
+    for i in (pending_first + other_recent)[:8]:
         org = Organization.query.filter_by(id=i.organization_id).first() if i.organization_id else None
         recent_internships.append({'internship': i, 'org': org})
 
@@ -774,15 +871,57 @@ def admin_dashboard():
 @login_required
 @admin_required
 def admin_internships():
+    status_filter = request.args.get('status', 'all')
     all_internships = Internship.query.all()
+    if status_filter != 'all':
+        filtered = Internship.query.filter_by(status=status_filter).all()
+    else:
+        filtered = all_internships
     internships = [
         {'internship': i, 'org': Organization.query.filter_by(id=i.organization_id).first() if i.organization_id else None}
-        for i in all_internships
+        for i in filtered
     ]
     stats = {
         'total_internships': len(all_internships),
+        'pending': Internship.query.filter_by(status='pending').count(),
+        'approved': Internship.query.filter_by(status='approved').count(),
+        'rejected': Internship.query.filter_by(status='rejected').count(),
     }
-    return render_template('admin_internships.html', internships=internships, stats=stats)
+    return render_template('admin_internships.html', internships=internships, stats=stats, status_filter=status_filter)
+
+@app.route('/admin/internship/<int:intern_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def admin_approve_internship(intern_id):
+    internship = Internship.query.get_or_404(intern_id)
+    notes = request.form.get('notes', '')
+    internship.status = 'approved'
+    internship.admin_notes = notes
+    db.session.commit()
+    # Notify org
+    org = Organization.query.filter_by(id=internship.organization_id).first()
+    if org:
+        org_user = User.query.get(org.user_id)
+        if org_user:
+            send_internship_status_email(org_user.email, org.company_name, internship.title, 'approve', notes)
+    return jsonify({'status': 'success', 'message': 'Internship approved'})
+
+@app.route('/admin/internship/<int:intern_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def admin_reject_internship(intern_id):
+    internship = Internship.query.get_or_404(intern_id)
+    notes = request.form.get('notes', '')
+    internship.status = 'rejected'
+    internship.admin_notes = notes
+    db.session.commit()
+    # Notify org
+    org = Organization.query.filter_by(id=internship.organization_id).first()
+    if org:
+        org_user = User.query.get(org.user_id)
+        if org_user:
+            send_internship_status_email(org_user.email, org.company_name, internship.title, 'reject', notes)
+    return jsonify({'status': 'success', 'message': 'Internship rejected'})
 
 @app.route('/admin/organizations')
 @login_required
@@ -1235,10 +1374,16 @@ def admin_ai_allocation():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # Migrate: add StudentProfile.location column if missing (safe on re-run)
-        try:
-            db.session.execute(db.text('ALTER TABLE student_profile ADD COLUMN location VARCHAR(200)'))
-            db.session.commit()
-        except Exception:
-            pass
+        # Migrate: add columns that may be missing from older DBs (safe on re-run)
+        migrations = [
+            'ALTER TABLE student_profile ADD COLUMN location VARCHAR(200)',
+            'ALTER TABLE internship ADD COLUMN admin_notes TEXT',
+            'ALTER TABLE internship ADD COLUMN created_at DATETIME',
+        ]
+        for sql in migrations:
+            try:
+                db.session.execute(db.text(sql))
+                db.session.commit()
+            except Exception:
+                pass
     app.run(debug=True)

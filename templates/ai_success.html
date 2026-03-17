@@ -180,7 +180,7 @@
       <div style="position: relative; width: 180px; height: 180px">
         {% set r = 80 %} {% set circ = (2 * 3.14159 * r) | round(2) %} {% set
         offset = (circ * (1 - result.probability / 100)) | round(2) %} {% set
-        stroke = '#22c55e' if result.probability >= 75 else '#3b82f6' if
+        stroke = '#22c55e' if result.probability >= 75 else '#1e7ce8' if
         result.probability >= 55 else '#fbbf24' if result.probability >= 35 else
         '#ef4444' %}
         <svg width="180" height="180" viewBox="0 0 180 180">

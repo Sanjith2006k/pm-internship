@@ -38,6 +38,8 @@
     font-size: 18px;
     color: #999;
     transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 12px;
   }
   .intern-title-row .arrow.open {
     transform: rotate(180deg);
@@ -68,104 +70,258 @@
     color: #001a40;
     font-weight: 600;
   }
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+  }
+  .badge-pending  { background: #fef9c3; color: #92400e; }
+  .badge-approved { background: #dcfce7; color: #166534; }
+  .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-tab {
+    padding: 7px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid #e5e7eb;
+    color: #555;
+    background: #fff;
+    transition: all 0.15s;
+  }
+  .filter-tab:hover { border-color: #1e7ce8; color: #1e7ce8; }
+  .filter-tab.active { background: #1e7ce8; border-color: #1e7ce8; color: #fff; }
+  .filter-tab .tab-count {
+    background: rgba(0,0,0,0.12);
+    border-radius: 12px;
+    padding: 1px 7px;
+    font-size: 11px;
+    margin-left: 5px;
+  }
+  .filter-tab.active .tab-count { background: rgba(255,255,255,0.3); }
+
+  .verify-panel {
+    margin-top: 16px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .verify-panel label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 6px;
+  }
+  .verify-panel textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 70px;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: #001a40;
+  }
+  .verify-panel textarea:focus { outline: none; border-color: #1e7ce8; }
+  .verify-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .btn-approve {
+    background: #22c55e; color: #fff; border: none;
+    padding: 9px 20px; border-radius: 6px; font-weight: 700;
+    font-size: 13px; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-approve:hover { background: #16a34a; }
+  .btn-reject {
+    background: #ef4444; color: #fff; border: none;
+    padding: 9px 20px; border-radius: 6px; font-weight: 700;
+    font-size: 13px; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-reject:hover { background: #dc2626; }
+
+  .admin-note-display {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: #f9fafb;
+    border-left: 3px solid #94a3b8;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #555;
+  }
 </style>
-<div class="container">
-  <h1 class="page-title">Internships</h1>
-  <p class="page-subtitle">All internship postings by verified organizations</p>
 
-  <div class="stats-grid" style="grid-template-columns: repeat(1, 1fr)">
-    <div class="stat-card">
-      <div class="stat-label">Total Internships</div>
-      <div class="stat-value">{{ stats.total_internships }}</div>
-      <div class="stat-change">Posted by verified organizations</div>
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
+
+    <section class="adm-header-card adm-page-hero">
+      <div>
+        <p class="adm-header-tag">Admin Workspace</p>
+        <h1 class="adm-title">Internship Verification</h1>
+        <p class="adm-subtitle">Review and approve internship postings before they go live</p>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr)">
+      <div class="stat-card">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ stats.total_internships }}</div>
+        <div class="stat-change">All postings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" style="color:#d97706">{{ stats.pending }}</div>
+        <div class="stat-change">Awaiting review</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value" style="color:#22c55e">{{ stats.approved }}</div>
+        <div class="stat-change">Visible to students</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" style="color:#ef4444">{{ stats.rejected }}</div>
+        <div class="stat-change">Not approved</div>
+      </div>
     </div>
-  </div>
 
-  <div style="margin-top: 40px">
-    <div class="section-header">
-      <h2>Internship Listings</h2>
-      <span
-        style="
-          background: #22c55e;
-          color: #fff;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-weight: 600;
-          font-size: 12px;
-        "
-        >{{ stats.total_internships }} Total</span
-      >
-    </div>
+    <div style="margin-top: 40px">
+      <div class="section-header">
+        <h2>Internship Listings</h2>
+      </div>
 
-    {% if internships %}
-    <ul class="intern-list">
-      {% for item in internships %}
-      <li>
-        <div class="intern-title-row" onclick="toggleDetail(this)">
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              flex-wrap: wrap;
-            "
-          >
-            <h3>{{ item.internship.title }}</h3>
-            <span class="company"
-              >— {{ item.org.company_name if item.org else 'Unknown' }}</span
-            >
-          </div>
-          <span class="arrow">▼</span>
-        </div>
-        <div class="intern-detail">
-          <div class="detail-grid">
-            {% if item.internship.location %}
-            <div class="detail-item">
-              <strong>Location</strong>
-              <p>{{ item.internship.location }}</p>
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <a href="{{ url_for('admin_internships', status='all') }}"
+           class="filter-tab {% if status_filter == 'all' %}active{% endif %}">
+          All <span class="tab-count">{{ stats.total_internships }}</span>
+        </a>
+        <a href="{{ url_for('admin_internships', status='pending') }}"
+           class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">
+          Pending <span class="tab-count">{{ stats.pending }}</span>
+        </a>
+        <a href="{{ url_for('admin_internships', status='approved') }}"
+           class="filter-tab {% if status_filter == 'approved' %}active{% endif %}">
+          Approved <span class="tab-count">{{ stats.approved }}</span>
+        </a>
+        <a href="{{ url_for('admin_internships', status='rejected') }}"
+           class="filter-tab {% if status_filter == 'rejected' %}active{% endif %}">
+          Rejected <span class="tab-count">{{ stats.rejected }}</span>
+        </a>
+      </div>
+
+      {% if internships %}
+      <ul class="intern-list">
+        {% for item in internships %}
+        <li id="intern-item-{{ item.internship.id }}">
+          <div class="intern-title-row" onclick="toggleDetail(this)">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <h3>{{ item.internship.title }}</h3>
+              <span class="company">— {{ item.org.company_name if item.org else 'Unknown' }}</span>
+              <span class="status-badge badge-{{ item.internship.status }}">{{ item.internship.status }}</span>
             </div>
-            {% endif %} {% if item.internship.duration %}
-            <div class="detail-item">
-              <strong>Duration</strong>
-              <p>{{ item.internship.duration }}</p>
+            <span class="arrow">▼</span>
+          </div>
+
+          <div class="intern-detail">
+            <div class="detail-grid">
+              {% if item.internship.location %}
+              <div class="detail-item">
+                <strong>Location</strong>
+                <p>{{ item.internship.location }}</p>
+              </div>
+              {% endif %}
+              {% if item.internship.duration %}
+              <div class="detail-item">
+                <strong>Duration</strong>
+                <p>{{ item.internship.duration }}</p>
+              </div>
+              {% endif %}
+              <div class="detail-item">
+                <strong>Positions</strong>
+                <p>{{ item.internship.capacity }}</p>
+              </div>
+              {% if item.internship.stipend %}
+              <div class="detail-item">
+                <strong>Stipend</strong>
+                <p>₹{{ item.internship.stipend }}/month</p>
+              </div>
+              {% endif %}
+              {% if item.internship.created_at %}
+              <div class="detail-item">
+                <strong>Posted On</strong>
+                <p>{{ item.internship.created_at.strftime('%d %b %Y') }}</p>
+              </div>
+              {% endif %}
+              {% if item.org %}
+              <div class="detail-item">
+                <strong>Organization</strong>
+                <p>{{ item.org.company_name }}</p>
+              </div>
+              {% endif %}
+            </div>
+
+            {% if item.internship.skills_required %}
+            <div style="margin-top:16px">
+              <strong style="color:#888;font-size:12px">Required Skills</strong>
+              <div class="skills-container" style="margin-top:6px">
+                {% for skill in item.internship.skills_required.split(',') %}
+                <span class="skill">{{ skill.strip() }}</span>
+                {% endfor %}
+              </div>
             </div>
             {% endif %}
-            <div class="detail-item">
-              <strong>Positions</strong>
-              <p>{{ item.internship.capacity }}</p>
+
+            {% if item.internship.admin_notes and item.internship.status != 'pending' %}
+            <div class="admin-note-display">
+              <strong>Admin Notes:</strong> {{ item.internship.admin_notes }}
             </div>
-            {% if item.internship.stipend %}
-            <div class="detail-item">
-              <strong>Stipend</strong>
-              <p>₹{{ item.internship.stipend }}/month</p>
-            </div>
-            {% endif %} {% if item.internship.created_at %}
-            <div class="detail-item">
-              <strong>Posted On</strong>
-              <p>{{ item.internship.created_at.strftime('%d %b %Y') }}</p>
+            {% endif %}
+
+            {% if item.internship.status == 'pending' %}
+            <div class="verify-panel">
+              <label for="notes_{{ item.internship.id }}">Admin Notes (required for rejection, optional for approval)</label>
+              <textarea id="notes_{{ item.internship.id }}"
+                        placeholder="Add notes for the organization..."></textarea>
+              <div class="verify-actions">
+                <button class="btn-approve" onclick="verifyInternship({{ item.internship.id }}, 'approve')">
+                  ✓ Approve &amp; Notify Org
+                </button>
+                <button class="btn-reject" onclick="verifyInternship({{ item.internship.id }}, 'reject')">
+                  ✗ Reject &amp; Notify Org
+                </button>
+              </div>
             </div>
             {% endif %}
           </div>
-          {% if item.internship.skills_required %}
-          <div style="margin-top: 16px">
-            <strong style="color: #888; font-size: 12px"
-              >Required Skills</strong
-            >
-            <div class="skills-container" style="margin-top: 6px">
-              {% for skill in item.internship.skills_required.split(',') %}
-              <span class="skill">{{ skill.strip() }}</span>
-              {% endfor %}
-            </div>
-          </div>
-          {% endif %}
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <div class="empty-state"><p>No internships posted yet</p></div>
-    {% endif %}
-  </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty-state">
+        <p>No internships found{% if status_filter != 'all' %} with status "{{ status_filter }}"{% endif %}</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
 </div>
 
 <script>
@@ -174,6 +330,40 @@
     var arrow = row.querySelector(".arrow");
     detail.classList.toggle("show");
     arrow.classList.toggle("open");
+  }
+
+  function verifyInternship(internshipId, action) {
+    var notes = document.getElementById("notes_" + internshipId).value;
+    if (action === 'reject' && !notes.trim()) {
+      alert("Please provide a rejection reason in the notes field.");
+      return;
+    }
+    var url = "/admin/internship/" + internshipId + "/" + action;
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "notes=" + encodeURIComponent(notes),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === "success") {
+          var item = document.getElementById("intern-item-" + internshipId);
+          var badge = item.querySelector(".status-badge");
+          var panel = item.querySelector(".verify-panel");
+          badge.textContent = action === 'approve' ? 'approved' : 'rejected';
+          badge.className = "status-badge badge-" + (action === 'approve' ? 'approved' : 'rejected');
+          if (panel) panel.remove();
+          if (notes.trim()) {
+            var noteEl = document.createElement("div");
+            noteEl.className = "admin-note-display";
+            noteEl.innerHTML = "<strong>Admin Notes:</strong> " + notes;
+            item.querySelector(".intern-detail").appendChild(noteEl);
+          }
+        } else {
+          alert("Error: " + data.message);
+        }
+      })
+      .catch(function() { alert("Request failed. Please try again."); });
   }
 </script>
 {% endblock %}

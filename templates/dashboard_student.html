@@ -27,336 +27,277 @@
        ============================================================ -->
   <div id="section-dashboard" class="section-view active">
 
-    <!-- Greeting -->
-    <div class="dash-greeting">
-      <div>
-        <h1 class="page-title" id="greeting-text">Hello, {{ user.name }}!</h1>
-        <p class="page-subtitle">Here's your internship journey at a glance. Keep going! </p>
-      </div>
-      {% if profile and not profile.skills %}
-      <div class="dash-tip">
-         <strong>Tip:</strong> Add your skills to get better AI-matched internship recommendations.
-        <button class="btn btn-primary btn-sm" style="margin-left:10px;" onclick="showSection('profile')">Update Now</button>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- ── ROW 1: Stats + Profile Card ── -->
-    <div class="dash-top-row">
-
-      <!-- Stats Cards -->
-      <div class="dash-stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">#</div>
-          <div class="stat-label">Total Applied</div>
-          <div class="stat-value">{{ total_applied }}</div>
-          <div class="stat-change">Applications submitted</div>
+    <!-- ══ 1. WELCOME CARD ══════════════════════════════════════════════════ -->
+    <div class="sdb-welcome-card fade-in-up">
+      <div class="sdb-welcome-content">
+        <div class="sdb-active-tag">
+          <span class="sdb-pulse-dot"></span>
+          <span>Active Student</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">&check;</div>
-          <div class="stat-label">Approved</div>
-          <div class="stat-value" style="color:#22c55e;">
-            {{ enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length }}
-          </div>
-          <div class="stat-change success">Internships confirmed</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">&hellip;</div>
-          <div class="stat-label">Pending</div>
-          <div class="stat-value" style="color:#fbbf24;">
-            {{ enriched_applications | selectattr('application.status', 'equalto', 'pending') | list | length }}
-          </div>
-          <div class="stat-change">Awaiting response</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">&times;</div>
-          <div class="stat-label">Rejected</div>
-          <div class="stat-value" style="color:#ef4444;">
-            {{ enriched_applications | selectattr('application.status', 'equalto', 'rejected') | list | length }}
-          </div>
-          <div class="stat-change">Not selected</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">&diams;</div>
-          <div class="stat-label">Available</div>
-          <div class="stat-value">{{ total_available }}</div>
-          <div class="stat-change">Open to apply</div>
-        </div>
-        <div class="stat-card" style="cursor:pointer;" onclick="showSection('internships')">
-          <div class="stat-icon">&starf;</div>
-          <div class="stat-label">Recommended</div>
-          <div class="stat-value" style="color:#1e7ce8;">{{ [available_internships|length, 3]|min }}</div>
-          <div class="stat-change">Based on your skills</div>
-        </div>
-      </div>
-
-      <!-- Profile Card -->
-      <div class="profile-card">
-        <div class="profile-avatar">{{ user.name[0].upper() }}</div>
-        <div class="profile-name">{{ user.name }}</div>
-        <div class="profile-email">{{ user.email }}</div>
-        <div class="profile-role-tag">Student</div>
-        {% if profile and profile.match_score %}
-        <div class="profile-score">
-          <span style="font-size:12px;color:#888;">AI Match Score</span>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-            <div class="progress-bar-container" style="flex:1;">
-              <div class="progress-bar-fill" style="width:{{ '%.0f'|format(profile.match_score * 100) }}%"></div>
-            </div>
-            <span style="font-weight:700;color:#1e7ce8;font-size:14px;">{{ "%.0f"|format(profile.match_score * 100) }}%</span>
-          </div>
+        <h1 class="sdb-greeting" id="greeting-text">Hello, {{ user.name }}!</h1>
+        <p class="sdb-greeting-sub">Here is your internship journey at a glance.</p>
+        {% if profile and not profile.skills %}
+        <div class="sdb-tip-bar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Add your skills to improve AI matching accuracy.
+          <button class="sdb-tip-btn" onclick="showSection('profile')">Update Now</button>
         </div>
         {% endif %}
-        <div style="margin-top:14px;">
-          <div class="profile-section-label">Skills</div>
-          {% if profile and profile.skills %}
-          <div class="skills-container">
-            {% for skill in profile.skills.split(',') %}
-            {% if skill.strip() %}
-            <span class="skill-tag">{{ skill.strip() }}</span>
-            {% endif %}
-            {% endfor %}
+        <div class="sdb-stats-row">
+          <div class="sdb-stat">
+            <span class="sdb-stat-num" data-count="{{ total_applied }}">{{ total_applied }}</span>
+            <span class="sdb-stat-lbl">Applied</span>
           </div>
-          {% else %}
-          <p style="color:#aaa;font-size:12px;font-style:italic;">No skills added yet</p>
+          <div class="sdb-stat-div"></div>
+          <div class="sdb-stat">
+            <span class="sdb-stat-num">{{ enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length }}</span>
+            <span class="sdb-stat-lbl">Approved</span>
+          </div>
+          <div class="sdb-stat-div"></div>
+          <div class="sdb-stat">
+            <span class="sdb-stat-num">{{ total_available }}</span>
+            <span class="sdb-stat-lbl">Available</span>
+          </div>
+          <div class="sdb-stat-div"></div>
+          <div class="sdb-stat">
+            <span class="sdb-stat-num">{{ enriched_applications | selectattr('application.status', 'equalto', 'pending') | list | length }}</span>
+            <span class="sdb-stat-lbl">Pending</span>
+          </div>
+        </div>
+      </div>
+      <div class="sdb-welcome-art" aria-hidden="true">
+        <div class="sdb-art-ring r1"></div>
+        <div class="sdb-art-ring r2"></div>
+        <div class="sdb-art-ring r3"></div>
+        <div class="sdb-art-inner">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ 2. ACTION CARDS ═══════════════════════════════════════════════════ -->
+    <div class="sdb-section" style="animation-delay:.10s">
+      <div class="sdb-section-hd">
+        <h2 class="sdb-section-title">Quick Start</h2>
+        <span class="sdb-section-sub">What would you like to do today?</span>
+      </div>
+      <div class="sdb-action-grid">
+
+        <div class="sdb-ac sdb-ac-blue" tabindex="0" onclick="showSection('internships')">
+          <div class="sdb-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          </div>
+          <div class="sdb-ac-body">
+            <h3 class="sdb-ac-title">Browse Internships</h3>
+            <p class="sdb-ac-desc">Explore {{ total_available }} open opportunities matched to your profile.</p>
+          </div>
+          <button class="sdb-ac-btn" onclick="showSection('internships')">
+            Explore Now
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <div class="sdb-ac sdb-ac-purple" tabindex="0" onclick="showSection('profile')">
+          <div class="sdb-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          </div>
+          <div class="sdb-ac-body">
+            <h3 class="sdb-ac-title">Complete Profile</h3>
+            <p class="sdb-ac-desc">{% if profile and profile.skills %}Your profile is active. Keep your skills updated.{% else %}Add your skills to stand out to recruiters.{% endif %}</p>
+          </div>
+          {% if profile and not profile.skills %}
+          <div class="sdb-progress-bar"><div class="sdb-progress-fill" style="width:60%"></div></div>
           {% endif %}
+          <button class="sdb-ac-btn" onclick="showSection('profile')">
+            {% if profile and profile.skills %}View Profile{% else %}Complete Now{% endif %}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
         </div>
-        {% if profile and profile.allocated_internship %}
-        <div class="profile-allocated">
-          <div style="font-size:10px;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;"> AI Allocated</div>
-          <div style="color:#001a40;font-weight:600;font-size:13px;">{{ profile.allocated_internship }}</div>
+
+        <div class="sdb-ac sdb-ac-teal" tabindex="0" onclick="showSection('applications')">
+          <div class="sdb-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="sdb-ac-body">
+            <h3 class="sdb-ac-title">Track Applications</h3>
+            <p class="sdb-ac-desc">Monitor {{ total_applied }} application{{ 's' if total_applied != 1 else '' }} in real time.</p>
+          </div>
+          <button class="sdb-ac-btn" onclick="showSection('applications')">
+            View Status
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
         </div>
-        {% endif %}
-        <button class="btn btn-secondary btn-sm btn-full" style="margin-top:16px;" onclick="showSection('profile')">Edit Profile</button>
+
       </div>
     </div>
 
-    <!-- ── AI Features Quick Access ── -->
-    <div style="background:linear-gradient(135deg,#001a40,#1e3a6e);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <div style="flex:1;">
-        <div style="font-size:13px;font-weight:800;color:#fbbf24;margin-bottom:4px;">🧠 AI Intelligence Hub</div>
-        <div style="font-size:12px;color:#93c5fd;">Career Predictor · Skill Gap · Success Probability · Interview Simulator · Scoreboard</div>
+    <!-- ══ 3. AI HUB BANNER ══════════════════════════════════════════════════ -->
+    <div class="sdb-ai-banner fade-in-up" style="animation-delay:.20s">
+      <div class="sdb-ai-banner-left">
+        <div class="sdb-ai-label">🧠 AI Intelligence Hub</div>
+        <p class="sdb-ai-desc">Career Predictor &middot; Skill Gap &middot; Success Probability &middot; Interview Simulator &middot; Scoreboard</p>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="/student/ai/career-path" style="font-size:12px;padding:7px 14px;background:rgba(255,255,255,0.1);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;white-space:nowrap;">🎯 Career Path</a>
-        <a href="/student/ai/recommendations" style="font-size:12px;padding:7px 14px;background:rgba(255,255,255,0.1);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;white-space:nowrap;">💡 AI Matches</a>
-        <a href="/student/ai/interview" style="font-size:12px;padding:7px 14px;background:rgba(255,255,255,0.1);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;white-space:nowrap;">🎤 Interview</a>
-        <a href="/student/ai" style="font-size:12px;padding:7px 14px;background:#1e7ce8;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;white-space:nowrap;">View All →</a>
-      </div>
-    </div>
-
-    <!-- ── Internship Progress Timeline ── -->
-    <div class="timeline-section">
-      <h2>Your Internship Progress</h2>
-
-      <div class="timeline">
-        <div class="step active">
-          <div class="circle"></div>
-          <p>Internship Applied</p>
-        </div>
-
-        <div class="step">
-          <div class="circle"></div>
-          <p>Under Review</p>
-        </div>
-
-        <div class="step">
-          <div class="circle"></div>
-          <p>Interview</p>
-        </div>
-
-        <div class="step">
-          <div class="circle"></div>
-          <p>Approved</p>
-        </div>
-
-        <div class="step">
-          <div class="circle"></div>
-          <p>Internship Started</p>
-        </div>
-
-        <div class="step">
-          <div class="circle"></div>
-          <p>Completed</p>
-        </div>
+      <div class="sdb-ai-links">
+        <a href="/student/ai/career-path" class="sdb-ai-pill">🎯 Career Path</a>
+        <a href="/student/ai/recommendations" class="sdb-ai-pill">💡 AI Matches</a>
+        <a href="/student/ai/interview" class="sdb-ai-pill">🎤 Interview</a>
+        <a href="/student/ai" class="sdb-ai-pill sdb-ai-pill-primary">View All &rarr;</a>
       </div>
     </div>
 
-    <!-- ── ROW 2: Application Timeline ── -->
-    {% if enriched_applications %}
-    <div class="dash-section-block">
-      <div class="section-header">
-        <h2>Application Tracker</h2>
-        <button class="btn btn-secondary btn-sm" onclick="showSection('applications')">View All →</button>
+    <!-- ══ 4. APPLICATION STATUS TIMELINE ══════════════════════════════════════ -->
+    <div class="sdb-section fade-in-up" style="animation-delay:.25s">
+      <div class="sdb-section-hd">
+        <h2 class="sdb-section-title">Application Status</h2>
+        <span class="sdb-section-sub">
+          {% if enriched_applications %}{{ enriched_applications | length }} application{{ 's' if enriched_applications | length != 1 else '' }} tracked individually{% else %}No applications yet{% endif %}
+        </span>
       </div>
-      {% for ea in enriched_applications[:3] %}
-      {% set status = ea.application.status %}
-      <div class="vtl-card">
+      <div class="sdb-timeline-card">
 
-        <!-- Header -->
-        <div class="vtl-card-header">
-          <div>
-            <div class="vtl-role">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
-            <div class="vtl-company">{{ ea.org.company_name if ea.org else 'N/A' }}</div>
+        {% set step_profile = profile and (profile.skills or profile.location) %}
+        {% set step_resume  = portfolio and portfolio.resume_path %}
+
+        <!-- Global setup milestones (compact header row) -->
+        <div class="sdb-global-steps">
+          <div class="sdb-gs-step {{ 'sdb-gs-done' if step_profile else 'sdb-gs-todo' }}">
+            <div class="sdb-gs-dot">
+              {% if step_profile %}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}1{% endif %}
+            </div>
+            <span class="sdb-gs-lbl">Profile setup</span>
           </div>
-          <span class="badge badge-{{ status }}">{{ status }}</span>
+          <div class="sdb-gs-sep"></div>
+          <div class="sdb-gs-step {{ 'sdb-gs-done' if step_resume else 'sdb-gs-todo' }}">
+            <div class="sdb-gs-dot">
+              {% if step_resume %}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}2{% endif %}
+            </div>
+            <span class="sdb-gs-lbl">Resume uploaded</span>
+          </div>
+          <div class="sdb-gs-sep"></div>
+          <div class="sdb-gs-step {{ 'sdb-gs-done' if enriched_applications else 'sdb-gs-todo' }}">
+            <div class="sdb-gs-dot">
+              {% if enriched_applications %}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>{% else %}3{% endif %}
+            </div>
+            <span class="sdb-gs-lbl">Applied</span>
+          </div>
         </div>
 
-        <!-- Vertical Stages -->
-        <div class="vtl-stages">
+        {% if enriched_applications %}
+        <!-- Per-internship status rows -->
+        <div class="sdb-app-timelines">
+          {% for ea in enriched_applications %}
+          {% set st = ea.application.status %}
+          <div class="sdb-app-tl-row">
 
-          <!-- Stage 1: Submitted (always done) -->
-          <div class="vtl-node vtl-done">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&check;</div>
-              <div class="vtl-connector"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Application Submitted</div>
-              <div class="vtl-date">{{ ea.application.applied_at.strftime('%d %b %Y, %I:%M %p') }}</div>
-              <div class="vtl-desc">Your application was successfully submitted and is now in the system.</div>
-            </div>
-          </div>
-
-          <!-- Stage 2: Under Review -->
-          {% if status == 'approved' %}
-          <div class="vtl-node vtl-done">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&check;</div>
-              <div class="vtl-connector"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Under Review</div>
-              <div class="vtl-desc">Your application was reviewed by the organization.</div>
-            </div>
-          </div>
-          {% elif status == 'rejected' %}
-          <div class="vtl-node vtl-rejected">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&times;</div>
-              <div class="vtl-connector vtl-connector-red"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Under Review</div>
-              <div class="vtl-desc">Your application was reviewed by the organization.</div>
-            </div>
-          </div>
-          {% else %}
-          <div class="vtl-node vtl-active">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&bull;</div>
-              <div class="vtl-connector vtl-connector-blue"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Under Review</div>
-              <div class="vtl-desc">Your application is currently being reviewed. Hang tight!</div>
-            </div>
-          </div>
-          {% endif %}
-
-          <!-- Stage 3: Final Decision -->
-          {% if status == 'approved' %}
-          <div class="vtl-node vtl-done vtl-last">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&check;</div>
-              <div class="vtl-connector"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Approved</div>
-              <div class="vtl-desc">Congratulations! Your internship has been confirmed.</div>
-            </div>
-          </div>
-          {% elif status == 'rejected' %}
-          <div class="vtl-node vtl-rejected vtl-last">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon">&times;</div>
-              <div class="vtl-connector"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Not Selected</div>
-              <div class="vtl-desc">Your application was not selected for this position.</div>
-            </div>
-          </div>
-          {% else %}
-          <div class="vtl-node vtl-future vtl-last">
-            <div class="vtl-icon-col">
-              <div class="vtl-icon vtl-icon-future"></div>
-              <div class="vtl-connector"></div>
-            </div>
-            <div class="vtl-content">
-              <div class="vtl-stage-label">Final Decision</div>
-              <div class="vtl-desc">Waiting for the organization's final decision.</div>
-            </div>
-          </div>
-          {% endif %}
-
-        </div>
-
-        <!-- Next Step Hint -->
-        {% if status == 'pending' %}
-        <div class="vtl-next-step">
-           <strong>Next:</strong> Awaiting company review — expected decision in 2–3 days.
-        </div>
-        {% elif status == 'approved' %}
-        <div class="vtl-next-step vtl-next-success">
-           <strong>Confirmed!</strong> Head to <a href="#" onclick="showSection('my-internship');return false;" style="color:#166534;font-weight:600;">My Internship</a> for details.
-        </div>
-        {% elif status == 'rejected' %}
-        <div class="vtl-next-step vtl-next-danger">
-           <strong>Keep going!</strong> Browse more in <a href="#" onclick="showSection('internships');return false;" style="color:#991b1b;font-weight:600;">Available Internships</a>.
-        </div>
-        {% endif %}
-
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- ── ROW 3: Quick Actions ── -->
-    <div class="dash-section-block">
-      <div class="section-header"><h2>Quick Actions</h2></div>
-      <div class="quick-actions">
-        <button class="btn btn-primary" onclick="showSection('internships')"> Apply for Internship</button>
-        <button class="btn btn-secondary" onclick="showSection('profile')"> Update Profile</button>
-        <button class="btn btn-secondary" onclick="showSection('applications')"> My Applications</button>
-        {% if profile and profile.allocated_internship %}
-        <button class="btn btn-success" onclick="showSection('my-internship')"> My Internship</button>
-        {% endif %}
-        <button class="btn btn-secondary" onclick="showSection('notifications')"> Notifications</button>
-      </div>
-    </div>
-
-    <!-- ── ROW 4: Recommended + Notifications Preview ── -->
-    <div class="dash-mid-row">
-
-      <!-- Recommended Internships -->
-      <div class="dash-section-block" style="flex:2;">
-        <div class="section-header">
-          <h2>Recommended Internships</h2>
-          <button class="btn btn-secondary btn-sm" onclick="showSection('internships')">See All →</button>
-        </div>
-        {% if available_internships %}
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          {% for internship in available_internships[:3] %}
-          {% set org = orgs.get(internship.organization_id) %}
-          <div class="recommended-card">
-            <div class="recommended-left">
-              <div class="recommended-avatar">{{ (org.company_name[0].upper() if org else '?') }}</div>
-              <div>
-                <div class="recommended-title">{{ internship.title }}</div>
-                <div class="recommended-company">{{ org.company_name if org else 'Organization' }}</div>
-                <div class="recommended-meta">
-                  {% if internship.location %}<span> {{ internship.location }}</span>{% endif %}
-                  {% if internship.duration %}<span> {{ internship.duration }}</span>{% endif %}
-                  {% if internship.stipend %}<span> ₹{{ internship.stipend }}</span>{% endif %}
-                </div>
+            <!-- Company info -->
+            <div class="sdb-app-tl-info">
+              <div class="sdb-app-tl-logo sdb-logo-col-{{ ((loop.index0 % 3) + 1) }}">
+                {{ ea.org.company_name[0].upper() if ea.org and ea.org.company_name else '?' }}
+              </div>
+              <div class="sdb-app-tl-meta">
+                <div class="sdb-app-tl-title">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
+                <div class="sdb-app-tl-company">{{ ea.org.company_name if ea.org else 'Unknown' }}</div>
               </div>
             </div>
-            <div>
+
+            <!-- Mini 3-step track -->
+            <div class="sdb-app-tl-track">
+
+              <div class="sdb-apt-step sdb-apt-done">
+                <div class="sdb-apt-node">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="sdb-apt-lbl">Applied</span>
+              </div>
+
+              <div class="sdb-apt-conn sdb-apt-conn-filled"></div>
+
+              <div class="sdb-apt-step {% if st in ['approved','rejected'] %}sdb-apt-done{% elif st == 'pending' %}sdb-apt-active{% else %}sdb-apt-pending{% endif %}">
+                <div class="sdb-apt-node">
+                  {% if st in ['approved','rejected'] %}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  {% elif st == 'pending' %}
+                  <span class="sdb-tl-pulse"></span>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>
+                  {% else %}
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>
+                  {% endif %}
+                </div>
+                <span class="sdb-apt-lbl">Under Review</span>
+              </div>
+
+              <div class="sdb-apt-conn {% if st in ['approved','rejected'] %}sdb-apt-conn-filled{% elif st == 'pending' %}sdb-apt-conn-active{% endif %}"></div>
+
+              <div class="sdb-apt-step {% if st == 'approved' %}sdb-apt-approved{% elif st == 'rejected' %}sdb-apt-rejected{% else %}sdb-apt-pending{% endif %}">
+                <div class="sdb-apt-node">
+                  {% if st == 'approved' %}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  {% elif st == 'rejected' %}
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  {% else %}
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>
+                  {% endif %}
+                </div>
+                <span class="sdb-apt-lbl">{% if st == 'approved' %}Selected{% elif st == 'rejected' %}Rejected{% else %}Awaiting{% endif %}</span>
+              </div>
+
+            </div>
+
+            <!-- Status badge -->
+            <span class="badge badge-{{ st }}" style="flex-shrink:0;">{{ st }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+        <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:13px;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px;display:block;opacity:.35"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          No applications yet &mdash;
+          <button style="background:none;border:none;color:#1e7ce8;font-weight:700;cursor:pointer;font-size:13px;font-family:inherit;padding:0;" onclick="showSection('internships')">Browse internships</button>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- ══ 5. RECOMMENDED + RIGHT COLUMN ════════════════════════════════════ -->
+    <div class="sdb-two-col fade-in-up" style="animation-delay:.30s">
+
+      <!-- Recommended Internships -->
+      <div class="sdb-section sdb-recommended-col">
+        <div class="sdb-section-hd">
+          <h2 class="sdb-section-title">Recommended for You</h2>
+          <button class="sdb-link-btn" onclick="showSection('internships')">
+            See all
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        {% if available_internships %}
+        <div class="sdb-intern-list">
+          {% for internship in available_internships[:3] %}
+          {% set org = orgs.get(internship.organization_id) %}
+          <div class="sdb-intern-card">
+            <div class="sdb-intern-top">
+              <div class="sdb-intern-logo sdb-logo-col-{{ loop.index }}">{{ (org.company_name[0].upper() if org and org.company_name else '?') }}</div>
+              <div class="sdb-intern-info">
+                <h3 class="sdb-intern-title">{{ internship.title }}</h3>
+                <span class="sdb-intern-company">{{ org.company_name if org else 'Organization' }}{% if internship.location %} &bull; {{ internship.location }}{% endif %}</span>
+              </div>
+            </div>
+            <div class="sdb-intern-chips">
+              {% if internship.duration %}<span class="sdb-chip">{{ internship.duration }}</span>{% endif %}
+              {% if internship.stipend %}<span class="sdb-chip">&#8377;{{ internship.stipend }}/mo</span>{% endif %}
+              <span class="sdb-chip">Full-time</span>
+            </div>
+            <div class="sdb-intern-footer">
+              <div class="sdb-intern-ai">
+                <a href="/student/ai/skill-gap/{{ internship.id }}" class="sdb-ai-mini">&#128269; Skill Gap</a>
+                <a href="/student/ai/success/{{ internship.id }}" class="sdb-ai-mini">&#128202; Success %</a>
+              </div>
               {% if internship.id in applied_ids %}
-              <span class="badge badge-applied">✓ Applied</span>
+              <span class="badge badge-applied">&#10003; Applied</span>
               {% else %}
-              <button class="btn btn-primary btn-sm" onclick="applyInternship({{ internship.id }}, this)">Apply Now</button>
+              <button class="sdb-apply-btn" onclick="applyInternship({{ internship.id }}, this)">Apply Now</button>
               {% endif %}
             </div>
           </div>
@@ -370,80 +311,102 @@
         {% endif %}
       </div>
 
-      <!-- Notifications Preview + Achievements -->
-      <div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+      <!-- Right Column -->
+      <div class="sdb-right-col">
 
-        <!-- Notifications Preview -->
-        <div class="dash-section-block" style="margin-bottom:0;">
-          <div class="section-header" style="margin-bottom:14px;">
-            <h2>Notifications</h2>
-            <button class="btn btn-secondary btn-sm" onclick="showSection('notifications')">All →</button>
+        <!-- Quick Actions Panel -->
+        <div class="sdb-section">
+          <div class="sdb-section-hd">
+            <h2 class="sdb-section-title">Quick Actions</h2>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            {% set notif_count = 0 %}
-            {% for ea in enriched_applications[:2] %}
-            {% if notif_count < 2 %}
-            <div class="notif-preview-item {% if ea.application.status == 'approved' %}notif-success{% elif ea.application.status == 'rejected' %}notif-danger{% else %}notif-info{% endif %}">
-              <div class="notif-preview-icon">
-                {% if ea.application.status == 'approved' %}{% elif ea.application.status == 'rejected' %}{% else %}{% endif %}
-              </div>
-              <div style="font-size:12px;color:#333;line-height:1.4;">
-                <strong>{{ ea.internship.title if ea.internship else 'Internship' }}</strong> at {{ ea.org.company_name if ea.org else 'org' }} —
-                <span style="font-weight:600;color:{% if ea.application.status == 'approved' %}#166534{% elif ea.application.status == 'rejected' %}#991b1b{% else %}#854d0e{% endif %};">{{ ea.application.status }}</span>
-              </div>
-            </div>
-            {% set notif_count = notif_count + 1 %}
-            {% endif %}
-            {% endfor %}
-            {% if not enriched_applications %}
-            <p style="color:#aaa;font-size:13px;text-align:center;padding:16px 0;">No notifications yet</p>
+          <div class="sdb-qa-card">
+            <button class="sdb-qa-row" onclick="showSection('internships')">
+              <span class="sdb-qa-icon-wrap sdb-qa-blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></span>
+              <span class="sdb-qa-lbl">Apply Internship</span>
+              <svg class="sdb-qa-arr" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="sdb-qa-row" onclick="showSection('profile')">
+              <span class="sdb-qa-icon-wrap sdb-qa-purple"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <span class="sdb-qa-lbl">Update Profile</span>
+              <svg class="sdb-qa-arr" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="sdb-qa-row" onclick="showSection('profile')">
+              <span class="sdb-qa-icon-wrap sdb-qa-teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
+              <span class="sdb-qa-lbl">Upload Resume</span>
+              <svg class="sdb-qa-arr" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button class="sdb-qa-row" onclick="showSection('applications')">
+              <span class="sdb-qa-icon-wrap sdb-qa-orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+              <span class="sdb-qa-lbl">View Applications</span>
+              <svg class="sdb-qa-arr" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            {% if profile and profile.allocated_internship %}
+            <button class="sdb-qa-row" onclick="showSection('my-internship')">
+              <span class="sdb-qa-icon-wrap sdb-qa-green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="sdb-qa-lbl">My Internship</span>
+              <svg class="sdb-qa-arr" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
             {% endif %}
           </div>
         </div>
 
-        <!-- Achievements / Badges -->
-        <div class="dash-section-block" style="margin-bottom:0;">
-          <div class="section-header" style="margin-bottom:14px;"><h2>Achievements</h2></div>
-          <div class="achievements-grid">
-            <div class="achievement-item {% if total_applied >= 1 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">First Apply</div>
+        <!-- Notifications Widget -->
+        <div class="sdb-section">
+          <div class="sdb-section-hd">
+            <h2 class="sdb-section-title">Notifications</h2>
+            <button class="sdb-link-btn" onclick="showSection('notifications')">All &rarr;</button>
+          </div>
+          <div class="sdb-notif-card">
+            {% if profile and profile.allocated_internship %}
+            <div class="sdb-notif-row sdb-notif-unread">
+              <div class="sdb-notif-icon-wrap sdb-ni-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="sdb-notif-body">
+                <p class="sdb-notif-txt"><strong>AI Allocated!</strong> Matched to {{ profile.allocated_internship }}</p>
+                <span class="sdb-notif-time">AI Matching System</span>
+              </div>
+              <span class="sdb-notif-badge-dot"></span>
             </div>
-            <div class="achievement-item {% if enriched_applications | selectattr('application.status', 'equalto', 'approved') | list | length >= 1 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">Approved!</div>
+            {% endif %}
+            {% for ea in enriched_applications[:3] %}
+            <div class="sdb-notif-row {% if ea.application.status == 'pending' %}sdb-notif-unread{% endif %}">
+              <div class="sdb-notif-icon-wrap {% if ea.application.status == 'approved' %}sdb-ni-green{% elif ea.application.status == 'rejected' %}sdb-ni-red{% else %}sdb-ni-blue{% endif %}">
+                {% if ea.application.status == 'approved' %}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {% elif ea.application.status == 'rejected' %}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                {% else %}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                {% endif %}
+              </div>
+              <div class="sdb-notif-body">
+                <p class="sdb-notif-txt">
+                  <strong>{{ ea.internship.title if ea.internship else 'Internship' }}</strong>
+                  at {{ ea.org.company_name if ea.org else 'org' }} &mdash;
+                  <span class="sdb-notif-status-{{ ea.application.status }}">{{ ea.application.status }}</span>
+                </p>
+                <span class="sdb-notif-time">{{ ea.application.applied_at.strftime('%d %b %Y') }}</span>
+              </div>
+              {% if ea.application.status == 'pending' %}<span class="sdb-notif-badge-dot"></span>{% endif %}
             </div>
-            <div class="achievement-item {% if profile and profile.skills %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">Skills Set</div>
-            </div>
-            <div class="achievement-item {% if total_applied >= 3 %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">3+ Applied</div>
-            </div>
-            <div class="achievement-item {% if profile and profile.allocated_internship %}achievement-unlocked{% endif %}">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">AI Matched</div>
-            </div>
-            <div class="achievement-item">
-              <div class="achievement-icon">&#9733;</div>
-              <div class="achievement-label">Completed</div>
-            </div>
+            {% endfor %}
+            {% if not enriched_applications and not (profile and profile.allocated_internship) %}
+            <p class="sdb-notif-empty">No notifications yet</p>
+            {% endif %}
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- ── ROW 5: Recent Activity Table ── -->
-    <div class="dash-section-block">
-      <div class="section-header">
-        <h2>Recent Activity</h2>
+    <!-- ══ 6. RECENT ACTIVITY TABLE ═══════════════════════════════════════════ -->
+    {% if enriched_applications %}
+    <div class="sdb-section fade-in-up" style="animation-delay:.40s">
+      <div class="sdb-section-hd">
+        <h2 class="sdb-section-title">Recent Activity</h2>
         {% if enriched_applications | length > 5 %}
-        <button class="btn btn-secondary btn-sm" onclick="showSection('applications')">View All {{ total_applied }} →</button>
+        <button class="sdb-link-btn" onclick="showSection('applications')">View All {{ total_applied }} &rarr;</button>
         {% endif %}
       </div>
-      {% if enriched_applications %}
       <div class="table-container" style="margin-bottom:0;">
         <table>
           <thead>
@@ -463,8 +426,8 @@
               <td style="color:#aaa;font-size:12px;">{{ loop.index }}</td>
               <td style="font-weight:600;color:#001a40;">{{ ea.internship.title if ea.internship else 'N/A' }}</td>
               <td style="color:#666;">{{ ea.org.company_name if ea.org else 'N/A' }}</td>
-              <td style="color:#888;font-size:13px;">{{ ea.internship.location if ea.internship and ea.internship.location else '—' }}</td>
-              <td style="font-size:13px;">{% if ea.internship and ea.internship.stipend %}₹{{ ea.internship.stipend }}{% else %}—{% endif %}</td>
+              <td style="color:#888;font-size:13px;">{{ ea.internship.location if ea.internship and ea.internship.location else '&mdash;' }}</td>
+              <td style="font-size:13px;">{% if ea.internship and ea.internship.stipend %}&#8377;{{ ea.internship.stipend }}{% else %}&mdash;{% endif %}</td>
               <td><span class="badge badge-{{ ea.application.status }}">{{ ea.application.status }}</span></td>
               <td style="color:#999;font-size:12px;">{{ ea.application.applied_at.strftime('%d %b %Y') }}</td>
             </tr>
@@ -472,17 +435,11 @@
           </tbody>
         </table>
       </div>
-      {% else %}
-      <div class="empty-state">
-        <div class="empty-icon">&mdash;</div>
-        <p>No applications yet</p>
-        <p class="empty-note">Start applying to internships to see your activity here</p>
-        <button class="btn btn-primary" onclick="showSection('internships')">Browse Internships</button>
-      </div>
-      {% endif %}
     </div>
+    {% endif %}
 
   </div>
+
 
   <!-- ============================================================
        SECTION 2: AVAILABLE INTERNSHIPS
@@ -491,15 +448,6 @@
     <h1 class="page-title">Available Internships</h1>
     <p class="page-subtitle">Explore open internship opportunities and apply today</p>
 
-    {% if has_active_app %}
-    <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;">
-      <span style="font-size:22px;">🔒</span>
-      <div>
-        <div style="font-weight:700;color:#92400e;font-size:14px;">You have an active application</div>
-        <div style="font-size:13px;color:#78350f;">You can only apply to one internship at a time. Withdraw your current application from <a href="?section=applications" onclick="showSection('applications');return false;" style="color:#1e7ce8;font-weight:600;">My Applications</a> to apply elsewhere.</div>
-      </div>
-    </div>
-    {% endif %}
 
     {% if profile and profile.location %}
     <div style="font-size:13px;color:#6b7280;margin-bottom:12px;">📍 Showing internships near <strong style="color:#001a40;">{{ profile.location }}</strong> first</div>
@@ -582,8 +530,6 @@
         <div class="card-footer">
           {% if internship.id in applied_ids %}
           <span class="badge badge-applied">✓ Applied</span>
-          {% elif has_active_app %}
-          <span style="font-size:12px;color:#b45309;background:#fef3c7;padding:4px 10px;border-radius:6px;font-weight:600;" title="Withdraw your current application first">🔒 Active App</span>
           {% else %}
           <button class="btn btn-primary btn-sm" onclick="applyInternship({{ internship.id }}, this)">Apply Now</button>
           {% endif %}
@@ -618,44 +564,170 @@
     </div>
 
     {% if enriched_applications %}
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Internship</th>
-            <th>Company</th>
-            <th>Location</th>
-            <th>Stipend</th>
-            <th>Status</th>
-            <th>Applied On</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for ea in enriched_applications %}
-          <tr id="app-row-{{ ea.application.id }}">
-            <td style="color:#999;font-size:12px;">{{ loop.index }}</td>
-            <td style="font-weight:600;color:#001a40;">{{ ea.internship.title if ea.internship else 'N/A' }}</td>
-            <td style="color:#666;">{{ ea.org.company_name if ea.org else 'N/A' }}</td>
-            <td>{{ ea.internship.location if ea.internship and ea.internship.location else '—' }}</td>
-            <td>{% if ea.internship and ea.internship.stipend %}₹{{ ea.internship.stipend }}{% else %}—{% endif %}</td>
-            <td>
-              <span class="badge badge-{{ ea.application.status }}">{{ ea.application.status }}</span>
-            </td>
-            <td style="color:#999;font-size:12px;">{{ ea.application.applied_at.strftime('%d %b %Y') }}</td>
-            <td>
-              {% if ea.application.status == 'pending' %}
-              <button class="btn btn-danger btn-sm" onclick="withdrawApplication({{ ea.application.id }}, this)">Withdraw</button>
-              {% else %}
-              <span style="color:#ccc;font-size:12px;">—</span>
+    <div class="app-timeline-list">
+      {% for ea in enriched_applications %}
+      {% set s = ea.application.status %}
+      <div class="app-tl-card" id="app-row-{{ ea.application.id }}">
+
+        <!-- Card header -->
+        <div class="app-tl-header">
+          <div class="app-tl-info">
+            <div class="app-tl-title">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
+            <div class="app-tl-meta">
+              <span>{{ ea.org.company_name if ea.org else 'N/A' }}</span>
+              {% if ea.internship and ea.internship.location %}
+              <span class="app-tl-dot">·</span>
+              <span>{{ ea.internship.location }}</span>
               {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              {% if ea.internship and ea.internship.stipend %}
+              <span class="app-tl-dot">·</span>
+              <span>₹{{ ea.internship.stipend }}/mo</span>
+              {% endif %}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <span class="badge badge-{{ s }}">{{ s }}</span>
+            {% if s == 'pending' %}
+            <button class="btn btn-danger btn-sm" onclick="withdrawApplication({{ ea.application.id }}, this)">Withdraw</button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Timeline steps -->
+        <div class="app-tl-steps">
+
+          <!-- Step 1: Applied -->
+          <div class="app-tl-step">
+            <div class="tl-circle done-circle">✓</div>
+            <div class="tl-label">Applied</div>
+            <div class="tl-date">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
+          </div>
+
+          <div class="tl-connector done-line"></div>
+
+          <!-- Step 2: Under Review -->
+          <div class="app-tl-step">
+            <div class="tl-circle {% if s == 'pending' %}active-circle{% else %}done-circle{% endif %}">
+              {% if s == 'pending' %}⏳{% else %}✓{% endif %}
+            </div>
+            <div class="tl-label">Under Review</div>
+            <div class="tl-date">—</div>
+          </div>
+
+          <div class="tl-connector
+            {% if s in ('shortlisted','approved') %}done-line
+            {% elif s == 'rejected' %}rejected-line
+            {% else %}pending-line{% endif %}"></div>
+
+          <!-- Step 3: Shortlisted / Rejected -->
+          <div class="app-tl-step">
+            <div class="tl-circle
+              {% if s == 'shortlisted' %}shortlisted-circle
+              {% elif s == 'approved' %}done-circle
+              {% elif s == 'rejected' %}rejected-circle
+              {% else %}future-circle{% endif %}">
+              {% if s == 'shortlisted' %}★
+              {% elif s == 'approved' %}✓
+              {% elif s == 'rejected' %}✗
+              {% else %}?{% endif %}
+            </div>
+            <div class="tl-label">
+              {% if s == 'rejected' %}Rejected{% else %}Shortlisted{% endif %}
+            </div>
+            <div class="tl-date">—</div>
+          </div>
+
+          <div class="tl-connector
+            {% if s == 'approved' %}done-line
+            {% elif s == 'shortlisted' %}pending-line
+            {% endif %}"></div>
+
+          <!-- Step 4: Final Decision -->
+          <div class="app-tl-step">
+            <div class="tl-circle
+              {% if s == 'approved' %}approved-circle
+              {% elif s == 'shortlisted' %}active-circle
+              {% else %}future-circle{% endif %}">
+              {% if s == 'approved' %}✓
+              {% elif s == 'shortlisted' %}⏳
+              {% else %}?{% endif %}
+            </div>
+            <div class="tl-label">
+              {% if s == 'approved' %}Approved{% else %}Decision{% endif %}
+            </div>
+            <div class="tl-date">—</div>
+          </div>
+
+        </div>
+
+      </div>
+      {% endfor %}
     </div>
+
+    <style>
+      .app-timeline-list { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+      .app-tl-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px 24px;
+        transition: box-shadow 0.2s;
+      }
+      .app-tl-card:hover { box-shadow: 0 2px 14px rgba(0,0,0,0.07); }
+      .app-tl-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .app-tl-title { font-size: 15px; font-weight: 700; color: #001a40; }
+      .app-tl-meta { font-size: 13px; color: #6b7280; margin-top: 3px; }
+      .app-tl-dot { margin: 0 5px; }
+
+      .app-tl-steps {
+        display: flex;
+        align-items: flex-start;
+        gap: 0;
+      }
+      .app-tl-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 80px;
+        flex-shrink: 0;
+      }
+      .tl-connector {
+        flex: 1;
+        height: 3px;
+        background: #e5e7eb;
+        margin-top: 16px;
+        border-radius: 2px;
+        transition: background 0.3s;
+      }
+      .done-line    { background: #22c55e; }
+      .pending-line { background: repeating-linear-gradient(90deg,#f59e0b 0,#f59e0b 6px,transparent 6px,transparent 12px); }
+
+      .tl-circle {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; font-weight: 700;
+        background: #f3f4f6; color: #9ca3af;
+        border: 2px solid #e5e7eb;
+      }
+      .done-circle        { background: #dcfce7; color: #16a34a; border-color: #22c55e; }
+      .active-circle      { background: #fef9c3; color: #92400e; border-color: #f59e0b; }
+      .approved-circle    { background: #dcfce7; color: #166534; border-color: #22c55e; }
+      .rejected-circle    { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+      .shortlisted-circle { background: #dbeafe; color: #1e40af; border-color: #1e7ce8; }
+      .future-circle      { background: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; }
+      .rejected-line { background: #ef4444; }
+
+      .tl-label { font-size: 11px; font-weight: 600; color: #555; margin-top: 6px; text-align: center; }
+      .tl-date  { font-size: 10px; color: #9ca3af; margin-top: 2px; text-align: center; }
+    </style>
     {% else %}
     <div class="empty-state">
       <div class="empty-icon">&mdash;</div>
@@ -771,7 +843,7 @@
       ⚠️ <strong>AI Resume Scan:</strong> {{ resume_scan.error }}
     </div>
     {% else %}
-    <div id="ai-scan-banner" style="background:linear-gradient(135deg,#001a40,#1e3a6e);border-radius:14px;padding:24px 28px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden;">
+    <div id="ai-scan-banner" style="background:#1e7ce8;border-radius:14px;padding:24px 28px;margin-bottom:24px;color:#fff;position:relative;overflow:hidden;">
       <div style="position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:rgba(30,124,232,0.15);border-radius:50%;"></div>
       <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;">
         <div style="flex:1;min-width:200px;">
@@ -891,7 +963,7 @@
         </div>
         <div class="form-group">
           <label>Resume / CV
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;background:linear-gradient(135deg,#1e7ce8,#7c3aed);color:#fff;border-radius:10px;margin-left:8px;vertical-align:middle;">🧠 AI Auto-Scan</span>
+            <span style="font-size:11px;font-weight:600;padding:2px 8px;background:#1e7ce8;color:#fff;border-radius:10px;margin-left:8px;vertical-align:middle;">🧠 AI Auto-Scan</span>
           </label>
           <input type="file" name="resume_file" id="resume_file_input" accept=".pdf,.doc,.docx" style="padding:8px;" onchange="onResumeSelected(this)" />
           <div id="resume-ai-hint" style="font-size:12px;color:#6b7280;margin-top:6px;display:flex;align-items:center;gap:6px;">

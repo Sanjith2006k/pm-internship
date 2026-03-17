@@ -136,6 +136,13 @@
     gap: 8px;
     min-width: 120px;
   }
+
+  .cand-actions > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .btn-shortlist {
     background: #1e7ce8;
     color: #fff;
@@ -206,7 +213,108 @@
     background: #fee2e2;
     color: #991b1b;
   }
+
+  /* Custom Modal Styles */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-message {
+    font-size: 15px;
+    color: #4b5563;
+    margin: 16px 0 24px;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-cancel {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .modal-btn-cancel:hover {
+    background: #d1d5db;
+  }
+
+  .modal-btn-confirm {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .modal-btn-confirm:hover {
+    background: #b91c1c;
+  }
 </style>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">⚠️ Confirm Rejection</div>
+    <div class="modal-message">Are you sure you want to reject this candidate? This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelReject()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmRejectAction()">Reject</button>
+    </div>
+  </div>
+</div>
 
 <div class="mc-wrap">
   <a
@@ -250,7 +358,7 @@
   {% set grad = 'linear-gradient(135deg,#16a34a,#15803d)' if score >= 75 else
   'linear-gradient(135deg,#1e7ce8,#7c3aed)' if score >= 50 else
   'linear-gradient(135deg,#f59e0b,#d97706)' %}
-  <div class="cand-card {% if loop.index == 1 %}rank-1{% endif %}">
+  <div class="cand-card {% if loop.index == 1 %}rank-1{% endif %}" data-student-id="{{ c.student.id }}">>
     <div class="cand-score-circle" style="background:{{ grad }}">
       <span class="sv">{{ score }}%</span>
       <span class="sl">match</span>
@@ -344,18 +452,42 @@
       <a href="/org/candidate/{{ c.profile.id }}" class="btn-view"
         >View Profile</a
       >
-      <button
-        class="btn-shortlist"
-        onclick="updateStatus({{ internship.id }}, {{ c.profile.id }}, 'shortlisted')"
-      >
-        Shortlist
-      </button>
-      <button
-        class="btn-reject"
-        onclick="updateStatus({{ internship.id }}, {{ c.profile.id }}, 'rejected')"
-      >
-        Reject
-      </button>
+      <div id="actions-{{ c.student.id }}">
+        {% if c.application.status == 'shortlisted' %}
+        <button class="btn-shortlist" disabled style="opacity: 0.6; cursor: not-allowed;">
+          ✓ Shortlisted
+        </button>
+        <button
+          class="btn-reject"
+          onclick="confirmReject({{ internship.id }}, {{ c.student.id }}, 'rejected')"
+        >
+          Reject
+        </button>
+        {% elif c.application.status == 'rejected' %}
+        <button
+          class="btn-shortlist"
+          onclick="updateStatus({{ internship.id }}, {{ c.student.id }}, 'shortlisted')"
+        >
+          Shortlist
+        </button>
+        <button class="btn-reject" disabled style="opacity: 0.6; cursor: not-allowed;">
+          ✗ Rejected
+        </button>
+        {% else %}
+        <button
+          class="btn-shortlist"
+          onclick="updateStatus({{ internship.id }}, {{ c.student.id }}, 'shortlisted')"
+        >
+          Shortlist
+        </button>
+        <button
+          class="btn-reject"
+          onclick="confirmReject({{ internship.id }}, {{ c.student.id }}, 'rejected')"
+        >
+          Reject
+        </button>
+        {% endif %}
+      </div>
     </div>
   </div>
   {% endfor %} {% else %}
@@ -382,18 +514,116 @@
 </div>
 
 <script>
+  let pendingRejectData = { internshipId: null, studentId: null, status: null };
+  let isProcessing = false;
+
+  function confirmReject(internshipId, studentId, status) {
+    if (isProcessing) return;
+    pendingRejectData = { internshipId, studentId, status };
+    document.getElementById('confirmModal').classList.add('active');
+  }
+
+  function cancelReject() {
+    document.getElementById('confirmModal').classList.remove('active');
+    pendingRejectData = { internshipId: null, studentId: null, status: null };
+  }
+
+  function confirmRejectAction() {
+    const { internshipId, studentId, status } = pendingRejectData;
+    document.getElementById('confirmModal').classList.remove('active');
+    updateStatus(internshipId, studentId, status);
+  }
+
   function updateStatus(internshipId, studentId, status) {
+    if (isProcessing) return;
+    isProcessing = true;
+
+    console.log(`Updating status for internship ${internshipId}, student ${studentId}, status ${status}`);
+
+    // Disable all buttons in the actions div
+    const actionsDiv = document.getElementById(`actions-${studentId}`);
+    if (actionsDiv) {
+      const buttons = actionsDiv.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+      });
+    }
+
     fetch(`/org/shortlist/${internshipId}/${studentId}/${status}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     })
-      .then((r) => r.json())
+      .then((r) => {
+        console.log(`Response status: ${r.status}`);
+        if (!r.ok) {
+          throw new Error(`Server error: ${r.status}`);
+        }
+        return r.json();
+      })
       .then((data) => {
+        console.log('Response data:', data);
         if (data.status === "success") {
+          // Update the status badge
+          const statusElements = document.querySelectorAll(`[data-student-id="${studentId}"]`);
+          statusElements.forEach(el => {
+            const statusBadge = el.querySelector('.app-status');
+            if (statusBadge) {
+              statusBadge.className = `app-status st-${status}`;
+              statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            }
+          });
+
+          // Update the action buttons
+          if (actionsDiv) {
+            if (status === 'shortlisted') {
+              actionsDiv.innerHTML = `
+                <button class="btn-shortlist" disabled style="opacity: 0.6; cursor: not-allowed;">
+                  ✓ Shortlisted
+                </button>
+                <button class="btn-reject" onclick="confirmReject(${internshipId}, ${studentId}, 'rejected')">
+                  Reject
+                </button>
+              `;
+            } else if (status === 'rejected') {
+              actionsDiv.innerHTML = `
+                <button class="btn-shortlist" onclick="updateStatus(${internshipId}, ${studentId}, 'shortlisted')">
+                  Shortlist
+                </button>
+                <button class="btn-reject" disabled style="opacity: 0.6; cursor: not-allowed;">
+                  ✗ Rejected
+                </button>
+              `;
+            }
+          }
+
           alert(
             `Candidate ${status === "shortlisted" ? "shortlisted ✅" : "rejected ❌"}`,
           );
-          location.reload();
+        } else {
+          alert(`Failed: ${data.message || 'Unknown error'}`);
+          // Re-enable buttons on error
+          if (actionsDiv) {
+            const buttons = actionsDiv.querySelectorAll('button');
+            buttons.forEach(btn => {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            });
+          }
+        }
+        isProcessing = false;
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert(`Error: ${error.message}`);
+        isProcessing = false;
+        // Re-enable buttons on error
+        if (actionsDiv) {
+          const buttons = actionsDiv.querySelectorAll('button');
+          buttons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          });
         }
       });
   }

@@ -1,9 +1,15 @@
 {% extends "base.html" %} {% block content %}
 
 <!-- Page Title -->
-<div class="container">
-  <h1 class="page-title">Organization Verification</h1>
-  <p class="page-subtitle">Review and verify organization registrations</p>
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
+  <section class="adm-header-card adm-page-hero">
+    <div>
+      <p class="adm-header-tag">Admin Workspace</p>
+      <h1 class="adm-title">Organization Verification</h1>
+      <p class="adm-subtitle">Review and verify organization registrations</p>
+    </div>
+  </section>
 
   <!-- Stat Boxes -->
   <div
@@ -756,6 +762,7 @@
     <div class="empty-state"><p>No verified organizations yet</p></div>
     {% endif %}
   </div>
+  </main>
 </div>
 
 <script>

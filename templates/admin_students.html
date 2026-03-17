@@ -1,7 +1,13 @@
 {% extends "base.html" %} {% block content %}
-<div class="container">
-  <h1 class="page-title">Students</h1>
-  <p class="page-subtitle">Monitor all registered students and their internship activity</p>
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
+  <section class="adm-header-card adm-page-hero">
+    <div>
+      <p class="adm-header-tag">Admin Workspace</p>
+      <h1 class="adm-title">Students</h1>
+      <p class="adm-subtitle">Monitor all registered students and their internship activity</p>
+    </div>
+  </section>
 
   <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
     <div class="stat-card">
@@ -97,5 +103,6 @@
     <p class="empty-state-note">Students will appear here after registration</p>
   </div>
   {% endif %}
+  </main>
 </div>
 {% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .about-page {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 0 24px 80px;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .about-page h1 {
+    font-size: 2.4rem;
+    color: #1e7ce8;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .about-page .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 50px;
+    font-size: 1.05rem;
+  }
+
+  .about-section {
+    background: #0d1b35;
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    line-height: 1.8;
+  }
+
+  .about-section h2 {
+    color: #1e7ce8;
+    font-size: 1.4rem;
+    margin-bottom: 14px;
+    border-left: 4px solid #1e7ce8;
+    padding-left: 12px;
+  }
+
+  .about-section p {
+    color: #cbd5e1;
+    font-size: 0.97rem;
+    margin-bottom: 12px;
+  }
+
+  .about-section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .about-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .highlight-card {
+    background: #0a1628;
+    border: 1px solid #1e3a5f;
+    border-radius: 10px;
+    padding: 18px 20px;
+    text-align: center;
+    color: #93c5fd;
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+
+  .highlight-card span {
+    display: block;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+</style>
+
+<div class="about-page">
+  <h1>About PM Internship</h1>
+  <p class="subtitle">Bridging academic learning and industry experience through AI</p>
+
+  <div class="about-section">
+    <h2>What is PM Internship?</h2>
+    <p>PM Internship is an innovative internship platform designed to connect students with organizations through the power of artificial intelligence. The platform simplifies the internship discovery and recruitment process by providing an intelligent system that helps students find opportunities that match their skills and career interests.</p>
+    <p>Traditional internship platforms often require students to manually search through hundreds of listings, which can be time-consuming and inefficient. PM Internship solves this challenge by using AI technology to analyze student profiles and recommend relevant internship opportunities automatically.</p>
+    <p>Our platform not only helps students discover internships but also helps organizations identify the most suitable candidates quickly. By using intelligent matching systems, PM Internship reduces the time required for recruitment while improving the chances of finding the right talent.</p>
+    <p>PM Internship focuses on creating a transparent, secure, and efficient internship ecosystem where students gain practical experience and organizations discover future professionals.</p>
+  </div>
+
+  <div class="about-section">
+    <h2>Our Mission</h2>
+    <p>Our mission is to bridge the gap between academic learning and industry experience by using artificial intelligence to create smarter internship opportunities for students and organizations.</p>
+    <p>We aim to make internship discovery faster, more personalized, and more accessible for students everywhere.</p>
+  </div>
+
+  <div class="about-section">
+    <h2>Our Vision</h2>
+    <p>Our vision is to build an AI-driven internship ecosystem that empowers students to gain real-world experience and helps organizations discover the next generation of skilled professionals.</p>
+    <p>We aspire to transform the internship experience through intelligent technology and data-driven decision-making.</p>
+  </div>
+
+  <div class="about-section">
+    <h2>Why PM Internship is Different</h2>
+    <p>Unlike traditional internship platforms, PM Internship integrates advanced artificial intelligence to improve both the student and recruiter experience.</p>
+    <p>Our platform offers:</p>
+    <div class="about-highlights">
+      <div class="highlight-card">
+        <span>🤖</span>
+        AI-based Internship Recommendations
+      </div>
+      <div class="highlight-card">
+        <span>🎯</span>
+        Smart Candidate Matching
+      </div>
+      <div class="highlight-card">
+        <span>📊</span>
+        Automated Skill Analysis
+      </div>
+      <div class="highlight-card">
+        <span>💡</span>
+        Intelligent Recruitment Insights
+      </div>
+    </div>
+    <p style="margin-top: 18px;">These features allow students and organizations to connect more effectively and efficiently.</p>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>© 2026 InternAI — Built for smarter internship matching.</p>
+</footer>
+{% endblock %}

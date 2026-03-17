@@ -1,330 +1,302 @@
-{% extends "base.html" %} {% block content %}
-<style>
-  nav.navbar {
-    align-items: flex-start !important;
-    padding-top: 10px !important;
-  }
-</style>
-<div class="container">
-  <h1 class="page-title">Admin Dashboard</h1>
-  <p class="page-subtitle">System overview and activity summary</p>
+{% extends "base.html" %}
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Total Students</div>
-      <div class="stat-value">{{ stats.total_students }}</div>
-      <div class="stat-change">Registered on platform</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Organizations</div>
-      <div class="stat-value">{{ stats.total_orgs }}</div>
-      <div class="stat-change">{{ stats.verified_orgs }} verified</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Internships</div>
-      <div class="stat-value">{{ stats.total_internships }}</div>
-      <div class="stat-change">
-        <a href="/admin/internships" style="color: #1e7ce8">View all →</a>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Pending Org Approvals</div>
-      <div class="stat-value" style="color: #fbbf24">
-        {{ stats.pending_orgs }}
-      </div>
-      <div class="stat-change">
-        <a href="/admin/organizations" style="color: #1e7ce8">Review now →</a>
-      </div>
-    </div>
-  </div>
+{% block content %}
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
 
-  <!-- Recent Activity Row -->
-  <div
-    style="
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-top: 10px;
-    "
-  >
-    <!-- Recent Registrations -->
-    <div>
-      <div class="section-header">
-        <h2>Recent Registrations</h2>
-        <a
-          href="/admin/students"
-          class="btn btn-secondary"
-          style="font-size: 13px; padding: 8px 16px"
-          >View All</a
-        >
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
+
+    <!-- ══ 1. WELCOME CARD ══════════════════════════════════════════════════ -->
+    <div class="adm-welcome-card fade-in-up">
+      <div class="adm-welcome-content">
+        <div class="adm-active-tag">
+          <span class="adm-pulse-dot"></span>
+          <span>Admin Panel</span>
+        </div>
+        <h1 class="adm-greeting" id="greeting-text">Dashboard Overview</h1>
+        <p class="adm-greeting-sub">Track platform activity, approvals, and internship pipeline in one place.</p>
+        <div class="adm-stats-row">
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.total_students }}</span>
+            <span class="adm-stat-lbl">Students</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.total_orgs }}</span>
+            <span class="adm-stat-lbl">Organizations</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.total_internships }}</span>
+            <span class="adm-stat-lbl">Internships</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.pending_orgs }}</span>
+            <span class="adm-stat-lbl">Pending</span>
+          </div>
+        </div>
       </div>
-      {% if recent_users %}
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for user in recent_users %}
-            <tr>
-              <td style="font-weight: 600; color: #001a40">{{ user.name }}</td>
-              <td>
-                <span
-                  class="badge {% if user.role == 'student' %}badge-applied{% elif user.role == 'organization' %}badge-shortlisted{% else %}badge-approved{% endif %}"
-                >
-                  {{ user.role }}
-                </span>
-              </td>
-              <td style="color: #666">{{ user.email }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="adm-welcome-art" aria-hidden="true">
+        <div class="adm-art-ring r1"></div>
+        <div class="adm-art-ring r2"></div>
+        <div class="adm-art-ring r3"></div>
+        <div class="adm-art-inner">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
       </div>
-      {% else %}
-      <div class="empty-state"><p>No registrations yet</p></div>
-      {% endif %}
     </div>
 
-    <!-- Recent Internship Posts -->
-    <div>
-      <div class="section-header">
-        <h2>Recent Internship Posts</h2>
-        <a
-          href="/admin/internships"
-          class="btn btn-secondary"
-          style="font-size: 13px; padding: 8px 16px"
-          >View All</a
-        >
+    <!-- ══ 2. QUICK ACTION CARDS ════════════════════════════════════════════ -->
+    <div class="adm-section fade-in-up" style="--anim-delay:.10s">
+      <div class="adm-section-hd">
+        <h2 class="adm-section-title">Quick Actions</h2>
+        <span class="adm-section-sub">What would you like to manage today?</span>
       </div>
-      {% if recent_internships %}
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Company</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in recent_internships %}
-            <tr>
-              <td style="font-weight: 600; color: #001a40">
-                {{ item.internship.title }}
-              </td>
-              <td style="color: #666">
-                {{ item.org.company_name if item.org else 'N/A' }}
-              </td>
-              <td>
-                <span class="badge badge-approved">active</span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="empty-state"><p>No internships posted yet</p></div>
-      {% endif %}
-    </div>
-  </div>
+      <div class="adm-action-grid">
 
-  <!-- Pending Org Verifications -->
-  <div style="margin-top: 40px">
-    <div class="section-header">
-      <h2>Pending Organization Verifications</h2>
-      <span
-        style="
-          background: #fbbf24;
-          color: #92400e;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-weight: 600;
-          font-size: 12px;
-        "
-        >{{ stats.pending_orgs }} Pending</span
-      >
-    </div>
-    {% if pending_org_list %}
-    <div>
-      {% for org in pending_org_list %}
-      <div class="internship-item">
-        <div class="internship-item-header">
-          <div>
-            <h3 class="internship-item-title">{{ org.company_name }}</h3>
-            <p class="internship-item-meta">
-              <strong>Industry:</strong> {{ org.industry if org.industry else
-              'N/A' }} &nbsp;|&nbsp; <strong>Location:</strong> {{ org.location
-              if org.location else 'N/A' }}
-            </p>
-            <p class="internship-item-meta">
-              <strong>GST:</strong> {{ org.gst_number if org.gst_number else
-              'Not provided' }} &nbsp;|&nbsp; <strong>Email:</strong> {{
-              org.domain_email if org.domain_email else 'Not provided' }}
-            </p>
+        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/students'" role="button">
+          <div class="adm-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
           </div>
-          <span
-            style="
-              background: #fbbf24;
-              color: #92400e;
-              padding: 6px 12px;
-              border-radius: 6px;
-              font-weight: 600;
-              font-size: 12px;
-            "
-            > PENDING</span
-          >
+          <div class="adm-ac-body">
+            <h3 class="adm-ac-title">Manage Students</h3>
+            <p class="adm-ac-desc">View {{ stats.total_students }} registered student accounts on the platform.</p>
+          </div>
+          <a href="/admin/students" class="adm-ac-btn">
+            View Students
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
         </div>
-        <div class="approval-form">
-          <div class="form-group">
-            <label for="org_notes_{{ org.id }}">Verification Notes</label>
-            <textarea
-              id="org_notes_{{ org.id }}"
-              placeholder="e.g., GST verified, LinkedIn confirmed..."
-            ></textarea>
-          </div>
-          <div class="approval-buttons">
-            <div></div>
-            <div style="display: flex; gap: 10px; flex-direction: column">
-              <button
-                class="btn btn-success"
-                onclick="verifyOrg({{ org.id }}, 'approve')"
-              >
-                ✓ Approve
-              </button>
-              <button
-                class="btn btn-danger"
-                onclick="verifyOrg({{ org.id }}, 'reject')"
-              >
-                ✗ Reject
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <p>✓ No pending organization verifications</p>
-    </div>
-    {% endif %}
-  </div>
 
-  <!-- Pending Internship Approvals -->
-  <div style="margin-top: 40px">
-    <div class="section-header">
-      <h2>Pending Internship Approvals</h2>
-      <span
-        style="
-          background: #fbbf24;
-          color: #92400e;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-weight: 600;
-          font-size: 12px;
-        "
-        >{{ stats.pending_internships }} Pending</span
-      >
+        <div class="adm-ac adm-ac-purple" tabindex="0" onclick="location.href='/admin/organizations'" role="button">
+          <div class="adm-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 3h5v5"/><path d="M8 3H3v5"/>
+              <path d="M16 21h5v-5"/><path d="M8 21H3v-5"/>
+              <rect x="8" y="8" width="8" height="8" rx="2"/>
+            </svg>
+          </div>
+          <div class="adm-ac-body">
+            <h3 class="adm-ac-title">Verify Organizations</h3>
+            <p class="adm-ac-desc">{{ stats.pending_orgs }} organization{{ 's' if stats.pending_orgs != 1 else '' }} waiting for verification.</p>
+          </div>
+          <a href="/admin/organizations" class="adm-ac-btn">
+            Review Now
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+      </div>
     </div>
-    {% if pending_internship_list %}
-    <div>
-      {% for item in pending_internship_list %}
-      <div class="internship-item">
-        <div class="internship-item-header">
-          <div>
-            <h3 class="internship-item-title">{{ item.internship.title }}</h3>
-            <p class="internship-item-meta">
-              <strong>Company:</strong> {{ item.org.company_name if item.org
-              else 'Unknown' }}
-            </p>
+
+    <!-- ══ 3. RECENT ACTIVITY ════════════════════════════════════════════════ -->
+    <div class="adm-section fade-in-up" style="--anim-delay:.15s">
+      <div class="adm-section-hd">
+        <h2 class="adm-section-title">Recent Activity</h2>
+        <span class="adm-section-sub">Latest registrations and internship posts</span>
+      </div>
+      <div class="adm-grid-2">
+
+        <div class="adm-section-card">
+          <div class="adm-section-head">
+            <h2>Recent Student Registrations</h2>
+            <a href="/admin/students" class="adm-link-btn">View All</a>
           </div>
-          <div>
-            <p style="color: #999; font-size: 12px; margin: 0">Posted on</p>
-            <p style="color: #001a40; font-weight: 600; margin: 5px 0 0 0">
-              {{ item.internship.created_at.strftime('%d %b %Y') if
-              item.internship.created_at else 'N/A' }}
-            </p>
-          </div>
-        </div>
-        <div class="internship-item-details">
-          {% if item.internship.location %}
-          <div class="internship-item-detail">
-            <strong>Location</strong>
-            <p>{{ item.internship.location }}</p>
-          </div>
-          {% endif %} {% if item.internship.duration %}
-          <div class="internship-item-detail">
-            <strong>Duration</strong>
-            <p>{{ item.internship.duration }}</p>
-          </div>
-          {% endif %}
-          <div class="internship-item-detail">
-            <strong>Positions</strong>
-            <p>{{ item.internship.capacity }}</p>
-          </div>
-          {% if item.internship.stipend %}
-          <div class="internship-item-detail">
-            <strong>Stipend</strong>
-            <p>₹{{ item.internship.stipend }}/month</p>
-          </div>
-          {% endif %}
-        </div>
-        <div style="margin-bottom: 20px">
-          <strong style="color: #666; font-size: 12px">Required Skills:</strong>
-          <div class="skills-container">
-            {% for skill in item.internship.skills_required.split(',') %}
-            <span class="skill">{{ skill.strip() }}</span>
-            {% endfor %}
+          <div class="adm-table-wrap">
+            <table class="adm-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% set students_ns = namespace(has_students=false) %}
+                {% for user in recent_users %}
+                {% if user.role == 'student' %}
+                {% set students_ns.has_students = true %}
+                <tr>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td><span class="adm-pill adm-pill-blue">Student</span></td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                {% if not students_ns.has_students %}
+                <tr>
+                  <td colspan="3" class="adm-empty-row">No recent student registrations</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="approval-form">
-          <div class="form-group">
-            <label for="notes_{{ item.internship.id }}"
-              >Admin Notes (Optional)</label
-            >
-            <textarea
-              id="notes_{{ item.internship.id }}"
-              placeholder="Add approval or rejection notes..."
-            ></textarea>
+
+        <div class="adm-section-card">
+          <div class="adm-section-head">
+            <h2>Recent Internship Posts</h2>
+            <a href="/admin/internships" class="adm-link-btn">View All</a>
           </div>
-          <div class="approval-buttons">
-            <div></div>
-            <div style="display: flex; gap: 10px; flex-direction: column">
-              <button
-                class="btn btn-success"
-                onclick="approveInternship({{ item.internship.id }})"
-              >
-                ✓ Approve
-              </button>
-              <button
-                class="btn btn-danger"
-                onclick="rejectInternship({{ item.internship.id }})"
-              >
-                ✗ Reject
-              </button>
-            </div>
+          <div class="adm-table-wrap">
+            <table class="adm-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Organization</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if recent_internships %}
+                {% for item in recent_internships %}
+                <tr>
+                  <td>{{ item.internship.title }}</td>
+                  <td>{{ item.org.company_name if item.org else 'N/A' }}</td>
+                  <td><span class="adm-pill adm-pill-green">Active</span></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="3" class="adm-empty-row">No recent internship posts</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ 4. PENDING ORGANIZATION VERIFICATION ══════════════════════════════ -->
+    <div class="adm-section fade-in-up" style="--anim-delay:.20s">
+      <div class="adm-section-hd">
+        <h2 class="adm-section-title">Pending Organization Verification</h2>
+        <span class="adm-count-badge">{{ stats.pending_orgs }} Pending</span>
+      </div>
+      <div class="adm-section-card">
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Industry</th>
+                <th>Location</th>
+                <th>Verification Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if pending_org_list %}
+              {% for org in pending_org_list %}
+              <tr>
+                <td>
+                  <strong>{{ org.company_name }}</strong>
+                  <div class="adm-cell-sub">{{ org.domain_email if org.domain_email else 'No email provided' }}</div>
+                </td>
+                <td>{{ org.industry if org.industry else 'N/A' }}</td>
+                <td>{{ org.location if org.location else 'N/A' }}</td>
+                <td>
+                  <textarea id="org_notes_{{ org.id }}" class="adm-note-input" placeholder="Enter verification notes..."></textarea>
+                </td>
+                <td>
+                  <div class="adm-action-col">
+                    <button class="btn btn-success" onclick="verifyOrg({{ org.id }}, 'approve')">Approve</button>
+                    <button class="btn btn-danger" onclick="verifyOrg({{ org.id }}, 'reject')">Reject</button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="adm-empty-row">No pending organization verifications</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% else %}
-    <div class="empty-state">
-      <p>✓ No pending internships</p>
-      <p class="empty-state-note">All internship postings have been reviewed</p>
+
+    <!-- ══ 5. PENDING INTERNSHIP APPROVAL ════════════════════════════════════ -->
+    <div class="adm-section fade-in-up" style="--anim-delay:.25s">
+      <div class="adm-section-hd">
+        <h2 class="adm-section-title">Pending Internship Approval</h2>
+        <span class="adm-count-badge">{{ stats.pending_internships }} Pending</span>
+      </div>
+      <div class="adm-section-card">
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Internship</th>
+                <th>Organization</th>
+                <th>Details</th>
+                <th>Admin Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if pending_internship_list %}
+              {% for item in pending_internship_list %}
+              <tr>
+                <td>
+                  <strong>{{ item.internship.title }}</strong>
+                  <div class="adm-cell-sub">
+                    {{ item.internship.created_at.strftime('%d %b %Y') if item.internship.created_at else 'Date N/A' }}
+                  </div>
+                </td>
+                <td>{{ item.org.company_name if item.org else 'Unknown' }}</td>
+                <td>
+                  <div class="adm-cell-sub">Location: {{ item.internship.location if item.internship.location else 'N/A' }}</div>
+                  <div class="adm-cell-sub">Duration: {{ item.internship.duration if item.internship.duration else 'N/A' }}</div>
+                  <div class="adm-cell-sub">Capacity: {{ item.internship.capacity }}</div>
+                </td>
+                <td>
+                  <textarea id="notes_{{ item.internship.id }}" class="adm-note-input" placeholder="Add approval or rejection notes..."></textarea>
+                </td>
+                <td>
+                  <div class="adm-action-col">
+                    <button class="btn btn-success" onclick="approveInternship({{ item.internship.id }})">Approve</button>
+                    <button class="btn btn-danger" onclick="rejectInternship({{ item.internship.id }})">Reject</button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="5" class="adm-empty-row">No pending internship approvals</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-    {% endif %}
-  </div>
+
+  </main>
 </div>
 
 <script>
+  // Time-based greeting
+  (function () {
+    var h = new Date().getHours();
+    var el = document.getElementById('greeting-text');
+    if (el) {
+      el.textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', Admin!';
+    }
+  })();
+
   function verifyOrg(orgId, action) {
     const notes = document.getElementById("org_notes_" + orgId).value;
     if (!notes.trim()) {

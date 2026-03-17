@@ -1,12 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <style>
   .alloc-page {
-    max-width: 1100px;
+    max-width: 1400px;
     margin: 40px auto;
     padding: 0 24px;
   }
   .alloc-header {
-    background: linear-gradient(135deg, #001a40, #0a3066);
+    background: linear-gradient(135deg, #001a40 0%, #0a2a6e 55%, #153e80 100%);
     border-radius: 14px;
     padding: 32px 40px;
     color: #fff;
@@ -139,7 +139,8 @@
   }
 </style>
 
-<div class="alloc-page">
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
   <div class="alloc-header">
     <h1>🤖 AI Internship Allocation Optimizer</h1>
     <p>
@@ -214,5 +215,6 @@
     {% endfor %}
   </div>
   {% endif %} {% endif %}
+  </main>
 </div>
 {% endblock %}

@@ -24,7 +24,7 @@ body {
 .logo {
     font-size: 24px;
     font-weight: bold;
-    color: #3b82f6;
+    color: #1e7ce8;
 }
 
 .nav-links {
@@ -41,11 +41,11 @@ body {
 }
 
 .nav-links a:hover {
-    color: #3b82f6;
+    color: #1e7ce8;
 }
 
 .register-btn {
-    background: #3b82f6;
+    background: #1e7ce8;
     color: white !important;
     padding: 8px 18px;
     border-radius: 6px;
@@ -57,7 +57,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 90px 100px;
-    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
+    background: #1e7ce8;
     color: white;
 }
 
@@ -72,7 +72,7 @@ body {
 
 /* Animated Text */
 .changing-text {
-    color: #06b6d4;
+    color: #ffffff;
     font-weight: bold;
     position: relative;
 }
@@ -99,18 +99,21 @@ body {
 
 /* BUTTON */
 .explore-btn {
-    background: #3b82f6;
+    display: inline-block;
+    background: #1e7ce8;
     color: white;
     padding: 14px 30px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    text-decoration: none;
+    margin-top: 20px;
     transition: 0.3s;
 }
 
 .explore-btn:hover {
-    background: #2563eb;
+    background: #1563c0;
 }
 
 /* FEATURES SECTION */
@@ -123,7 +126,7 @@ body {
     text-align: center;
     font-size: 32px;
     margin-bottom: 50px;
-    color: #1e3a8a;
+    color: #1e7ce8;
 }
 
 .feature-box-container {
@@ -136,7 +139,7 @@ body {
     background: #f8fafc;
     padding: 30px;
     border-radius: 10px;
-    border-left: 5px solid #3b82f6;
+    border-left: 5px solid #1e7ce8;
     transition: 0.3s;
 }
 
@@ -147,7 +150,7 @@ body {
 
 .feature-box h3 {
     margin-bottom: 12px;
-    color: #1e3a8a;
+    color: #1e7ce8;
 }
 
 .feature-box p {
@@ -157,7 +160,7 @@ body {
 
 /* STATS SECTION */
 .stats {
-    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
+    background: #1e7ce8;
     padding: 60px 80px;
     display: flex;
     justify-content: space-around;
@@ -165,7 +168,7 @@ body {
 }
 
 .stat-box h2 {
-    color: #3b82f6;
+    color: #ffffff;
     font-size: 32px;
 }
 
@@ -184,7 +187,7 @@ body {
     text-align: center;
     margin-bottom: 50px;
     font-size: 30px;
-    color: #1e3a8a;
+    color: #1e7ce8;
 }
 
 .steps {
@@ -197,12 +200,12 @@ body {
     background: #f8fafc;
     padding: 25px;
     border-radius: 8px;
-    border-left: 5px solid #3b82f6;
+    border-left: 5px solid #1e7ce8;
 }
 
 /* CTA SECTION */
 .cta {
-    background: linear-gradient(135deg,#0b1f3a,#1e3a8a);
+    background: #1e7ce8;
     color: white;
     text-align: center;
     padding: 70px 20px;

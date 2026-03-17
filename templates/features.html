@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .features-page {
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 0 24px 80px;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .features-page h1 {
+    font-size: 2.4rem;
+    color: #1e7ce8;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .features-page .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 50px;
+    font-size: 1.05rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 22px;
+    margin-bottom: 50px;
+  }
+
+  .feature-card {
+    background: #0d1b35;
+    border: 1px solid #1e3a5f;
+    border-radius: 14px;
+    padding: 28px 26px;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .feature-card:hover {
+    border-color: #1e7ce8;
+    transform: translateY(-3px);
+  }
+
+  .feature-card .icon {
+    font-size: 2.2rem;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .feature-card h3 {
+    color: #93c5fd;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+
+  .feature-card p {
+    color: #94a3b8;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .features-section-title {
+    background: #0d1b35;
+    border: 1px solid #1e3a5f;
+    border-radius: 12px;
+    padding: 28px 36px;
+    margin-bottom: 32px;
+    line-height: 1.8;
+  }
+
+  .features-section-title h2 {
+    color: #1e7ce8;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    border-left: 4px solid #1e7ce8;
+    padding-left: 12px;
+  }
+
+  .features-section-title p {
+    color: #cbd5e1;
+    font-size: 0.97rem;
+    margin: 0;
+  }
+
+  .search-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .filter-tag {
+    background: #0a1628;
+    border: 1px solid #1e3a5f;
+    color: #93c5fd;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.88rem;
+  }
+</style>
+
+<div class="features-page">
+  <h1>Platform Features</h1>
+  <p class="subtitle">PM Internship combines AI intelligence with powerful tools for students and organizations</p>
+
+  <div class="features-section-title">
+    <h2>Overview</h2>
+    <p>PM Internship combines traditional internship management tools with advanced artificial intelligence to create a smarter and more efficient internship platform.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="icon">🤖</span>
+      <h3>AI Internship Matching</h3>
+      <p>The platform uses AI algorithms to analyze student profiles, skills, interests, and academic backgrounds to recommend the most suitable internships. This helps students find opportunities that align with their career goals.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">📄</span>
+      <h3>AI Resume Analysis</h3>
+      <p>Students can upload their resumes and receive AI-powered feedback. The system evaluates resume structure, skills, and keywords and suggests improvements to increase their chances of being selected.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🎯</span>
+      <h3>AI Candidate Shortlisting</h3>
+      <p>Organizations can save time during recruitment with AI-powered candidate recommendations. The system analyzes student profiles and automatically highlights the most suitable applicants for each internship.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">📊</span>
+      <h3>AI Skill Gap Detection</h3>
+      <p>The platform identifies missing skills that may affect a student's chances of getting selected for internships and recommends improvements or learning areas.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🔍</span>
+      <h3>Smart Internship Search</h3>
+      <p>Students can easily search internships using filters:</p>
+      <div class="search-filters">
+        <span class="filter-tag">Skills</span>
+        <span class="filter-tag">Location</span>
+        <span class="filter-tag">Industry</span>
+        <span class="filter-tag">Duration</span>
+        <span class="filter-tag">Remote / On-site</span>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🎓</span>
+      <h3>Student Dashboard</h3>
+      <p>Students receive a personalized dashboard to track internship applications, view recommended internships, update skills and profile information, and receive notifications.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🏢</span>
+      <h3>Organization Dashboard</h3>
+      <p>Companies can efficiently manage internship recruitment by posting opportunities, reviewing applications, shortlisting candidates, and tracking hiring progress.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">✅</span>
+      <h3>Verified Organization System</h3>
+      <p>To ensure safe and genuine opportunities, organizations must go through a verification process before posting internships on the platform.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🔔</span>
+      <h3>Real-Time Notification System</h3>
+      <p>Students and organizations receive instant notifications for application updates, internship recommendations, interview invitations, and platform announcements.</p>
+    </div>
+
+    <div class="feature-card">
+      <span class="icon">🛡️</span>
+      <h3>Admin Control Panel</h3>
+      <p>The admin dashboard manages the entire platform by verifying organizations, monitoring internships, managing students and companies, and tracking platform statistics.</p>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>© 2026 InternAI — Built for smarter internship matching.</p>
+</footer>
+{% endblock %}

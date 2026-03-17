@@ -1,128 +1,264 @@
 {% extends "base.html" %} {% block content %}
+<style>
+  /* Custom Modal Styles */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
 
-<!-- Page Title & Back Button -->
-<div style="margin-bottom: 30px">
-        <a
-          href="/organization"
-          style="color: #1e7ce8; text-decoration: none; font-weight: 600"
-          >← Back to Dashboard</a
-        >
-        <h1 class="page-title">Applications for {{ internship.title }}</h1>
-        <p class="page-subtitle">
-          {{ internship.location }} • {{ internship.duration }} • {{
-          internship.capacity }} positions
-        </p>
-      </div>
+  .modal-overlay.active {
+    display: flex;
+  }
 
-      <!-- Applications Table -->
-      {% if app_data %}
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Student Name</th>
-              <th>Skills</th>
-              <th>Match Score</th>
-              <th>Status</th>
-              <th>Applied Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for data in app_data %}
-            <tr>
-              <td>
-                <strong>{{ data.student.name }}</strong><br />
-                <span style="font-size: 12px; color: #666"
-                  >{{ data.student.email }}</span
-                >
-              </td>
-              <td>
-                <div class="skills-container">
-                  {% if data.profile and data.profile.skills %} {% for skill in
-                  data.profile.skills.split(',')[:3] %}
-                  <span class="skill">{{ skill.strip() }}</span>
-                  {% endfor %} {% endif %}
-                </div>
-              </td>
-              <td>
-                <strong style="color: #1e7ce8; font-size: 16px"
-                  >{{ data.application.match_score }}%</strong
-                >
-              </td>
-              <td>
-                <span class="badge badge-{{ data.application.status }}"
-                  >{{ data.application.status }}</span
-                >
-              </td>
-              <td>
-                {{ data.application.applied_at.strftime('%d %b %Y') if
-                data.application.applied_at else 'N/A' }}
-              </td>
-              <td>
-                <div style="display: flex; gap: 8px; flex-direction: column">
-                  <a
-                    href="/org/candidate/{{ data.student.id }}"
-                    class="btn btn-secondary"
-                    style="
-                      padding: 6px 12px;
-                      font-size: 12px;
-                      text-align: center;
-                    "
-                    >View Profile</a
-                  >
-                  <div style="display: flex; gap: 5px">
-                    <button
-                      class="btn btn-success"
-                      style="padding: 6px 10px; font-size: 11px; flex: 1"
-                      onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, 'shortlisted')"
-                    >
-                      ✓ Shortlist
-                    </button>
-                    <button
-                      class="btn btn-danger"
-                      style="padding: 6px 10px; font-size: 11px; flex: 1"
-                      onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, 'rejected')"
-                    >
-                      ✗ Reject
-                    </button>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div
-        style="
-          text-align: center;
-          padding: 60px;
-          background: #f9fafb;
-          border-radius: 8px;
-        "
-      >
-        <p style="color: #666; font-size: 16px">No applications received yet</p>
-      </div>
-      {% endif %}
+  .modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal-message {
+    font-size: 15px;
+    color: #4b5563;
+    margin: 16px 0 24px;
+    line-height: 1.5;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn-cancel {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .modal-btn-cancel:hover {
+    background: #d1d5db;
+  }
+
+  .modal-btn-confirm {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .modal-btn-confirm:hover {
+    background: #b91c1c;
+  }
+</style>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">⚠️ Confirm Rejection</div>
+    <div class="modal-message">Are you sure you want to reject this candidate? This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="cancelReject()">Cancel</button>
+      <button class="modal-btn modal-btn-confirm" onclick="confirmRejectAction()">Reject</button>
     </div>
+  </div>
+</div>
 
-    <script>
-      function updateStatus(internshipId, studentId, status) {
-        fetch(`/org/shortlist/${internshipId}/${studentId}/${status}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.status === "success") {
-              alert(`Candidate ${status}!`);
-              location.reload();
-            }
-          });
+<div style="max-width:1100px;margin:0 auto;padding:30px 20px;">
+  <a href="/organization" style="color:#1e7ce8;text-decoration:none;font-weight:600;">← Back to Dashboard</a>
+  <h1 class="page-title" style="margin-top:12px;">Applications for {{ internship.title }}</h1>
+  <p class="page-subtitle">{{ internship.location }} • {{ internship.duration }} • {{ internship.capacity }} positions</p>
+
+  {% if app_data %}
+  <div class="table-container" style="margin-top:24px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Skills</th>
+          <th>Match Score</th>
+          <th>Status</th>
+          <th>Applied On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for data in app_data %}
+        <tr id="app-row-{{ data.application.id }}">
+          <td>
+            <strong>{{ data.student.name }}</strong><br>
+            <span style="font-size:12px;color:#666;">{{ data.student.email }}</span>
+          </td>
+          <td>
+            <div class="skills-container">
+              {% if data.profile and data.profile.skills %}
+                {% for skill in data.profile.skills.split(',')[:3] %}
+                <span class="skill">{{ skill.strip() }}</span>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            <strong style="color:#1e7ce8;font-size:16px;">{{ data.match_score }}%</strong>
+          </td>
+          <td>
+            <span class="badge badge-{{ data.application.status }}" id="badge-{{ data.application.id }}">
+              {{ data.application.status }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:#999;">
+            {{ data.application.applied_at.strftime('%d %b %Y') if data.application.applied_at else 'N/A' }}
+          </td>
+          <td>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <a href="/org/candidate/{{ data.student.id }}" class="btn btn-secondary"
+                 style="padding:5px 10px;font-size:11px;text-align:center;">View Profile</a>
+              <div style="display:flex;gap:5px;" id="actions-{{ data.application.id }}">
+                {% if data.application.status not in ('shortlisted','approved','rejected') %}
+                <button class="btn btn-success" style="padding:5px 8px;font-size:11px;flex:1;"
+                  onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, {{ data.application.id }}, 'shortlisted')">
+                  ★ Shortlist
+                </button>
+                <button class="btn btn-danger" style="padding:5px 8px;font-size:11px;flex:1;"
+                  onclick="confirmReject({{ internship.id }}, {{ data.student.id }}, {{ data.application.id }}, 'rejected')">
+                  ✗ Reject
+                </button>
+                {% elif data.application.status == 'shortlisted' %}
+                <button class="btn btn-success" style="padding:5px 8px;font-size:11px;flex:1;"
+                  onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, {{ data.application.id }}, 'approved')">
+                  ✓ Approve
+                </button>
+                <button class="btn btn-danger" style="padding:5px 8px;font-size:11px;flex:1;"
+                  onclick="confirmReject({{ internship.id }}, {{ data.student.id }}, {{ data.application.id }}, 'rejected')">
+                  ✗ Reject
+                </button>
+                {% elif data.application.status == 'rejected' %}
+                <button class="btn btn-success" style="padding:5px 8px;font-size:11px;flex:1;"
+                  onclick="updateStatus({{ internship.id }}, {{ data.student.id }}, {{ data.application.id }}, 'shortlisted')">
+                  ★ Shortlist
+                </button>
+                {% else %}
+                <span style="font-size:11px;color:#aaa;">—</span>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:60px;background:#f9fafb;border-radius:8px;margin-top:24px;">
+    <p style="color:#666;font-size:16px;">No applications received yet</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  let pendingRejectData = { internshipId: null, studentUserId: null, applicationId: null, status: null };
+
+  function confirmReject(internshipId, studentUserId, applicationId, status) {
+    pendingRejectData = { internshipId, studentUserId, applicationId, status };
+    document.getElementById('confirmModal').classList.add('active');
+  }
+
+  function cancelReject() {
+    document.getElementById('confirmModal').classList.remove('active');
+    pendingRejectData = { internshipId: null, studentUserId: null, applicationId: null, status: null };
+  }
+
+  function confirmRejectAction() {
+    const { internshipId, studentUserId, applicationId, status } = pendingRejectData;
+    document.getElementById('confirmModal').classList.remove('active');
+    updateStatus(internshipId, studentUserId, applicationId, status);
+  }
+
+  function updateStatus(internshipId, studentUserId, applicationId, status) {
+    var row = document.getElementById('app-row-' + applicationId);
+    var btns = row ? row.querySelectorAll('button') : [];
+    btns.forEach(function(b){ b.disabled = true; b.style.opacity = '0.6'; });
+
+    fetch('/org/shortlist/' + internshipId + '/' + studentUserId + '/' + status, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(function(r) {
+      if (!r.ok) {
+        return r.text().then(function(t) { throw new Error('Server error ' + r.status + ': ' + t.substring(0, 200)); });
       }
-    </script>
+      return r.json();
+    })
+    .then(function(data) {
+      if (data.status === 'success') {
+        var badge = document.getElementById('badge-' + applicationId);
+        badge.textContent = status;
+        badge.className = 'badge badge-' + status;
+
+        var actions = document.getElementById('actions-' + applicationId);
+        if (status === 'shortlisted') {
+          actions.innerHTML =
+            '<button class="btn btn-success" style="padding:5px 8px;font-size:11px;flex:1;" '
+            + 'onclick="updateStatus(' + internshipId + ',' + studentUserId + ',' + applicationId + ',\'approved\')">✓ Approve</button>'
+            + '<button class="btn btn-danger" style="padding:5px 8px;font-size:11px;flex:1;" '
+            + 'onclick="confirmReject(' + internshipId + ',' + studentUserId + ',' + applicationId + ',\'rejected\')">✗ Reject</button>';
+        } else if (status === 'rejected') {
+          actions.innerHTML =
+            '<button class="btn btn-success" style="padding:5px 8px;font-size:11px;flex:1;" '
+            + 'onclick="updateStatus(' + internshipId + ',' + studentUserId + ',' + applicationId + ',\'shortlisted\')">★ Shortlist</button>';
+        } else {
+          actions.innerHTML = '<span style="font-size:11px;color:#aaa;">—</span>';
+        }
+
+        alert('Status updated to ' + status + ' ✅');
+      } else {
+        alert('Failed: ' + data.message);
+        btns.forEach(function(b){ b.disabled = false; b.style.opacity = '1'; });
+      }
+    })
+    .catch(function(err) {
+      alert('Error: ' + err.message);
+      btns.forEach(function(b){ b.disabled = false; b.style.opacity = '1'; });
+    });
+  }
+</script>
 {% endblock %}
+
