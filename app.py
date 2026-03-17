@@ -13,6 +13,7 @@ import smtplib, random, string, os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
@@ -187,6 +188,8 @@ class StudentCertificate(db.Model):
     expiry_date = db.Column(db.Date)
     certificate_file_path = db.Column(db.String(400))
     description = db.Column(db.Text)
+    related_skill = db.Column(db.String(100))   # skill this certificate strengthens
+    credential_url = db.Column(db.String(500))  # online credential/verification link
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class StudentInternshipExperience(db.Model):
@@ -300,7 +303,7 @@ def register():
         user = User(
             name=request.form['name'],
             email=request.form['email'],
-            password=request.form['password'],
+            password=generate_password_hash(request.form['password']),
             role=request.form['role']
         )
         db.session.add(user)
@@ -335,7 +338,7 @@ def login():
             # Create or get admin user
             admin_user = User.query.filter_by(email='admin@gmail.com').first()
             if not admin_user:
-                admin_user = User(name='Admin', email='admin@gmail.com', password='admin123', role='admin')
+                admin_user = User(name='Admin', email='admin@gmail.com', password=generate_password_hash('admin123'), role='admin')
                 db.session.add(admin_user)
                 db.session.commit()
             login_user(admin_user)
@@ -343,7 +346,7 @@ def login():
         
         # Check regular user
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             login_user(user)
             if user.role == 'student':
                 return redirect(url_for('student_dashboard'))
@@ -524,7 +527,9 @@ def add_student_certificate():
         issue_date=issue_date,
         expiry_date=expiry_date,
         certificate_file_path=cert_file_path,
-        description=request.form.get('description', '').strip() or None
+        description=request.form.get('description', '').strip() or None,
+        related_skill=request.form.get('related_skill', '').strip() or None,
+        credential_url=request.form.get('credential_url', '').strip() or None,
     )
     db.session.add(cert)
     db.session.commit()
@@ -542,6 +547,8 @@ def edit_student_certificate(cert_id):
     cert.issue_date = _parse_date(request.form.get('issue_date')) or cert.issue_date
     cert.expiry_date = _parse_date(request.form.get('expiry_date'))
     cert.description = request.form.get('description', '').strip() or None
+    cert.related_skill = request.form.get('related_skill', '').strip() or None
+    cert.credential_url = request.form.get('credential_url', '').strip() or None
 
     new_file = request.files.get('certificate_file')
     if new_file and new_file.filename:
@@ -1391,6 +1398,8 @@ if __name__ == '__main__':
             'ALTER TABLE student_profile ADD COLUMN location VARCHAR(200)',
             'ALTER TABLE internship ADD COLUMN admin_notes TEXT',
             'ALTER TABLE internship ADD COLUMN created_at DATETIME',
+            'ALTER TABLE student_certificate ADD COLUMN related_skill VARCHAR(100)',
+            'ALTER TABLE student_certificate ADD COLUMN credential_url VARCHAR(500)',
         ]
         for sql in migrations:
             try:
