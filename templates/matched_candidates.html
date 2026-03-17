@@ -452,6 +452,13 @@
       <a href="/org/candidate/{{ c.profile.id }}" class="btn-view"
         >View Profile</a
       >
+      <button
+        class="btn-view"
+        onclick="unviewCandidate({{ c.profile.id }})"
+        style="background: #f3f4f6; color: #374151;"
+      >
+        Underview
+      </button>
       <div id="actions-{{ c.student.id }}">
         {% if c.application.status == 'shortlisted' %}
         <button class="btn-shortlist" disabled style="opacity: 0.6; cursor: not-allowed;">
@@ -625,6 +632,30 @@
             btn.style.opacity = '1';
           });
         }
+      });
+  }
+
+  function unviewCandidate(candidateId) {
+    fetch(`/org/candidate/${candidateId}/underview`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error(`Server error: ${r.status}`);
+        }
+        return r.json();
+      })
+      .then((data) => {
+        if (data.status === "success") {
+          alert("Candidate profile unviewed ✓");
+        } else {
+          alert(`Failed: ${data.message || 'Unknown error'}`);
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert(`Error: ${error.message}`);
       });
   }
 </script>

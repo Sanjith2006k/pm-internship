@@ -97,7 +97,8 @@ body {
 #profile-dropdown-btn,
 #profile-dropdown-btn:hover,
 #profile-dropdown-btn.active {
-    color: unset !important;
+    color: #ffffff !important;
+    background: none !important;
 }
 
 .navbar-logout {
@@ -780,7 +781,7 @@ table tbody tr:last-child td {
    ============================================================================ */
 
 .allocated-card {
-    background: #001a40;
+    background: #1e7ce8;
     border-radius: 14px;
     padding: 28px;
     color: var(--text-white);
@@ -1600,14 +1601,14 @@ table tbody tr:last-child td {
    ============================================================================ */
 
 .profile-page-hero {
-    background: #001a40;
+    background: #1e7ce8;
     border-radius: 16px;
     padding: 32px 36px;
     margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 24px;
-    box-shadow: 0 8px 32px rgba(0, 26, 64, 0.28);
+    box-shadow: 0 8px 32px rgba(30, 124, 232, 0.28);
     position: relative;
     overflow: hidden;
 }
@@ -1917,14 +1918,14 @@ table tbody tr:last-child td {
    ============================================================================ */
 
 .cert-page-hero {
-    background: #001a40;
+    background: #1e7ce8;
     border-radius: 16px;
     padding: 32px 36px;
     margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 24px;
-    box-shadow: 0 8px 32px rgba(0, 26, 64, 0.28);
+    box-shadow: 0 8px 32px rgba(30, 124, 232, 0.28);
     position: relative;
     overflow: hidden;
 }
@@ -2044,14 +2045,14 @@ table tbody tr:last-child td {
    ============================================================================ */
 
 .internship-page-hero {
-    background: #001a40;
+    background: #1e7ce8;
     border-radius: 16px;
     padding: 32px 36px;
     margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 24px;
-    box-shadow: 0 8px 32px rgba(0, 26, 64, 0.28);
+    box-shadow: 0 8px 32px rgba(30, 124, 232, 0.28);
     position: relative;
     overflow: hidden;
 }

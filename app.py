@@ -168,6 +168,7 @@ class StudentProfile(db.Model):
     location = db.Column(db.String(200))
     allocated_internship = db.Column(db.String(200))
     match_score = db.Column(db.Float)
+    viewed_by_org = db.Column(db.Boolean, default=False)
 
 class StudentPortfolio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -783,6 +784,17 @@ def org_update_application_status(internship_id, student_user_id, status):
     application.status = status
     db.session.commit()
     return jsonify({'status': 'success', 'message': f'Candidate {status}'})
+
+@app.route('/org/candidate/<int:candidate_id>/underview', methods=['POST'])
+@login_required
+@role_required('organization')
+def org_underview_candidate(candidate_id):
+    profile = StudentProfile.query.get_or_404(candidate_id)
+    if profile.viewed_by_org:
+        profile.viewed_by_org = False
+        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'Candidate unviewed'})
+    return jsonify({'status': 'error', 'message': 'Candidate not previously viewed'})
 
 @app.route('/org/internship/<int:internship_id>/matched-candidates')
 @login_required

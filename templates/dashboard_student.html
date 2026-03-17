@@ -3,10 +3,10 @@
 {% block nav_links %}
 <a href="#" onclick="showSection('dashboard')" data-section="dashboard" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Dashboard</a>
 <a href="#" onclick="showSection('applications')" data-section="applications" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">My Applications</a>
-<a href="#" onclick="showSection('my-internship')" data-section="my-internship" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Pending Internship</a>
-<a href="/student/ai" style="color:#fbbf24;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;font-weight:600;">🧠 AI Hub</a>
+<a href="#" onclick="showSection('my-internship')" data-section="my-internship" class="nav-link" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Internship</a>
+<a href="/student/ai" style="color:#fbbf24;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;font-weight:600;">AI Hub</a>
 <div class="nav-dropdown">
-  <button id="profile-dropdown-btn" class="nav-link" onclick="toggleProfileDropdown(event)" style="font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;background:none;border:none;cursor:pointer;font-family:inherit;">Profile &#9660;</button>
+  <button id="profile-dropdown-btn" class="nav-link" onclick="showSection('profile'); toggleProfileDropdown(event);" style="font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;background:none;border:none;cursor:pointer;font-family:inherit;">Profile &#9660;</button>
   <div class="nav-dropdown-menu" id="profile-dropdown">
     <a href="#" onclick="showSection('profile');return false;">Edit Profile</a>
     <a href="#" onclick="showSection('add-certificate');return false;">Add Certificate</a>
@@ -21,7 +21,6 @@
 <div id="toast" class="toast"></div>
 
 <div class="container">
-
   <!-- ============================================================
        SECTION 1: DASHBOARD (Overview)
        ============================================================ -->
@@ -134,13 +133,13 @@
     <!-- ══ 3. AI HUB BANNER ══════════════════════════════════════════════════ -->
     <div class="sdb-ai-banner fade-in-up" style="animation-delay:.20s">
       <div class="sdb-ai-banner-left">
-        <div class="sdb-ai-label">🧠 AI Intelligence Hub</div>
+        <div class="sdb-ai-label">AI Intelligence Hub</div>
         <p class="sdb-ai-desc">Career Predictor &middot; Skill Gap &middot; Success Probability &middot; Interview Simulator &middot; Scoreboard</p>
       </div>
       <div class="sdb-ai-links">
-        <a href="/student/ai/career-path" class="sdb-ai-pill">🎯 Career Path</a>
-        <a href="/student/ai/recommendations" class="sdb-ai-pill">💡 AI Matches</a>
-        <a href="/student/ai/interview" class="sdb-ai-pill">🎤 Interview</a>
+        <a href="/student/ai/career-path" class="sdb-ai-pill">Career Path</a>
+        <a href="/student/ai/recommendations" class="sdb-ai-pill">AI Matches</a>
+        <a href="/student/ai/interview" class="sdb-ai-pill">Interview</a>
         <a href="/student/ai" class="sdb-ai-pill sdb-ai-pill-primary">View All &rarr;</a>
       </div>
     </div>
@@ -228,17 +227,17 @@
 
               <div class="sdb-apt-conn {% if st in ['approved','rejected'] %}sdb-apt-conn-filled{% elif st == 'pending' %}sdb-apt-conn-active{% endif %}"></div>
 
-              <div class="sdb-apt-step {% if st == 'approved' %}sdb-apt-approved{% elif st == 'rejected' %}sdb-apt-rejected{% else %}sdb-apt-pending{% endif %}">
+              <div class="sdb-apt-step {% if st == 'approved' %}sdb-apt-approved{% elif st == 'rejected' %}sdb-apt-rejected{% endif %}">
+                {% if st == 'approved' or st == 'rejected' %}
                 <div class="sdb-apt-node">
                   {% if st == 'approved' %}
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                   {% elif st == 'rejected' %}
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  {% else %}
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/></svg>
                   {% endif %}
                 </div>
-                <span class="sdb-apt-lbl">{% if st == 'approved' %}Selected{% elif st == 'rejected' %}Rejected{% else %}Awaiting{% endif %}</span>
+                {% endif %}
+                <span class="sdb-apt-lbl">{% if st == 'approved' %}Selected{% elif st == 'rejected' %}Rejected{% endif %}</span>
               </div>
 
             </div>
@@ -447,15 +446,21 @@
   <div id="section-internships" class="section-view">
     <h1 class="page-title">Available Internships</h1>
     <p class="page-subtitle">Explore open internship opportunities and apply today</p>
-
+    <span id="browse-skills-data" data-skills="{{ profile.skills | lower if profile and profile.skills else '' }}" style="display:none;"></span>
 
     {% if profile and profile.location %}
-    <div style="font-size:13px;color:#6b7280;margin-bottom:12px;">📍 Showing internships near <strong style="color:#001a40;">{{ profile.location }}</strong> first</div>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:12px;">Showing internships near <strong style="color:#001a40;">{{ profile.location }}</strong> first</div>
     {% endif %}
 
     <!-- Search & Filter -->
     <div class="filter-bar">
-      <input type="text" id="search-input" class="search-input" placeholder="  Search by role or company..." oninput="filterInternships()" />
+      <input type="text" id="search-input" class="search-input"
+        placeholder="Search by skill, role or company..."
+        onkeydown="if(event.key==='Enter') filterInternships();" />
+      <button onclick="filterInternships()"
+        style="padding:10px 18px;background:#001a40;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">
+        &#128269; Search
+      </button>
       <select id="filter-location" onchange="filterInternships()">
         <option value=""> All Locations</option>
         {% set locations = [] %}
@@ -476,6 +481,19 @@
           {% endif %}
         {% endfor %}
       </select>
+      <button id="skill-filter-btn" onclick="toggleSkillFilter()"
+        style="padding:8px 16px;background:#1e7ce8;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;">
+        &#9889; My Skills
+      </button>
+    </div>
+
+    <!-- Active skill filter badge -->
+    <div id="skill-filter-banner" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 16px;margin-bottom:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:#1e40af;">&#9889; Filtering by your skills:</span>
+        <div id="skill-filter-tags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+      </div>
+      <button onclick="clearSkillFilter()" style="font-size:12px;color:#ef4444;background:none;border:none;cursor:pointer;font-weight:600;padding:0;">&#x2715; Clear</button>
     </div>
 
     <div id="no-results" style="display:none;" class="empty-state">
@@ -492,7 +510,8 @@
            data-title="{{ internship.title | lower }}"
            data-company="{{ (org.company_name if org else '') | lower }}"
            data-location="{{ internship.location | lower }}"
-           data-duration="{{ internship.duration | lower }}">
+           data-duration="{{ internship.duration | lower }}"
+           data-skills="{{ (internship.skills_required or '') | lower }}">
         <div class="card-body">
           <div class="card-title">{{ internship.title }}</div>
           <div class="card-subtitle">{{ org.company_name if org else 'Organization' }}</div>
@@ -500,7 +519,7 @@
             {% set sloc = profile.location | lower %}
             {% set iloc = internship.location | lower %}
             {% if iloc == 'remote' or sloc in iloc or iloc in sloc %}
-            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166534;display:inline-block;margin-bottom:4px;">📍 Near You</span>
+            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166534;display:inline-block;margin-bottom:4px;">Near You</span>
             {% endif %}
           {% endif %}
           <div class="meta-list">
@@ -535,7 +554,7 @@
           {% endif %}
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
             <a href="/student/ai/skill-gap/{{ internship.id }}" style="font-size:11px;padding:4px 10px;background:#eff6ff;color:#1e40af;border-radius:6px;text-decoration:none;font-weight:600;" title="AI Skill Gap Analysis">🔍 Skill Gap</a>
-            <a href="/student/ai/success/{{ internship.id }}" style="font-size:11px;padding:4px 10px;background:#ede9fe;color:#6d28d9;border-radius:6px;text-decoration:none;font-weight:600;" title="AI Success Probability">📊 Success %</a>
+            <a href="/student/ai/success/{{ internship.id }}" style="font-size:11px;padding:4px 10px;background:#ede9fe;color:#6d28d9;border-radius:6px;text-decoration:none;font-weight:600;" title="AI Success Probability">Success %</a>
             <span style="font-size:11px;color:#999;">{{ internship.created_at.strftime('%d %b %Y') if internship.created_at else '' }}</span>
           </div>
         </div>
@@ -598,7 +617,7 @@
 
           <!-- Step 1: Applied -->
           <div class="app-tl-step">
-            <div class="tl-circle done-circle">✓</div>
+            <div class="tl-circle done-circle"> </div>
             <div class="tl-label">Applied</div>
             <div class="tl-date">{{ ea.application.applied_at.strftime('%d %b %Y') }}</div>
           </div>
@@ -812,6 +831,48 @@
       </div>
     </div>
     {% endif %}
+
+
+
+    <!-- ====== SAVED INTERNSHIPS (Pending Applications) ====== -->
+    {% set saved_apps = enriched_applications | selectattr('application.status', 'equalto', 'pending') | list %}
+    <div style="margin-top:36px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div>
+          <div style="font-size:17px;font-weight:800;color:#001a40;">&#128203; Saved Internships</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:2px;">Internships you've applied to — awaiting response</div>
+        </div>
+        <span style="font-size:12px;font-weight:700;padding:4px 12px;background:#eff6ff;color:#1e7ce8;border-radius:20px;">{{ saved_apps | length }} pending</span>
+      </div>
+      {% if saved_apps %}
+      <div class="cards-grid">
+        {% for ea in saved_apps %}
+        <div class="card" style="border-left:4px solid #f59e0b;">
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+              <div class="card-title">{{ ea.internship.title if ea.internship else 'N/A' }}</div>
+              <span style="font-size:11px;font-weight:700;padding:3px 10px;background:#fef9c3;color:#92400e;border-radius:12px;white-space:nowrap;">&#9203; Pending</span>
+            </div>
+            <div class="card-subtitle">{{ ea.org.company_name if ea.org else 'Organization' }}</div>
+            <div class="meta-list">
+              {% if ea.internship and ea.internship.location %}<div class="meta-item"><span class="meta-icon">&bull;</span> {{ ea.internship.location }}</div>{% endif %}
+              {% if ea.internship and ea.internship.duration %}<div class="meta-item"><span class="meta-icon">&bull;</span> {{ ea.internship.duration }}</div>{% endif %}
+              {% if ea.internship and ea.internship.stipend %}<div class="meta-item"><span class="meta-icon">&bull;</span> &#8377;{{ ea.internship.stipend }}/month</div>{% endif %}
+            </div>
+            <div style="font-size:11px;color:#9ca3af;margin-top:10px;">Applied {{ ea.application.applied_at.strftime('%b %d, %Y') if ea.application.applied_at else '' }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="background:#f9fafb;border-radius:12px;padding:28px 20px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:10px;">&#128203;</div>
+        <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:6px;">No saved internships yet</div>
+        <div style="font-size:13px;color:#9ca3af;margin-bottom:16px;">Internships you apply to will appear here while awaiting a response.</div>
+        <button onclick="showSection('internships')" class="btn btn-primary" style="font-size:13px;">Browse Internships</button>
+      </div>
+      {% endif %}
+    </div>
   </div>
 
   <!-- ============================================================
@@ -1555,21 +1616,90 @@
       });
   }
 
+  var activeSkillTerms = [];   // holds profile skills when filter is on
+
+  function toggleSkillFilter() {
+    if (activeSkillTerms.length) {
+      clearSkillFilter();
+      return;
+    }
+    var el  = document.getElementById('browse-skills-data');
+    var raw = el ? (el.getAttribute('data-skills') || '') : '';
+    var skills = raw.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    if (!skills.length) {
+      showToast('Add skills to your profile first to use this filter.', 'error');
+      return;
+    }
+    activeSkillTerms = skills;
+
+    // show banner with skill tags
+    var banner = document.getElementById('skill-filter-banner');
+    var tagsEl = document.getElementById('skill-filter-tags');
+    tagsEl.innerHTML = skills.map(function(s){
+      return '<span style="font-size:11px;padding:2px 9px;border-radius:12px;background:#dbeafe;color:#1e40af;font-weight:600;">' + s + '</span>';
+    }).join('');
+    banner.style.display = 'flex';
+
+    // update button to show active state
+    var btn = document.getElementById('skill-filter-btn');
+    btn.style.background = '#0f52ba';
+    btn.innerHTML = '&#x2715; My Skills';
+
+    filterInternships();
+  }
+
+  function clearSkillFilter() {
+    activeSkillTerms = [];
+    var banner = document.getElementById('skill-filter-banner');
+    if (banner) banner.style.display = 'none';
+    var btn = document.getElementById('skill-filter-btn');
+    if (btn) { btn.style.background = '#1e7ce8'; btn.innerHTML = '&#9889; My Skills'; }
+    filterInternships();
+  }
+
   function filterInternships() {
-    var query = document.getElementById('search-input').value.toLowerCase().trim();
-    var locationFilter = document.getElementById('filter-location').value.toLowerCase();
-    var durationFilter = document.getElementById('filter-duration').value.toLowerCase();
+    var siEl = document.getElementById('search-input');
+    var flEl = document.getElementById('filter-location');
+    var fdEl = document.getElementById('filter-duration');
+    if (!siEl) return;
+    var query          = siEl.value.toLowerCase().trim();
+    var locationFilter = flEl ? flEl.value.toLowerCase() : '';
+    var durationFilter = fdEl ? fdEl.value.toLowerCase() : '';
     var cards = document.querySelectorAll('.internship-card-item');
     var visible = 0;
     cards.forEach(function(card) {
-      var title = card.getAttribute('data-title') || '';
-      var company = card.getAttribute('data-company') || '';
+      var title    = card.getAttribute('data-title')    || '';
+      var company  = card.getAttribute('data-company')  || '';
       var location = card.getAttribute('data-location') || '';
       var duration = card.getAttribute('data-duration') || '';
-      var matchSearch = !query || title.includes(query) || company.includes(query);
+      var skills   = card.getAttribute('data-skills')   || '';
+
+      // exact word match — "ml" must NOT match "html"
+      var matchSearch = true;
+      if (query) {
+        var words = query.split(/\s+/).filter(Boolean);
+        matchSearch = words.every(function(w) {
+          var re = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+          var skillTokens = skills.split(',').map(function(s){ return s.trim(); });
+          return re.test(title) || re.test(company) ||
+                 skillTokens.some(function(tok){ return tok === w; });
+        });
+      }
+
       var matchLocation = !locationFilter || location.includes(locationFilter);
       var matchDuration = !durationFilter || duration.includes(durationFilter);
-      if (matchSearch && matchLocation && matchDuration) {
+
+      // skill filter: card must match AT LEAST ONE of the student's skills
+      var matchSkill = true;
+      if (activeSkillTerms.length) {
+        var skillTokens = skills.split(',').map(function(s){ return s.trim(); });
+        matchSkill = activeSkillTerms.some(function(term) {
+          var re = new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b');
+          return skillTokens.some(function(tok){ return tok === term; }) || re.test(title);
+        });
+      }
+
+      if (matchSearch && matchLocation && matchDuration && matchSkill) {
         card.style.display = '';
         visible++;
       } else {
@@ -1596,6 +1726,62 @@
     toast.className = 'toast ' + (type || '');
     toast.style.display = 'block';
     setTimeout(function() { toast.style.display = 'none'; }, 3500);
+  }
+
+  function runPendingSkillSearch(terms) {
+    var container = document.getElementById('pending-skill-results');
+    var countEl   = document.getElementById('pending-skill-count');
+    var emptyEl   = document.getElementById('pending-skill-empty');
+    var cards     = document.querySelectorAll('.pending-skill-card');
+    var count = 0;
+
+    // normalise search terms
+    terms = terms.map(function(s){ return s.toLowerCase().trim(); }).filter(Boolean);
+
+    cards.forEach(function(card) {
+      // split card skills into individual tokens ("python", "react", "node js" …)
+      var skillTokens = (card.getAttribute('data-skills') || '')
+            .split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+      // split card title into words
+      var titleWords = (card.getAttribute('data-title') || '')
+            .split(/\s+/).map(function(s){ return s.trim(); }).filter(Boolean);
+
+      var match = terms.some(function(term) {
+        var inSkills = skillTokens.some(function(tok){ return tok.indexOf(term) !== -1; });
+        var inTitle  = titleWords.some(function(w){ return w.indexOf(term) !== -1; });
+        return inSkills || inTitle;
+      });
+
+      card.style.display = match ? 'block' : 'none';
+      if (match) count++;
+    });
+
+    container.style.display = 'block';
+    countEl.textContent = count + ' internship' + (count !== 1 ? 's' : '') + ' matched';
+    emptyEl.style.display = count === 0 ? 'block' : 'none';
+  }
+
+  function searchByMySkills() {
+    var el  = document.getElementById('my-skills-data');
+    var raw = el ? (el.getAttribute('data-skills') || '') : '';
+    var skills = raw.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    if (!skills.length) {
+      alert('No skills found. Please update your profile with your skills first.');
+      return;
+    }
+    document.getElementById('pending-skill-input').value = '';
+    runPendingSkillSearch(skills);
+  }
+
+  function pendingSkillSearch() {
+    var val = (document.getElementById('pending-skill-input').value || '').toLowerCase().trim();
+    if (!val) {
+      document.getElementById('pending-skill-results').style.display = 'none';
+      return;
+    }
+    // split input into separate words so "python react" searches both words
+    var terms = val.split(/\s+/).filter(Boolean);
+    runPendingSkillSearch(terms);
   }
 </script>
 {% endblock %}

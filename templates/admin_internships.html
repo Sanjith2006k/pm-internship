@@ -172,36 +172,33 @@
   <main class="adm-main">
 
     <section class="adm-header-card adm-page-hero">
-      <div>
+      <div class="adm-welcome-content">
         <p class="adm-header-tag">Admin Workspace</p>
         <h1 class="adm-title">Internship Verification</h1>
         <p class="adm-subtitle">Review and approve internship postings before they go live</p>
+        <div class="adm-stats-row" style="margin-top:18px;">
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.total_internships }}</span>
+            <span class="adm-stat-lbl">Total</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.pending }}</span>
+            <span class="adm-stat-lbl">Pending</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.approved }}</span>
+            <span class="adm-stat-lbl">Approved</span>
+          </div>
+          <div class="adm-stat-div"></div>
+          <div class="adm-stat">
+            <span class="adm-stat-num">{{ stats.rejected }}</span>
+            <span class="adm-stat-lbl">Rejected</span>
+          </div>
+        </div>
       </div>
     </section>
-
-    <!-- Stats -->
-    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr)">
-      <div class="stat-card">
-        <div class="stat-label">Total</div>
-        <div class="stat-value">{{ stats.total_internships }}</div>
-        <div class="stat-change">All postings</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Pending</div>
-        <div class="stat-value" style="color:#d97706">{{ stats.pending }}</div>
-        <div class="stat-change">Awaiting review</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Approved</div>
-        <div class="stat-value" style="color:#22c55e">{{ stats.approved }}</div>
-        <div class="stat-change">Visible to students</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Rejected</div>
-        <div class="stat-value" style="color:#ef4444">{{ stats.rejected }}</div>
-        <div class="stat-change">Not approved</div>
-      </div>
-    </div>
 
     <div style="margin-top: 40px">
       <div class="section-header">

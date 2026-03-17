@@ -1,26 +1,16 @@
 {% extends "base.html" %} {% block nav_links %}
-<a
-  href="/student"
-  style="
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 13px;
-    padding: 6px 10px;
-    border-radius: 4px;
-  "
-  >Dashboard</a
->
-<a
-  href="/student/ai"
-  style="
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 13px;
-    padding: 6px 10px;
-    border-radius: 4px;
-  "
-  >AI Hub</a
->
+<a href="/student" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Dashboard</a>
+<a href="/student" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">My Applications</a>
+<a href="/student" style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;">Pending Internship</a>
+<a href="/student/ai" style="color:#fbbf24;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;font-weight:600;">AI Hub</a>
+<div class="nav-dropdown">
+  <button id="profile-dropdown-btn" class="nav-link" onclick="toggleProfileDropdown(event)" style="font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;background:none;border:none;cursor:pointer;font-family:inherit;">Profile &#9660;</button>
+  <div class="nav-dropdown-menu" id="profile-dropdown">
+    <a href="/student">Edit Profile</a>
+    <a href="/student">Add Certificate</a>
+    <a href="/student">Add Internship</a>
+  </div>
+</div>
 {% endblock %} {% block content %}
 <style>
   .ai-page {

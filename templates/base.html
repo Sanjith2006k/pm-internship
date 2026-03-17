@@ -222,5 +222,15 @@
       <p>© 2026 InternAI — Built for smarter internship matching.</p>
     </footer>
     {% endblock %}
+  <script>
+    function toggleProfileDropdown(e) {
+      e.stopPropagation();
+      document.getElementById('profile-dropdown').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      var menu = document.getElementById('profile-dropdown');
+      if (menu && !e.target.closest('.nav-dropdown')) menu.classList.remove('open');
+    });
+  </script>
   </body>
 </html>
