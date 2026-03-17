@@ -1197,6 +1197,23 @@
         <label>Description <span style="color:#888;font-weight:400;">(optional)</span></label>
         <textarea name="description" placeholder="Brief description of what this certificate covers..." rows="2"></textarea>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Related Skill <span style="color:#888;font-weight:400;">(optional – links certificate to a skill)</span></label>
+          <input type="text" name="related_skill" list="skill-suggestions" placeholder="e.g. Python, AWS, React" />
+          <datalist id="skill-suggestions">
+            {% if profile and profile.skills %}
+              {% for sk in profile.skills.split(',') %}
+              <option value="{{ sk.strip() }}">
+              {% endfor %}
+            {% endif %}
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>Credential URL <span style="color:#888;font-weight:400;">(optional – link to online certificate)</span></label>
+          <input type="url" name="credential_url" placeholder="e.g. https://www.credly.com/badges/..." />
+        </div>
+      </div>
     </div>
     <div class="profile-save-bar">
       <span class="profile-save-hint">&#127885; Certificate will be saved to your profile</span>
@@ -1214,6 +1231,11 @@
           <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
             <div class="recommended-title">{{ cert.certificate_name }}</div>
             <div class="recommended-company">{{ cert.issuing_organization }}</div>
+            {% if cert.related_skill %}
+            <div>
+              <span style="font-size:11px;padding:2px 10px;border-radius:20px;background:#eff6ff;color:#1e40af;font-weight:600;">🏅 {{ cert.related_skill }}</span>
+            </div>
+            {% endif %}
             <div class="recommended-meta">
               {% if cert.issue_date %}<span>Issued: {{ cert.issue_date.strftime('%d %b %Y') }}</span>{% endif %}
               {% if cert.expiry_date %}<span>Expires: {{ cert.expiry_date.strftime('%d %b %Y') }}</span>{% endif %}
@@ -1223,12 +1245,15 @@
             {% endif %}
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">
+            {% if cert.credential_url %}
+            <a class="btn btn-secondary btn-sm" href="{{ cert.credential_url }}" target="_blank" rel="noopener">🌐 View Online</a>
+            {% endif %}
             {% if cert.certificate_file_path %}
             <a class="btn btn-secondary btn-sm" href="/{{ cert.certificate_file_path }}" target="_blank">View File</a>
             {% endif %}
             <a href="/student/ai/certificate-verify/{{ cert.id }}" style="font-size:11px;padding:4px 10px;background:#dcfce7;color:#166534;border-radius:6px;text-decoration:none;font-weight:600;">🛡️ Verify AI</a>
             <button
-              onclick="openEditCert({{ cert.id }}, {{ cert.certificate_name | tojson }}, {{ cert.issuing_organization | tojson }}, '{{ cert.issue_date.strftime('%Y-%m-%d') if cert.issue_date else '' }}', '{{ cert.expiry_date.strftime('%Y-%m-%d') if cert.expiry_date else '' }}', {{ (cert.description or '') | tojson }})"
+              onclick="openEditCert({{ cert.id }}, {{ cert.certificate_name | tojson }}, {{ cert.issuing_organization | tojson }}, '{{ cert.issue_date.strftime('%Y-%m-%d') if cert.issue_date else '' }}', '{{ cert.expiry_date.strftime('%Y-%m-%d') if cert.expiry_date else '' }}', {{ (cert.description or '') | tojson }}, {{ (cert.related_skill or '') | tojson }}, {{ (cert.credential_url or '') | tojson }})"
               style="font-size:11px;padding:4px 10px;background:#eff6ff;color:#1e40af;border:none;border-radius:6px;cursor:pointer;font-weight:600;">
               ✏️ Edit
             </button>
@@ -1395,6 +1420,23 @@
           <textarea id="ec-desc" name="description" rows="2"
             style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;resize:vertical;box-sizing:border-box;"></textarea>
         </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Related Skill <span style="font-weight:400;color:#9ca3af;">(optional)</span></label>
+          <input id="ec-skill" type="text" name="related_skill" list="ec-skill-suggestions"
+            style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;" placeholder="e.g. Python, AWS, React"/>
+          <datalist id="ec-skill-suggestions">
+            {% if profile and profile.skills %}
+              {% for sk in profile.skills.split(',') %}
+              <option value="{{ sk.strip() }}">
+              {% endfor %}
+            {% endif %}
+          </datalist>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Credential URL <span style="font-weight:400;color:#9ca3af;">(optional)</span></label>
+          <input id="ec-url" type="url" name="credential_url"
+            style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;" placeholder="https://www.credly.com/badges/..."/>
+        </div>
         <div style="grid-column:1/-1;">
           <label style="font-size:13px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">Replace Certificate File <span style="font-weight:400;color:#9ca3af;">(optional – leave blank to keep existing)</span></label>
           <input type="file" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png,.webp"
@@ -1442,12 +1484,14 @@
     history.replaceState(null, '', window.location.pathname + '?section=' + name);
   }
 
-  function openEditCert(id, name, org, issueDate, expiryDate, desc) {
+  function openEditCert(id, name, org, issueDate, expiryDate, desc, skill, credUrl) {
     document.getElementById('ec-name').value   = name;
     document.getElementById('ec-org').value    = org;
     document.getElementById('ec-issue').value  = issueDate;
     document.getElementById('ec-expiry').value = expiryDate;
     document.getElementById('ec-desc').value   = desc;
+    document.getElementById('ec-skill').value  = skill || '';
+    document.getElementById('ec-url').value    = credUrl || '';
     document.getElementById('edit-cert-form').action = '/student/certificate/' + id + '/edit';
     var modal = document.getElementById('edit-cert-modal');
     modal.style.display = 'flex';
