@@ -24,7 +24,7 @@
         >
       </p>
       <p>
-        ✓ We verify your company details (GST, domain email, LinkedIn) for
+        ✓ We verify your company details (CIN, domain email, LinkedIn) for
         legitimacy. This typically takes 24-48 hours. Thank you for your
         patience!
       </p>
@@ -107,13 +107,13 @@
         >
           <span style="font-size: 24px"></span>
           <h3 style="color: #001a40; margin: 0; font-size: 16px">
-            GST Verification
+            CIN Verification
           </h3>
         </div>
         <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
           <strong>What we check:</strong><br />
-          ✓ Valid GST number format<br />
-          ✓ GST registered on GSTN.gov.in<br />
+          ✓ Valid CIN number format<br />
+          ✓ CIN registered on the Ministry of Corporate Affairs website<br />
           ✓ Company name matches registration
         </p>
         <div
@@ -133,7 +133,7 @@
               word-break: break-all;
             "
           >
-            <strong>Your GST:</strong><br />
+            <strong>Your CIN Number:</strong><br />
             {% if org.gst_number %}{{ org.gst_number }}{% else %}<span
               style="color: #ef4444"
               >Not provided</span
@@ -421,14 +421,28 @@
           <div>
             <h3 class="card-title">{{ internship.title }}</h3>
             <p class="card-subtitle">{{ internship.location }}</p>
-            <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;
+            <span
+              style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;
               {% if internship.status == 'approved' %}background:#dcfce7;color:#166534;
               {% elif internship.status == 'rejected' %}background:#fee2e2;color:#991b1b;
-              {% else %}background:#fef9c3;color:#92400e;{% endif %}">
-              {{ internship.status }}{% if internship.status == 'pending' %} – awaiting admin review{% elif internship.status == 'rejected' %} – see admin notes{% endif %}
+              {% else %}background:#fef9c3;color:#92400e;{% endif %}"
+            >
+              {{ internship.status }}{% if internship.status == 'pending' %} –
+              awaiting admin review{% elif internship.status == 'rejected' %} –
+              see admin notes{% endif %}
             </span>
             {% if internship.admin_notes and internship.status == 'rejected' %}
-            <div style="background:#fef2f2;border-left:3px solid #ef4444;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#7f1d1d;margin-bottom:10px;">
+            <div
+              style="
+                background: #fef2f2;
+                border-left: 3px solid #ef4444;
+                padding: 8px 12px;
+                border-radius: 0 6px 6px 0;
+                font-size: 12px;
+                color: #7f1d1d;
+                margin-bottom: 10px;
+              "
+            >
               <strong>Admin:</strong> {{ internship.admin_notes }}
             </div>
             {% endif %}

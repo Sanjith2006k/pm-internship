@@ -42,10 +42,10 @@
        Verification Checklist
     </h2>
     <p style="color: #666; font-size: 13px; margin: 0 0 15px 0">
-      Before approving an organization, verify all three requirements below:
+      Before approving an organization, verify all four requirements below:
     </p>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px">
       <div
         style="
           background: white;
@@ -55,7 +55,7 @@
         "
       >
         <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-           GST Verification
+           CIN Verification
         </h3>
         <ul
           style="
@@ -66,17 +66,17 @@
             line-height: 1.6;
           "
         >
-          <li>Check GST number format (valid format)</li>
+          <li>Check CIN number format</li>
           <li>
             Visit
             <a
-              href="https://www.gstn.gst.gov.in/"
+              href="https://www.mca.gov.in/"
               target="_blank"
               style="color: #0891b2"
-              >GSTN.gov.in</a
+              >MCA.gov.in</a
             >
           </li>
-          <li>Search GST number in database</li>
+          <li>Search CIN in database</li>
           <li>Verify company name matches</li>
         </ul>
       </div>
@@ -132,6 +132,33 @@
           <li>✗ Reject if Gmail/Yahoo</li>
           <li>✓ Matches company domain</li>
           <li>Email format is valid</li>
+        </ul>
+      </div>
+
+      <div
+        style="
+          background: white;
+          padding: 15px;
+          border-radius: 6px;
+          border-left: 4px solid #10b981;
+        "
+      >
+        <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+           Certificate Verification
+        </h3>
+        <ul
+          style="
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.6;
+          "
+        >
+          <li>Download registration certificate PDF</li>
+          <li>Verify it matches CIN</li>
+          <li>Check certificate authenticity</li>
+          <li>Confirm company details match</li>
         </ul>
       </div>
     </div>
@@ -238,7 +265,8 @@
             ✓ Before Approving - Verify:
           </h4>
           <div
-            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px"
+            id="verify-checkboxes-{{ org.id }}"
+            style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px"
           >
             <label
               style="
@@ -248,9 +276,9 @@
                 cursor: pointer;
               "
             >
-              <input type="checkbox" style="cursor: pointer" />
+              <input type="checkbox" class="verify-checkbox" style="cursor: pointer" />
               <span style="color: #666; font-size: 13px"
-                >GST valid on GSTN.gov.in</span
+                >CIN valid on MCA.gov.in</span
               >
             </label>
             <label
@@ -261,7 +289,20 @@
                 cursor: pointer;
               "
             >
-              <input type="checkbox" style="cursor: pointer" />
+              <input type="checkbox" class="verify-checkbox" style="cursor: pointer" />
+              <span style="color: #666; font-size: 13px"
+                >Company registration certificate verified</span
+              >
+            </label>
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+              "
+            >
+              <input type="checkbox" class="verify-checkbox" style="cursor: pointer" />
               <span style="color: #666; font-size: 13px"
                 >LinkedIn company exists</span
               >
@@ -274,7 +315,7 @@
                 cursor: pointer;
               "
             >
-              <input type="checkbox" style="cursor: pointer" />
+              <input type="checkbox" class="verify-checkbox" style="cursor: pointer" />
               <span style="color: #666; font-size: 13px"
                 >Domain email (not Gmail)</span
               >
@@ -312,7 +353,7 @@
                   display: block;
                   margin-bottom: 8px;
                 "
-                > GST Number</strong
+                > CIN Number</strong
               >
               <p
                 style="
@@ -322,7 +363,7 @@
                   font-weight: 600;
                 "
               >
-                {% if org.gst_number %} {{ org.gst_number }}
+                {% if org.cin_number %} {{ org.cin_number }}
                 <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
                   >✓ Provided</span
                 >
@@ -332,7 +373,69 @@
               </p>
             </div>
 
+            <!-- Company Registration Certificate -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                > Registration Certificate</strong
+              >
+              <p style="color: #001a40; margin: 0">
+                {% if org.registration_cert_path %}
+                <a
+                  href="/{{ org.registration_cert_path }}"
+                  target="_blank"
+                  style="
+                    color: #fff;
+                    background: #1e7ce8;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-weight: 600;
+                    font-size: 12px;
+                  "
+                >
+                  📄 Download PDF
+                </a>
+                <span style="color: #22c55e; font-size: 12px; margin-left: 5px"
+                  >✓ Uploaded</span
+                >
+                {% else %}
+                <span style="color: #ef4444">✗ Not provided</span>
+                {% endif %}
+              </p>
+            </div>
+
             <!-- Domain Email -->
+            <div
+              style="
+                padding: 15px;
+                background: white;
+                border-radius: 6px;
+                border-left: 4px solid #1e7ce8;
+              "
+            >
+              <strong
+                style="
+                  color: #666;
+                  font-size: 12px;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+                > Domain Email</strong
+              >
             <div
               style="
                 padding: 15px;
@@ -521,12 +624,12 @@
               >Verification Decision & Notes</label
             >
             <p style="color: #666; font-size: 13px; margin: 5px 0 15px 0">
-               Check the organization details above (GST, Domain Email,
-              LinkedIn) before approving.
+               Check the organization details above (CIN, Domain Email,
+              LinkedIn, Registration Certificate) before approving.
             </p>
             <textarea
               id="notes_{{ org.id }}"
-              placeholder="e.g., 'GST verified in GSTN.gov.in', 'LinkedIn company profile confirmed', 'Domain email verified' OR rejection reason..."
+              placeholder="e.g., 'CIN verified on MCA.gov.in', 'Certificate verified', 'LinkedIn company profile confirmed', 'Domain email verified' OR rejection reason..."
               style="
                 width: 100%;
                 padding: 12px;
@@ -767,6 +870,16 @@
 
 <script>
   function verifyOrganization(orgId, action) {
+    // Check if all verification checkboxes are ticked
+    const checkboxContainer = document.getElementById('verify-checkboxes-' + orgId);
+    const checkboxes = checkboxContainer.querySelectorAll('.verify-checkbox');
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    
+    if (!allChecked) {
+      alert('⚠️ Please review and tick all verification boxes before proceeding.\n\nYou must verify:\n✓ CIN valid on MCA.gov.in\n✓ Company registration certificate verified\n✓ LinkedIn company exists\n✓ Domain email (not Gmail)');
+      return;
+    }
+
     const notes = document.getElementById("notes_" + orgId).value;
 
     if (!notes.trim()) {

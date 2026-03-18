@@ -210,7 +210,8 @@ class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     company_name = db.Column(db.String(200))
-    gst_number = db.Column(db.String(100))
+    cin_number = db.Column(db.String(100))
+    registration_cert_path = db.Column(db.String(400))  # Path to registration certificate PDF
     domain_email = db.Column(db.String(100))
     linkedin_profile = db.Column(db.String(300))
     industry = db.Column(db.String(100))
@@ -692,7 +693,25 @@ def submit_verification():
     
     if request.method == 'POST':
         if org:
-            org.gst_number = request.form.get('gst_number')
+            # Handle file upload
+            if 'registration_cert' in request.files:
+                file = request.files['registration_cert']
+                if file and file.filename != '':
+                    # Check if file is PDF
+                    if not file.filename.lower().endswith('.pdf'):
+                        return render_template('org_submit_verification.html', org=org, error='Please upload a PDF file')
+                    
+                    # Create uploads directory if it doesn't exist
+                    upload_dir = os.path.join('static', 'uploads', 'organizations', str(org.id))
+                    os.makedirs(upload_dir, exist_ok=True)
+                    
+                    # Save file with secure filename
+                    filename = secure_filename(f"registration_certificate_{org.id}.pdf")
+                    filepath = os.path.join(upload_dir, filename)
+                    file.save(filepath)
+                    org.registration_cert_path = filepath
+            
+            org.cin_number = request.form.get('cin_number')
             org.domain_email = request.form.get('domain_email')
             org.linkedin_profile = request.form.get('linkedin_profile')
             org.industry = request.form.get('industry')

@@ -45,14 +45,14 @@
           "
         >
           <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-             GST Number
+            CIN Number
           </h3>
           <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
-            Government identifier for your business. We'll verify it on the
-            official GSTN portal.
+            Unique company identifier from the Ministry of Corporate Affairs.
+            We'll verify it on the official MCA portal.
           </p>
           <p style="color: #999; font-size: 12px; margin: 8px 0 0 0">
-            Format: 2 digits state + 10 digits identifier
+            Format: Alpha prefix followed by 13 alphanumeric characters
           </p>
         </div>
 
@@ -65,7 +65,7 @@
           "
         >
           <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-             Domain Email
+            Domain Email
           </h3>
           <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
             Use your company domain email, not Gmail or Yahoo. This proves you
@@ -79,9 +79,29 @@
           </p>
         </div>
 
+        <div
+          style="
+            background: white;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+          "
+        >
+          <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
+            Company Registration Certificate
+          </h3>
+          <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
+            Upload your Certificate of Incorporation or Registration document to
+            prove your company's legal existence.
+          </p>
+          <p style="color: #999; font-size: 12px; margin: 8px 0 0 0">
+            Must be PDF format, max 5MB
+          </p>
+        </div>
+
         <div style="background: white; border-radius: 6px; padding: 15px">
           <h3 style="color: #001a40; margin: 0 0 10px 0; font-size: 14px">
-             LinkedIn Profile
+            LinkedIn Profile
           </h3>
           <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5">
             Link to your company's LinkedIn page. Shows our team your company's
@@ -104,7 +124,7 @@
         "
       >
         <p style="color: #92400e; margin: 0; font-weight: 600">
-           Verification Timeline
+          Verification Timeline
         </p>
         <p style="color: #92400e; font-size: 13px; margin: 8px 0 0 0">
           Our admin team will review your details within 24-48 hours. You'll
@@ -128,7 +148,11 @@
           Submit Your Details
         </h2>
 
-        <form method="POST" action="{{ url_for('submit_verification') }}">
+        <form
+          method="POST"
+          action="{{ url_for('submit_verification') }}"
+          enctype="multipart/form-data"
+        >
           <!-- Company Name (Display Only) -->
           <div style="margin-bottom: 20px">
             <label
@@ -162,10 +186,10 @@
             </p>
           </div>
 
-          <!-- GST Number -->
+          <!-- CIN Number -->
           <div style="margin-bottom: 20px">
             <label
-              for="gst_number"
+              for="cin_number"
               style="
                 display: block;
                 margin-bottom: 8px;
@@ -174,13 +198,13 @@
                 font-size: 14px;
               "
             >
-              GST Number *
+              CIN Number *
             </label>
             <input
               type="text"
-              id="gst_number"
-              name="gst_number"
-              placeholder="e.g., 27AABCT1234D1Z0"
+              id="cin_number"
+              name="cin_number"
+              placeholder="e.g., U67120WB1999PLC091107"
               required
               style="
                 width: 100%;
@@ -192,7 +216,7 @@
               "
             />
             <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
-              From your GST registration certificate
+              From your Certificate of Incorporation
             </p>
           </div>
 
@@ -372,6 +396,42 @@
             </p>
           </div>
 
+          <!-- Company Registration Certificate -->
+          <div style="margin-bottom: 25px">
+            <label
+              for="registration_cert"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                color: #001a40;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Company Registration Certificate (PDF) *
+            </label>
+            <input
+              type="file"
+              id="registration_cert"
+              name="registration_cert"
+              accept=".pdf,application/pdf"
+              required
+              style="
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                font-size: 14px;
+                background: #fff;
+                cursor: pointer;
+              "
+            />
+            <p style="color: #999; font-size: 12px; margin: 5px 0 0 0">
+              Upload your Certificate of Incorporation or Registration document
+              (PDF only, max 5MB)
+            </p>
+          </div>
+
           <!-- Submit Button -->
           <button
             type="submit"
@@ -407,6 +467,324 @@
       </div>
     </div>
   </div>
+
+  <!-- Our Verification Process Section -->
+  <section style="margin-top: 60px">
+    <h2 style="color: #001a40; font-size: 24px; margin-bottom: 10px">
+      Our Verification Process
+    </h2>
+    <p
+      style="
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      "
+    >
+      We verify companies through four methods to ensure legitimacy and protect
+      our students. Your organization details are currently under review.
+    </p>
+
+    <div
+      style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px"
+    >
+      <!-- CIN Number Box -->
+      <div
+        style="
+          background: white;
+          border: 2px solid #1e7ce8;
+          border-radius: 8px;
+          padding: 20px;
+        "
+      >
+        <h3
+          style="
+            color: #001a40;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+          "
+        >
+          CIN Verification
+        </h3>
+        <p
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0 0 15px 0;
+            line-height: 1.6;
+          "
+        >
+          <strong>What we check:</strong>
+        </p>
+        <ul
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+          "
+        >
+          <li>Valid CIN number format</li>
+          <li>Registered on MCA.gov.in</li>
+          <li>Company name matches registration</li>
+        </ul>
+        <div
+          style="
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+          "
+        >
+          <p
+            style="
+              color: #666;
+              font-size: 12px;
+              margin: 0 0 5px 0;
+              font-weight: 600;
+            "
+          >
+            Your CIN:
+          </p>
+          <p
+            style="
+              color: #001a40;
+              font-size: 13px;
+              margin: 0;
+              font-family: monospace;
+              font-weight: 600;
+            "
+          >
+            {{ org.cin_number if org.cin_number else 'Not provided' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Company Registration Certificate Box -->
+      <div
+        style="
+          background: white;
+          border: 2px solid #1e7ce8;
+          border-radius: 8px;
+          padding: 20px;
+        "
+      >
+        <h3
+          style="
+            color: #001a40;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+          "
+        >
+          Registration Certificate
+        </h3>
+        <p
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0 0 15px 0;
+            line-height: 1.6;
+          "
+        >
+          <strong>What we check:</strong>
+        </p>
+        <ul
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+          "
+        >
+          <li>Certificate authenticity</li>
+          <li>Company details match</li>
+          <li>Valid incorporation date</li>
+        </ul>
+        <div
+          style="
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+          "
+        >
+          <p
+            style="
+              color: #666;
+              font-size: 12px;
+              margin: 0 0 5px 0;
+              font-weight: 600;
+            "
+          >
+            Your Document:
+          </p>
+          <p style="color: #001a40; font-size: 13px; margin: 0">
+            {% if org.registration_cert_path %}<span style="color: #22c55e"
+              >✓ Uploaded</span
+            >{% else %}<span style="color: #ef4444">✗ Not provided</span>{%
+            endif %}
+          </p>
+        </div>
+      </div>
+
+      <!-- LinkedIn Check Box -->
+      <div
+        style="
+          background: white;
+          border: 2px solid #1e7ce8;
+          border-radius: 8px;
+          padding: 20px;
+        "
+      >
+        <h3
+          style="
+            color: #001a40;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+          "
+        >
+          LinkedIn Check
+        </h3>
+        <p
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0 0 15px 0;
+            line-height: 1.6;
+          "
+        >
+          <strong>What we verify:</strong>
+        </p>
+        <ul
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+          "
+        >
+          <li>Company exists on LinkedIn</li>
+          <li>Employee count & legitimacy</li>
+          <li>Company page & website link</li>
+        </ul>
+        <div
+          style="
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+          "
+        >
+          <p
+            style="
+              color: #666;
+              font-size: 12px;
+              margin: 0 0 5px 0;
+              font-weight: 600;
+            "
+          >
+            Your Profile:
+          </p>
+          <p
+            style="
+              color: #1e7ce8;
+              font-size: 13px;
+              margin: 0;
+              word-break: break-all;
+            "
+          >
+            {% if org.linkedin_profile %}<a
+              href="{{ org.linkedin_profile }}"
+              target="_blank"
+              style="color: #1e7ce8; text-decoration: none"
+              >{{ org.linkedin_profile }}</a
+            >{% else %}<span style="color: #ef4444">Not provided</span>{% endif
+            %}
+          </p>
+        </div>
+      </div>
+
+      <!-- Domain Email Box -->
+      <div
+        style="
+          background: white;
+          border: 2px solid #1e7ce8;
+          border-radius: 8px;
+          padding: 20px;
+        "
+      >
+        <h3
+          style="
+            color: #001a40;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+          "
+        >
+          Domain Email
+        </h3>
+        <p
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0 0 15px 0;
+            line-height: 1.6;
+          "
+        >
+          <strong>What we check:</strong>
+        </p>
+        <ul
+          style="
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 20px;
+            line-height: 1.8;
+          "
+        >
+          <li>✓ Must be company domain</li>
+          <li>✗ Reject if Gmail/Yahoo</li>
+          <li>✓ Email verification sent</li>
+        </ul>
+        <div
+          style="
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+          "
+        >
+          <p
+            style="
+              color: #666;
+              font-size: 12px;
+              margin: 0 0 5px 0;
+              font-weight: 600;
+            "
+          >
+            Your Email:
+          </p>
+          <p
+            style="
+              color: #001a40;
+              font-size: 13px;
+              margin: 0;
+              font-family: monospace;
+              font-weight: 600;
+            "
+          >
+            {{ org.domain_email if org.domain_email else 'Not provided' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 {% endblock %}

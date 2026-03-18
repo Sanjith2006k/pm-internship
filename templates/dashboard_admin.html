@@ -1,12 +1,9 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 
 <div class="container admin-dashboard-page adm-dashboard-vertical">
   <main class="adm-main">
-
     <!-- ══ 1. WELCOME CARD ══════════════════════════════════════════════════ -->
     <div class="adm-welcome-card fade-in-up">
       <div class="adm-welcome-content">
@@ -15,7 +12,10 @@
           <span>Admin Panel</span>
         </div>
         <h1 class="adm-greeting" id="greeting-text">Dashboard Overview</h1>
-        <p class="adm-greeting-sub">Track platform activity, approvals, and internship pipeline in one place.</p>
+        <p class="adm-greeting-sub">
+          Track platform activity, approvals, and internship pipeline in one
+          place.
+        </p>
         <div class="adm-stats-row">
           <div class="adm-stat">
             <span class="adm-stat-num">{{ stats.total_students }}</span>
@@ -43,86 +43,171 @@
         <div class="adm-art-ring r2"></div>
         <div class="adm-art-ring r3"></div>
         <div class="adm-art-inner">
-          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-            <path d="M2 17l10 5 10-5"/>
-            <path d="M2 12l10 5 10-5"/>
+          <svg
+            width="54"
+            height="54"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
           </svg>
         </div>
       </div>
     </div>
 
     <!-- ══ 2. QUICK ACTION CARDS ════════════════════════════════════════════ -->
-    <div class="adm-section fade-in-up" style="--anim-delay:.10s">
+    <div class="adm-section fade-in-up" style="--anim-delay: 0.1s">
       <div class="adm-section-hd">
         <h2 class="adm-section-title">Quick Actions</h2>
-        <span class="adm-section-sub">What would you like to manage today?</span>
+        <span class="adm-section-sub"
+          >What would you like to manage today?</span
+        >
       </div>
       <div class="adm-action-grid">
-
-        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/students'" role="button">
+        <div
+          class="adm-ac adm-ac-blue"
+          tabindex="0"
+          onclick="location.href = '/admin/students'"
+          role="button"
+        >
           <div class="adm-ac-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
             </svg>
           </div>
           <div class="adm-ac-body">
             <h3 class="adm-ac-title">Manage Students</h3>
-            <p class="adm-ac-desc">View {{ stats.total_students }} registered student accounts on the platform.</p>
+            <p class="adm-ac-desc">
+              View {{ stats.total_students }} registered student accounts on the
+              platform.
+            </p>
           </div>
           <a href="/admin/students" class="adm-ac-btn">
             View Students
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </a>
         </div>
 
-        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/organizations'" role="button">
+        <div
+          class="adm-ac adm-ac-blue"
+          tabindex="0"
+          onclick="location.href = '/admin/organizations'"
+          role="button"
+        >
           <div class="adm-ac-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 3h5v5"/><path d="M8 3H3v5"/>
-              <path d="M16 21h5v-5"/><path d="M8 21H3v-5"/>
-              <rect x="8" y="8" width="8" height="8" rx="2"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M16 3h5v5" />
+              <path d="M8 3H3v5" />
+              <path d="M16 21h5v-5" />
+              <path d="M8 21H3v-5" />
+              <rect x="8" y="8" width="8" height="8" rx="2" />
             </svg>
           </div>
           <div class="adm-ac-body">
             <h3 class="adm-ac-title">Verify Organizations</h3>
-            <p class="adm-ac-desc">{{ stats.pending_orgs }} organization{{ 's' if stats.pending_orgs != 1 else '' }} waiting for verification.</p>
+            <p class="adm-ac-desc">
+              {{ stats.pending_orgs }} organization{{ 's' if stats.pending_orgs
+              != 1 else '' }} waiting for verification.
+            </p>
           </div>
           <a href="/admin/organizations" class="adm-ac-btn">
             Review Now
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </a>
         </div>
 
-        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/internships'" role="button">
+        <div
+          class="adm-ac adm-ac-blue"
+          tabindex="0"
+          onclick="location.href = '/admin/internships'"
+          role="button"
+        >
           <div class="adm-ac-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 6h16M4 12h16M4 18h16"/>
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16" />
+              <rect x="2" y="4" width="20" height="16" rx="2" />
             </svg>
           </div>
           <div class="adm-ac-body">
             <h3 class="adm-ac-title">Manage Internships</h3>
-            <p class="adm-ac-desc">Review and manage {{ stats.total_internships }} active internship postings on the platform.</p>
+            <p class="adm-ac-desc">
+              Review and manage {{ stats.total_internships }} active internship
+              postings on the platform.
+            </p>
           </div>
           <a href="/admin/internships" class="adm-ac-btn">
             View Internships
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </a>
         </div>
-
       </div>
     </div>
 
     <!-- ══ 3. RECENT ACTIVITY ════════════════════════════════════════════════ -->
-    <div class="adm-section fade-in-up" style="--anim-delay:.15s">
+    <div class="adm-section fade-in-up" style="--anim-delay: 0.15s">
       <div class="adm-section-hd">
         <h2 class="adm-section-title">Recent Activity</h2>
-        <span class="adm-section-sub">Latest registrations and internship posts</span>
+        <span class="adm-section-sub"
+          >Latest registrations and internship posts</span
+        >
       </div>
       <div class="adm-grid-2">
-
         <div class="adm-section-card">
           <div class="adm-section-head">
             <h2>Recent Student Registrations</h2>
@@ -138,20 +223,19 @@
                 </tr>
               </thead>
               <tbody>
-                {% set students_ns = namespace(has_students=false) %}
-                {% for user in recent_users %}
-                {% if user.role == 'student' %}
-                {% set students_ns.has_students = true %}
+                {% set students_ns = namespace(has_students=false) %} {% for
+                user in recent_users %} {% if user.role == 'student' %} {% set
+                students_ns.has_students = true %}
                 <tr>
                   <td>{{ user.name }}</td>
                   <td>{{ user.email }}</td>
                   <td><span class="adm-pill adm-pill-blue">Student</span></td>
                 </tr>
-                {% endif %}
-                {% endfor %}
-                {% if not students_ns.has_students %}
+                {% endif %} {% endfor %} {% if not students_ns.has_students %}
                 <tr>
-                  <td colspan="3" class="adm-empty-row">No recent student registrations</td>
+                  <td colspan="3" class="adm-empty-row">
+                    No recent student registrations
+                  </td>
                 </tr>
                 {% endif %}
               </tbody>
@@ -174,29 +258,28 @@
                 </tr>
               </thead>
               <tbody>
-                {% if recent_internships %}
-                {% for item in recent_internships %}
+                {% if recent_internships %} {% for item in recent_internships %}
                 <tr>
                   <td>{{ item.internship.title }}</td>
                   <td>{{ item.org.company_name if item.org else 'N/A' }}</td>
                   <td><span class="adm-pill adm-pill-green">Active</span></td>
                 </tr>
-                {% endfor %}
-                {% else %}
+                {% endfor %} {% else %}
                 <tr>
-                  <td colspan="3" class="adm-empty-row">No recent internship posts</td>
+                  <td colspan="3" class="adm-empty-row">
+                    No recent internship posts
+                  </td>
                 </tr>
                 {% endif %}
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     </div>
 
     <!-- ══ 4. PENDING ORGANIZATION VERIFICATION ══════════════════════════════ -->
-    <div class="adm-section fade-in-up" style="--anim-delay:.20s">
+    <div class="adm-section fade-in-up" style="--anim-delay: 0.2s">
       <div class="adm-section-hd">
         <h2 class="adm-section-title">Pending Organization Verification</h2>
         <span class="adm-count-badge">{{ stats.pending_orgs }} Pending</span>
@@ -214,29 +297,46 @@
               </tr>
             </thead>
             <tbody>
-              {% if pending_org_list %}
-              {% for org in pending_org_list %}
+              {% if pending_org_list %} {% for org in pending_org_list %}
               <tr>
                 <td>
                   <strong>{{ org.company_name }}</strong>
-                  <div class="adm-cell-sub">{{ org.domain_email if org.domain_email else 'No email provided' }}</div>
+                  <div class="adm-cell-sub">
+                    {{ org.domain_email if org.domain_email else 'No email
+                    provided' }}
+                  </div>
                 </td>
                 <td>{{ org.industry if org.industry else 'N/A' }}</td>
                 <td>{{ org.location if org.location else 'N/A' }}</td>
                 <td>
-                  <textarea id="org_notes_{{ org.id }}" class="adm-note-input" placeholder="Enter verification notes..."></textarea>
+                  <textarea
+                    id="org_notes_{{ org.id }}"
+                    class="adm-note-input"
+                    placeholder="Enter verification notes..."
+                  ></textarea>
                 </td>
                 <td>
                   <div class="adm-action-col">
-                    <button class="btn btn-success" onclick="verifyOrg({{ org.id }}, 'approve')">Approve</button>
-                    <button class="btn btn-danger" onclick="verifyOrg({{ org.id }}, 'reject')">Reject</button>
+                    <button
+                      class="btn btn-success"
+                      onclick="verifyOrg({{ org.id }}, 'approve')"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="btn btn-danger"
+                      onclick="verifyOrg({{ org.id }}, 'reject')"
+                    >
+                      Reject
+                    </button>
                   </div>
                 </td>
               </tr>
-              {% endfor %}
-              {% else %}
+              {% endfor %} {% else %}
               <tr>
-                <td colspan="5" class="adm-empty-row">No pending organization verifications</td>
+                <td colspan="5" class="adm-empty-row">
+                  No pending organization verifications
+                </td>
               </tr>
               {% endif %}
             </tbody>
@@ -246,10 +346,12 @@
     </div>
 
     <!-- ══ 5. PENDING INTERNSHIP APPROVAL ════════════════════════════════════ -->
-    <div class="adm-section fade-in-up" style="--anim-delay:.25s">
+    <div class="adm-section fade-in-up" style="--anim-delay: 0.25s">
       <div class="adm-section-hd">
         <h2 class="adm-section-title">Pending Internship Approval</h2>
-        <span class="adm-count-badge">{{ stats.pending_internships }} Pending</span>
+        <span class="adm-count-badge"
+          >{{ stats.pending_internships }} Pending</span
+        >
       </div>
       <div class="adm-section-card">
         <div class="adm-table-wrap">
@@ -264,35 +366,59 @@
               </tr>
             </thead>
             <tbody>
-              {% if pending_internship_list %}
-              {% for item in pending_internship_list %}
+              {% if pending_internship_list %} {% for item in
+              pending_internship_list %}
               <tr>
                 <td>
                   <strong>{{ item.internship.title }}</strong>
                   <div class="adm-cell-sub">
-                    {{ item.internship.created_at.strftime('%d %b %Y') if item.internship.created_at else 'Date N/A' }}
+                    {{ item.internship.created_at.strftime('%d %b %Y') if
+                    item.internship.created_at else 'Date N/A' }}
                   </div>
                 </td>
                 <td>{{ item.org.company_name if item.org else 'Unknown' }}</td>
                 <td>
-                  <div class="adm-cell-sub">Location: {{ item.internship.location if item.internship.location else 'N/A' }}</div>
-                  <div class="adm-cell-sub">Duration: {{ item.internship.duration if item.internship.duration else 'N/A' }}</div>
-                  <div class="adm-cell-sub">Capacity: {{ item.internship.capacity }}</div>
+                  <div class="adm-cell-sub">
+                    Location: {{ item.internship.location if
+                    item.internship.location else 'N/A' }}
+                  </div>
+                  <div class="adm-cell-sub">
+                    Duration: {{ item.internship.duration if
+                    item.internship.duration else 'N/A' }}
+                  </div>
+                  <div class="adm-cell-sub">
+                    Capacity: {{ item.internship.capacity }}
+                  </div>
                 </td>
                 <td>
-                  <textarea id="notes_{{ item.internship.id }}" class="adm-note-input" placeholder="Add approval or rejection notes..."></textarea>
+                  <textarea
+                    id="notes_{{ item.internship.id }}"
+                    class="adm-note-input"
+                    placeholder="Add approval or rejection notes..."
+                  ></textarea>
                 </td>
                 <td>
                   <div class="adm-action-col">
-                    <button class="btn btn-success" onclick="approveInternship({{ item.internship.id }})">Approve</button>
-                    <button class="btn btn-danger" onclick="rejectInternship({{ item.internship.id }})">Reject</button>
+                    <button
+                      class="btn btn-success"
+                      onclick="approveInternship({{ item.internship.id }})"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="btn btn-danger"
+                      onclick="rejectInternship({{ item.internship.id }})"
+                    >
+                      Reject
+                    </button>
                   </div>
                 </td>
               </tr>
-              {% endfor %}
-              {% else %}
+              {% endfor %} {% else %}
               <tr>
-                <td colspan="5" class="adm-empty-row">No pending internship approvals</td>
+                <td colspan="5" class="adm-empty-row">
+                  No pending internship approvals
+                </td>
               </tr>
               {% endif %}
             </tbody>
@@ -300,7 +426,6 @@
         </div>
       </div>
     </div>
-
   </main>
 </div>
 
@@ -308,9 +433,11 @@
   // Time-based greeting
   (function () {
     var h = new Date().getHours();
-    var el = document.getElementById('greeting-text');
+    var el = document.getElementById("greeting-text");
     if (el) {
-      el.textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + ', Admin!';
+      el.textContent =
+        (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") +
+        ", Admin!";
     }
   })();
 
