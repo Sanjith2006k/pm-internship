@@ -13,7 +13,10 @@
     />
     {% elif current_user.is_authenticated and current_user.role ==
     'organization' %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='org.css', v='20260315') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='org.css', v='20260315') }}"
+    />
     {% elif current_user.is_authenticated and current_user.role == 'student' %}
     <link
       rel="stylesheet"
@@ -68,8 +71,8 @@
         >
         {% elif current_user.role == 'admin' %} {% for label, url in
         [('Dashboard','/admin'),('Verify
-        Organization','/admin/organizations'),('Internships','/admin/internships'),('Students','/admin/students'),('Reports','/admin/reports'),('Notifications','/admin/notifications'),('Settings','/admin/settings')]
-        %}
+        Organization','/admin/organizations'),('Internships','/admin/internships'),('Students','/admin/students'),('Reports','/admin/reports'),('Notifications','/admin/notifications'),('Activity
+        Log','/admin/activity-log'),('Settings','/admin/settings')] %}
         <a
           href="{{ url }}"
           style="color:#ffffff;text-decoration:none;font-size:13px;padding:6px 10px;border-radius:4px;transition:all 0.2s;white-space:nowrap;{% if request.path == url %}background:rgba(30,124,232,0.18);color:#93c5fd;{% endif %}"
@@ -106,7 +109,7 @@
     </nav>
     {% endif %} {% block content %}
     <!-- Hero Section -->
-    <section class="hero" style="background-color: #0b1f3a;">
+    <section class="hero" style="background-color: #0b1f3a">
       <div class="hero-left">
         <h1>AI Smart Internship Allocation System</h1>
         <h2>
@@ -118,7 +121,9 @@
           intelligent skill-based internship matching.
         </p>
         <h2>Unlock Your <span class="changing-text"></span></h2>
-        <a href="{{ url_for('features') }}" class="explore-btn">Explore Features</a>
+        <a href="{{ url_for('features') }}" class="explore-btn"
+          >Explore Features</a
+        >
       </div>
 
       <div class="hero-right">
@@ -164,7 +169,7 @@
       </div>
     </section>
     <!-- Stats Section -->
-    <section class="stats" style="background-color: #0b1f3a;">
+    <section class="stats" style="background-color: #0b1f3a">
       <div class="stat-box">
         <h2>500+</h2>
         <p>Students Registered</p>
@@ -212,7 +217,7 @@
       </div>
     </section>
     <!-- CTA Section -->
-    <section class="cta" style="background-color: #0b1f3a;">
+    <section class="cta" style="background-color: #0b1f3a">
       <h2>Ready to Experience AI-Powered Internship Matching?</h2>
       <p>Join our platform and revolutionize internship allocation today.</p>
       <button class="explore-btn">Get Started</button>
@@ -222,15 +227,16 @@
       <p>© 2026 InternAI — Built for smarter internship matching.</p>
     </footer>
     {% endblock %}
-  <script>
-    function toggleProfileDropdown(e) {
-      e.stopPropagation();
-      document.getElementById('profile-dropdown').classList.toggle('open');
-    }
-    document.addEventListener('click', function(e) {
-      var menu = document.getElementById('profile-dropdown');
-      if (menu && !e.target.closest('.nav-dropdown')) menu.classList.remove('open');
-    });
-  </script>
+    <script>
+      function toggleProfileDropdown(e) {
+        e.stopPropagation();
+        document.getElementById("profile-dropdown").classList.toggle("open");
+      }
+      document.addEventListener("click", function (e) {
+        var menu = document.getElementById("profile-dropdown");
+        if (menu && !e.target.closest(".nav-dropdown"))
+          menu.classList.remove("open");
+      });
+    </script>
   </body>
 </html>

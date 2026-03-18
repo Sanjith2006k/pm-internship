@@ -274,11 +274,35 @@ class StudentAIScore(db.Model):
     level = db.Column(db.String(20), default='Bronze')
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class AdminActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    action = db.Column(db.String(200), nullable=False)  # e.g., "Approved Internship", "Verified Organization"
+    description = db.Column(db.Text)  # Detailed description of what was changed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    admin = db.relationship('User', backref='activity_logs')
+
 # ---------------- LOGIN MANAGER ---------------- #
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# Helper function to log admin activities
+def log_activity(admin_id, action, description=''):
+    """Log an admin activity to the database."""
+    try:
+        activity = AdminActivityLog(
+            admin_id=admin_id,
+            action=action,
+            description=description if description else ''
+        )
+        db.session.add(activity)
+        db.session.commit()
+    except Exception as e:
+        print(f"Error logging activity: {e}")
+        db.session.rollback()
 
 # ---------------- ROUTES ---------------- #
 
@@ -917,6 +941,12 @@ def admin_approve_internship(intern_id):
     internship.status = 'approved'
     internship.admin_notes = notes
     db.session.commit()
+    # Log the activity
+    log_activity(
+        current_user.id,
+        'Approved Internship',
+        f'Approved internship: "{internship.title}" (ID: {internship.id})' + (f' | Notes: {notes}' if notes else '')
+    )
     # Notify org
     org = Organization.query.filter_by(id=internship.organization_id).first()
     if org:
@@ -934,6 +964,12 @@ def admin_reject_internship(intern_id):
     internship.status = 'rejected'
     internship.admin_notes = notes
     db.session.commit()
+    # Log the activity
+    log_activity(
+        current_user.id,
+        'Rejected Internship',
+        f'Rejected internship: "{internship.title}" (ID: {internship.id})' + (f' | Notes: {notes}' if notes else '')
+    )
     # Notify org
     org = Organization.query.filter_by(id=internship.organization_id).first()
     if org:
@@ -962,11 +998,21 @@ def verify_organization(org_id):
     if action == 'approve':
         org.is_verified = True
         org.verification_status = 'approved'
+        action_label = 'Verified'
     elif action == 'reject':
         org.is_verified = False
         org.verification_status = 'rejected'
+        action_label = 'Rejected'
+    else:
+        action_label = action.capitalize()
     org.verification_notes = notes
     db.session.commit()
+    # Log the activity
+    log_activity(
+        current_user.id,
+        f'{action_label} Organization',
+        f'{action_label} organization: "{org.company_name}" (ID: {org.id})' + (f' | Notes: {notes}' if notes else '')
+    )
     return jsonify({'status': 'success', 'message': f'Organization {action}d'})
 
 @app.route('/admin/students')
@@ -1043,6 +1089,34 @@ def admin_notifications():
         })
 
     return render_template('admin_notifications.html', notifications=notifications)
+
+@app.route('/admin/activity-log')
+@login_required
+@admin_required
+def admin_activity_log():
+    """Display admin activity log"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    
+    # Get paginated activity logs ordered by most recent first
+    activities = AdminActivityLog.query.order_by(AdminActivityLog.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    # Create list of activities with admin name
+    activity_list = []
+    for activity in activities.items:
+        admin_user = User.query.get(activity.admin_id)
+        activity_list.append({
+            'id': activity.id,
+            'date': activity.created_at.strftime('%d %b %Y, %I:%M %p') if activity.created_at else '',
+            'admin': admin_user.name if admin_user else 'Unknown Admin',
+            'action': activity.action,
+            'description': activity.description,
+            'created_at': activity.created_at
+        })
+    
+    return render_template('admin_activity_log.html', activities=activity_list, pagination=activities)
 
 @app.route('/admin/settings', methods=['GET', 'POST'])
 @login_required

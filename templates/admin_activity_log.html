@@ -1,0 +1,299 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  .activity-log-page {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }
+
+  .activity-log-header {
+    background: linear-gradient(135deg, #001a40 0%, #0a2a6e 55%, #153e80 100%);
+    border-radius: 14px;
+    padding: 32px 40px;
+    color: #fff;
+    margin-bottom: 32px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .activity-log-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 8px;
+  }
+
+  .activity-log-header p {
+    color: #93c5fd;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .activity-table-container {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.6s ease-out 0.15s both;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .activity-table thead {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .activity-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .activity-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+  }
+
+  .activity-table tbody tr:hover {
+    background-color: #f9fafb;
+  }
+
+  .activity-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .activity-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #374151;
+  }
+
+  .activity-table td.date {
+    font-size: 12px;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+
+  .activity-table td.admin {
+    font-weight: 600;
+    color: #001a40;
+  }
+
+  .activity-table td.action {
+    font-weight: 600;
+    color: #1e7ce8;
+  }
+
+  .activity-table td.description {
+    color: #555;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .activity-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .activity-badge.approve {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .activity-badge.reject {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .activity-badge.verify {
+    background: #eff6ff;
+    color: #1e40af;
+  }
+
+  .activity-badge.update {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6b7280;
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  .empty-state h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+
+  .pagination-btn {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    background: #f3f4f6;
+    border-color: #1e7ce8;
+    color: #1e7ce8;
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-btn.active {
+    background: #1e7ce8;
+    color: #fff;
+    border-color: #1e7ce8;
+  }
+
+  .pagination-info {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0 16px;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="container admin-dashboard-page adm-dashboard-vertical">
+  <main class="adm-main">
+    <!-- Header -->
+    <div class="activity-log-header">
+      <h1>📋 Activity Log</h1>
+      <p>Track all admin actions and changes made to the platform</p>
+    </div>
+
+    <!-- Activity Table -->
+    <div class="activity-table-container">
+      {% if activities %}
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th style="width: 180px">Date & Time</th>
+            <th style="width: 140px">Admin</th>
+            <th style="width: 150px">Action</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for activity in activities %}
+          <tr>
+            <td class="date">{{ activity.date }}</td>
+            <td class="admin">{{ activity.admin }}</td>
+            <td class="action">
+              {% if 'Approved' in activity.action or 'approve' in
+              activity.action.lower() %}
+              <span class="activity-badge approve"
+                >✓ {{ activity.action }}</span
+              >
+              {% elif 'Rejected' in activity.action or 'reject' in
+              activity.action.lower() %}
+              <span class="activity-badge reject">✗ {{ activity.action }}</span>
+              {% elif 'Verified' in activity.action or 'verify' in
+              activity.action.lower() %}
+              <span class="activity-badge verify">✓ {{ activity.action }}</span>
+              {% else %}
+              <span class="activity-badge update">{{ activity.action }}</span>
+              {% endif %}
+            </td>
+            <td class="description" title="{{ activity.description }}">
+              {{ activity.description if activity.description else 'No details'
+              }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>No Activities Yet</h3>
+        <p>Admin activities will appear here as they are recorded</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="pagination-container">
+      {% if pagination.has_prev %}
+      <a
+        href="{{ url_for('admin_activity_log', page=pagination.prev_num) }}"
+        class="pagination-btn"
+        >← Previous</a
+      >
+      {% else %}
+      <button class="pagination-btn disabled" disabled>← Previous</button>
+      {% endif %}
+
+      <span class="pagination-info">
+        Page {{ pagination.page }} of {{ pagination.pages }}
+      </span>
+
+      {% if pagination.has_next %}
+      <a
+        href="{{ url_for('admin_activity_log', page=pagination.next_num) }}"
+        class="pagination-btn"
+        >Next →</a
+      >
+      {% else %}
+      <button class="pagination-btn disabled" disabled>Next →</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

@@ -77,7 +77,7 @@
           </a>
         </div>
 
-        <div class="adm-ac adm-ac-purple" tabindex="0" onclick="location.href='/admin/organizations'" role="button">
+        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/organizations'" role="button">
           <div class="adm-ac-icon-wrap">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M16 3h5v5"/><path d="M8 3H3v5"/>
@@ -91,6 +91,23 @@
           </div>
           <a href="/admin/organizations" class="adm-ac-btn">
             Review Now
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="adm-ac adm-ac-blue" tabindex="0" onclick="location.href='/admin/internships'" role="button">
+          <div class="adm-ac-icon-wrap">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6h16M4 12h16M4 18h16"/>
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+            </svg>
+          </div>
+          <div class="adm-ac-body">
+            <h3 class="adm-ac-title">Manage Internships</h3>
+            <p class="adm-ac-desc">Review and manage {{ stats.total_internships }} active internship postings on the platform.</p>
+          </div>
+          <a href="/admin/internships" class="adm-ac-btn">
+            View Internships
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
         </div>
